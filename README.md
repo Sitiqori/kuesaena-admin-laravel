@@ -9,6 +9,8 @@ Sistem manajemen toko kue berbasis web yang modern dan lengkap. Dibangun dengan 
 
 ## 📸 Screenshots
 ### POS/Kasir
+- Owner Role
+![Kasir Screenshot](kuesaena-kasir.png)
 
 
 ## ✨ Fitur Utama
