@@ -1,59 +1,330 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# KUESAENA - Sistem Manajemen Toko Kue
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+![Laravel](https://img.shields.io/badge/Laravel-11.x-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
+![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?style=for-the-badge&logo=php&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 
-## About Laravel
+Sistem manajemen toko kue berbasis web yang modern dan lengkap. Dibangun dengan Laravel 11, sistem ini menyediakan fitur Point of Sale (POS), manajemen inventori, tracking pesanan, laporan penjualan, dan banyak lagi.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 📸 Screenshots
+### POS/Kasir
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## ✨ Fitur Utama
 
-## Learning Laravel
+### 🔐 Authentication & Authorization
+- Login/Register dengan validasi
+- Multi-role system (Admin & Kasir)
+- Auto redirect berdasarkan role
+- Session management & CSRF protection
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### 📊 Dashboard Admin
+- 4 kartu statistik real-time
+- Grafik interaktif dengan 3 mode tampilan
+- Filter data per bulan (12 bulan)
+- Recent orders display
+- Export laporan PDF
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 💰 Point of Sale (POS/Kasir)
+- Product grid dengan filter kategori
+- Shopping cart interaktif
+- Toggle PPN 11%
+- Multi metode pembayaran (Cash, QRIS, Debit)
+- Auto calculate kembalian
+- Print struk otomatis
+- Keyboard shortcuts (F2, F9, ESC)
+- Real-time stock validation
 
-## Laravel Sponsors
+### 📦 Manajemen Barang & Stok
+- CRUD produk lengkap
+- Upload gambar produk
+- Filter & search produk
+- Stock alert (warning untuk stok rendah)
+- Export data ke PDF
+- Track stok minimum
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### 📋 Manajemen Pesanan
+- Dual tabs: Pesanan Baru & Diproses
+- Status workflow (Pending → Processing → Completed)
+- Detail modal untuk setiap pesanan
+- Update status pesanan
+- Track progress pembuatan
 
-### Premium Partners
+### 📜 Riwayat Transaksi
+- List semua transaksi completed
+- Filter by tanggal
+- Search transaksi
+- Detail modal lengkap
+- Reprint struk kapan saja
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### 👥 Manajemen Pelanggan
+- Auto-create dari transaksi kasir
+- History pesanan per customer
+- CRUD data pelanggan
+- Search & filter
+- Skip "Umum" customer
 
-## Contributing
+### 💸 Manajemen Pengeluaran
+- CRUD expenses lengkap
+- 5 kategori pengeluaran (Listrik, Gaji, Perlengkapan, Sewa, Lainnya)
+- Triple filter (kategori, tanggal, search)
+- Color-coded badges
+- Export PDF dengan summary
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 👤 Manajemen Admin/User
+- List semua users (Admin & Kasir)
+- Change role dynamically
+- Activate/Deactivate users
+- User statistics (transaksi & penjualan)
+- Cannot deactivate own account
+- Detail modal per user
 
-## Code of Conduct
+### 📈 Laporan Penjualan
+- 4 statistics cards
+- Chart interaktif (Pendapatan, Pengeluaran, Perbandingan)
+- **TOP 10 Produk Terlaris** dengan medals (🥇🥈🥉)
+- Detail pengeluaran dengan filter
+- Export PDF lengkap (multi-page)
+- Filter per bulan
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## 🛠️ Tech Stack
 
-## Security Vulnerabilities
+- **Framework:** Laravel 11.x
+- **PHP:** 8.2+
+- **Database:** MySQL 8.0
+- **Frontend:** Blade Templates, Vanilla JavaScript
+- **Charts:** Chart.js 4.4.0
+- **PDF Generator:** DomPDF (barryvdh/laravel-dompdf)
+- **Icons:** Emoji (dapat diganti dengan Font Awesome)
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## 📋 Requirements
 
-## License
+- PHP >= 8.2
+- Composer
+- MySQL >= 8.0
+- Node.js & NPM (optional, untuk asset compilation)
+- Web Server (Apache/Nginx)
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## 🚀 Installation
+
+### 1. Clone Repository
+
+```bash
+git clone https://github.com/yourusername/kuesaena.git
+cd kuesaena
+```
+
+### 2. Install Dependencies
+
+```bash
+composer install
+```
+
+### 3. Environment Setup
+
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+
+Edit `.env` file:
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=kuesaena
+DB_USERNAME=root
+DB_PASSWORD=your_password
+```
+
+### 4. Database Setup
+
+```bash
+php artisan migrate
+php artisan db:seed --class=UserSeeder
+php artisan db:seed --class=DemoProductSeeder
+```
+
+### 5. Storage Link
+
+```bash
+php artisan storage:link
+```
+
+### 6. Run Development Server
+
+```bash
+php artisan serve
+```
+
+Buka browser: `http://localhost:8000`
+
+## 👤 Default Login
+
+### Admin
+- **Email:** owner@gmail.com
+- **Password:** Coba1234
+
+### Kasir
+- **Email:** (daftar )
+- **Password:** 
+
+## 📁 Project Structure
+
+```
+kuesaena/
+├── app/
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   │   ├── Auth/
+│   │   │   ├── Dashboard/
+│   │   │   ├── Kasir/
+│   │   │   ├── Barang/
+│   │   │   ├── Pesanan/
+│   │   │   ├── Transaksi/
+│   │   │   ├── Pelanggan/
+│   │   │   ├── Pengeluaran/
+│   │   │   ├── Laporan/
+│   │   │   └── ManajemenAdmin/
+│   │   └── Middleware/
+│   │       └── IsAdmin.php
+│   └── Models/
+│       ├── User.php
+│       ├── Category.php
+│       ├── Product.php
+│       ├── Customer.php
+│       ├── Order.php
+│       ├── OrderItem.php
+│       └── Expense.php
+├── database/
+│   ├── migrations/
+│   └── seeders/
+├── resources/
+│   └── views/
+│       ├── auth/
+│       ├── layouts/
+│       ├── dashboard/
+│       ├── kasir/
+│       ├── barang/
+│       ├── pesanan/
+│       ├── transaksi/
+│       ├── pelanggan/
+│       ├── pengeluaran/
+│       ├── laporan/
+│       └── manajemen-admin/
+└── routes/
+    └── web.php
+```
+
+## 🗄️ Database Schema
+
+### Users
+- id, name, email, password, role, is_active, office
+
+### Categories
+- id, name, description
+
+### Products
+- id, category_id, name, code, stock, price, image, description
+
+### Customers
+- id, name, phone, address
+
+### Orders
+- id, customer_id, user_id, order_number, subtotal, tax, discount, total, payment_method, status
+
+### Order Items
+- id, order_id, product_id, quantity, price, subtotal
+
+### Expenses
+- id, user_id, category, amount, description, date
+
+## 🎯 Key Features Detail
+
+### Role-Based Access Control
+
+**Admin Access:**
+- Dashboard dengan analytics
+- Semua menu & fitur
+- Manajemen user
+- Laporan lengkap
+- Pengeluaran
+- Kategori
+
+**Kasir Access:**
+- Kasir/POS
+- Barang & Stok
+- Pesanan
+- Riwayat Transaksi
+- Manajemen Pelanggan
+
+### POS Workflow
+
+```
+1. Pilih produk → Add to cart
+2. Review cart items
+3. Toggle PPN (optional)
+4. Klik "Bayar"
+5. Isi nama customer
+6. Pilih metode pembayaran
+7. Input jumlah bayar (jika Cash)
+8. Auto calculate kembalian
+9. Cetak struk
+10. Order saved dengan status "completed"
+```
+
+### Order Status Flow
+
+```
+Pending → Processing → Completed
+   ↓
+Cancelled
+```
+
+### PDF Exports
+
+1. **Dashboard PDF** - Summary bulanan
+2. **Barang PDF** - Daftar produk + stock
+3. **Pengeluaran PDF** - Detail expenses + summary
+4. **Laporan PDF** - Comprehensive report (penjualan + pengeluaran + top products)
+
+
+## 🔒 Security Features
+
+- ✅ CSRF Protection on all forms
+- ✅ Password hashing dengan bcrypt
+- ✅ SQL Injection prevention (Eloquent ORM)
+- ✅ XSS Protection
+- ✅ Role-based middleware
+- ✅ Session management
+- ✅ Input validation on all forms
+
+## 📱 Responsive Design
+
+Sistem fully responsive dan dapat diakses dari:
+- 💻 Desktop
+- 📱 Tablet
+- 📱 Mobile
+
+## 🐛 Known Issues & Limitations
+
+1. **Expense tracking** menggunakan placeholder data untuk chart. Untuk production, integrate dengan model Expense yang real.
+2. **Stock history** belum diimplementasi. Saat ini hanya track stock saat ini.
+3. **Multi-image upload** untuk produk belum tersedia (1 gambar per produk).
+4. **Email notifications** belum diimplementasi.
+5. **Barcode scanning** belum tersedia.
+
+## 🔮 Future Enhancements
+
+- [ ] Barcode generator & scanner
+- [ ] Multi-image upload untuk produk
+- [ ] Email notifications (order status, low stock)
+- [ ] WhatsApp integration
+- [ ] Loyalty points system
+- [ ] Advanced analytics & forecasting
+- [ ] Mobile app (React Native)
+- [ ] Multi-branch support
+- [ ] API untuk integrasi external
+- [ ] Backup & restore database
