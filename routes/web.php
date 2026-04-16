@@ -13,6 +13,7 @@ use App\Http\Controllers\Transaksi\RiwayatTransaksiController;
 use App\Http\Controllers\Pengeluaran\PengeluaranController;
 use App\Http\Controllers\Laporan\LaporanController;
 use App\Http\Controllers\ManajemenAdmin\AdminController;
+use App\Http\Controllers\Customer\HomeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,12 +21,26 @@ use App\Http\Controllers\ManajemenAdmin\AdminController;
 |--------------------------------------------------------------------------
 */
 
-// Redirect root ke login
-Route::get('/', function () {
-    return redirect()->route('login');
-});
+//
+// ✅ CUSTOMER (PUBLIC)
+//
 
-// Auth Routes (Guest only)
+// GANTI ROOT KE CUSTOMER LANDING PAGE
+Route::get('/', [HomeController::class, 'index'])->name('customer.home');
+
+// Halaman tambahan customer
+Route::get('/menu', function () {
+    return view('customer.pages.home');
+})->name('customer.menu');
+
+Route::get('/about', function () {
+    return view('customer.pages.home');
+})->name('customer.about');
+
+
+//
+// 🔐 AUTH (Guest only)
+//
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'index'])->name('login');
     Route::post('/login', [LoginController::class, 'authenticate']);
@@ -33,14 +48,21 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [RegisterController::class, 'store']);
 });
 
-// Logout Route
-Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth');
+//
+// 🚪 LOGOUT
+//
+Route::post('/logout', [LoginController::class, 'logout'])
+    ->name('logout')
+    ->middleware('auth');
 
-// Protected Routes (Must be authenticated)
+//
+// 🔒 PROTECTED (LOGIN)
+//
 Route::middleware(['auth'])->group(function () {
 
-    // ===== ADMIN ONLY Routes =====
+    // ===== ADMIN ONLY =====
     Route::middleware(['is.admin'])->group(function () {
+
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::get('/dashboard/export-pdf', [DashboardController::class, 'exportPdf'])->name('dashboard.export-pdf');
 
@@ -57,18 +79,18 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/manajemen-admin/{id}/toggle-status', [AdminController::class, 'toggleStatus'])->name('manajemen-admin.toggle-status');
         Route::resource('manajemen-admin', AdminController::class);
 
-        // Laporan Penjualan
+        // Laporan
         Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
         Route::get('/laporan/export-pdf', [LaporanController::class, 'exportPdf'])->name('laporan.export-pdf');
     });
 
-    // ===== ADMIN & KASIR Routes =====
+    // ===== ADMIN & KASIR =====
 
-    // Kasir (POS)
+    // Kasir
     Route::get('/kasir', [KasirController::class, 'index'])->name('kasir.index');
     Route::post('/kasir/process', [KasirController::class, 'process'])->name('kasir.process');
 
-    // Barang & Stok
+    // Barang
     Route::get('/barang/export-pdf', [BarangController::class, 'exportPdf'])->name('barang.export-pdf');
     Route::resource('barang', BarangController::class);
 
@@ -80,8 +102,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/pesanan/{id}/update-status', [PesananController::class, 'updateStatus'])->name('pesanan.update-status');
     Route::resource('pesanan', PesananController::class);
 
-    // Riwayat Transaksi
+    // Transaksi
     Route::get('/transaksi', [RiwayatTransaksiController::class, 'index'])->name('transaksi.index');
     Route::get('/transaksi/{id}', [RiwayatTransaksiController::class, 'show'])->name('transaksi.show');
-
 });
