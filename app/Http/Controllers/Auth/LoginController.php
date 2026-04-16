@@ -62,6 +62,10 @@ class LoginController extends Controller
         return redirect()->route('kasir.index');
     }
 
+     if (Auth::user()->role === 'pelanggan') {
+        return redirect()->route('pelanggan.home'); // ganti sesuai route pelanggan
+    }
+
     return redirect('/');
     }
 }

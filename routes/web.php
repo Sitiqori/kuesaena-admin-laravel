@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Dashboard\DashboardController;
@@ -21,7 +22,19 @@ use App\Http\Controllers\ManajemenAdmin\AdminController;
 */
 
 // Redirect root ke login
+// GANTI JADI INI
 Route::get('/', function () {
+    if (Auth::check()) {
+        if (Auth::user()->role === 'admin') {
+            return redirect()->route('dashboard');
+        }
+        if (Auth::user()->role === 'kasir') {
+            return redirect()->route('kasir.index');
+        }
+        // pelanggan
+        return view('welcome');
+    }
+    // belum login → ke halaman login
     return redirect()->route('login');
 });
 
@@ -31,6 +44,12 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [LoginController::class, 'authenticate']);
     Route::get('/register', [RegisterController::class, 'index'])->name('register');
     Route::post('/register', [RegisterController::class, 'store']);
+});
+
+// ===== PELANGGAN Routes =====
+Route::middleware(['auth'])->group(function () {
+    Route::get('/home', [PelangganHomeController::class, 'index'])->name('pelanggan.home');
+    // tambah route pelanggan lainnya di sini
 });
 
 // Logout Route
