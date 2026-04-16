@@ -40,16 +40,20 @@ class RegisterController extends Controller
         ]);
 
         $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'role' => 'kasir', // Default role adalah kasir
-        ]);
+        'name' => $validated['name'],
+        'email' => $validated['email'],
+        'password' => Hash::make($validated['password']),
+        'role' => 'pelanggan', // ← pastikan ini PELANGGAN bukan kasir
+    ]);
+
+    Auth::login($user);
+
+    return redirect('/')->with('success', 'Akun berhasil dibuat!');
 
         // Auto login setelah register
         Auth::login($user);
 
-        // Redirect ke halaman kasir karena role default adalah kasir
-        return redirect()->route('kasir.index')->with('success', 'Akun berhasil dibuat!');
+        // Redirect ke pelanggan
+        return redirect('/')->with('success', 'Akun berhasil dibuat!');
     }
 }
