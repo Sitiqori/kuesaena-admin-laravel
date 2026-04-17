@@ -209,7 +209,7 @@
                         <div style="padding:12px 16px; font-weight:600; border-bottom:1px solid #f0e8df;">
                             {{ Auth::user()->name }}
                         </div>
-                        <a href="#" style="display:block; padding:10px 16px; color:#3B1A08; font-size:14px;">Profil Saya</a>
+                        <a href="{{ route('customer.profil') }}" style="display:block; padding:10px 16px; color:#3B1A08; font-size:14px;">Profil Saya</a>
                         <a href="{{ route('keranjang.index') }}" style="display:block; padding:10px 16px; color:#3B1A08; font-size:14px;">Keranjang</a>
                         <form action="{{ route('logout') }}" method="POST">
                             @csrf

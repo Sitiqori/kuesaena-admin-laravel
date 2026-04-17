@@ -16,6 +16,7 @@ use App\Http\Controllers\Laporan\LaporanController;
 use App\Http\Controllers\ManajemenAdmin\AdminController;
 use App\Http\Controllers\Customer\HomeController;
 use App\Http\Controllers\Customer\KeranjangController;
+use App\Http\Controllers\Customer\ProfilController;
 
 // ROOT
 Route::get('/', function () {
@@ -61,6 +62,20 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/keranjang/update/{id}', [KeranjangController::class, 'update'])->name('keranjang.update');
     Route::delete('/keranjang/hapus/{id}', [KeranjangController::class, 'hapus'])->name('keranjang.hapus');
     Route::delete('/keranjang/hapus-semua', [KeranjangController::class, 'hapusSemua'])->name('keranjang.hapusSemua');
+
+    // PROFIL CUSTOMER
+    Route::get('/profil', [ProfilController::class, 'index'])->name('customer.profil');
+    Route::post('/profil', [ProfilController::class, 'updateProfil'])->name('customer.profil.update');
+    Route::get('/profil/alamat', [ProfilController::class, 'alamat'])->name('customer.profil.alamat');
+    Route::post('/profil/alamat', [ProfilController::class, 'alamatStore'])->name('customer.profil.alamat.store');
+    Route::put('/profil/alamat/{id}', [ProfilController::class, 'alamatUpdate'])->name('customer.profil.alamat.update');
+    Route::delete('/profil/alamat/{id}', [ProfilController::class, 'alamatDestroy'])->name('customer.profil.alamat.destroy');
+    Route::get('/profil/password', [ProfilController::class, 'password'])->name('customer.profil.password');
+    Route::post('/profil/password', [ProfilController::class, 'updatePassword'])->name('customer.profil.password.update');
+    Route::get('/profil/notifikasi', [ProfilController::class, 'notifikasi'])->name('customer.profil.notifikasi');
+    Route::post('/profil/notifikasi', [ProfilController::class, 'updateNotifikasi'])->name('customer.profil.notifikasi.update');
+    Route::get('/profil/privasi', [ProfilController::class, 'privasi'])->name('customer.profil.privasi');
+    Route::delete('/profil/privasi/hapus-akun', [ProfilController::class, 'deleteAccount'])->name('customer.profil.privasi.hapus');
 
     // ADMIN ONLY
     Route::middleware(['is.admin'])->group(function () {
