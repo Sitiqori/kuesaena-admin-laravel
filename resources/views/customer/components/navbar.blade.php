@@ -195,14 +195,35 @@
                     <span class="action-badge">0</span>
                 </a>
 
-                <a href="#" class="action-btn">
+                <a href="{{ route('keranjang.index') }}" class="action-btn">
                     <i class="fas fa-shopping-cart"></i>
                     <span class="action-badge">0</span>
                 </a>
 
+                @auth
+                <div style="position:relative;">
+                    <a href="#" class="action-btn" onclick="toggleDropdownProfil(event)">
+                        <i class="fas fa-user"></i>
+                    </a>
+                    <div id="dropdown-profil" style="display:none; position:absolute; right:0; top:48px; background:#fff; border-radius:8px; box-shadow:0 4px 16px rgba(0,0,0,0.12); padding:8px 0; min-width:160px; z-index:999;">
+                        <div style="padding:12px 16px; font-weight:600; border-bottom:1px solid #f0e8df;">
+                            {{ Auth::user()->name }}
+                        </div>
+                        <a href="#" style="display:block; padding:10px 16px; color:#3B1A08; font-size:14px;">Profil Saya</a>
+                        <a href="{{ route('keranjang.index') }}" style="display:block; padding:10px 16px; color:#3B1A08; font-size:14px;">Keranjang</a>
+                        <form action="{{ route('logout') }}" method="POST">
+                            @csrf
+                            <button type="submit" style="width:100%; text-align:left; padding:10px 16px; background:none; border:none; color:#e74c3c; font-size:14px; cursor:pointer; font-family:inherit;">
+                                Logout
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            @else
                 <a href="{{ route('login') }}" class="action-btn">
                     <i class="fas fa-user"></i>
                 </a>
+            @endauth
             </div>
 
         </div>
@@ -223,4 +244,16 @@
             searchInput.focus();
         });
     }
+
+    function toggleDropdownProfil(e) {
+    e.preventDefault();
+    const d = document.getElementById('dropdown-profil');
+    d.style.display = d.style.display === 'none' ? 'block' : 'none';
+}
+document.addEventListener('click', function(e) {
+    const d = document.getElementById('dropdown-profil');
+    if (d && !e.target.closest('.action-btn')) {
+        d.style.display = 'none';
+    }
+});
 </script>

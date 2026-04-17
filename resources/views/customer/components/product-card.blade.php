@@ -13,11 +13,11 @@
 --}}
 
 @php
-    $productName  = $product->nama_barang  ?? $product->name       ?? 'Produk';
-    $sellPrice    = $product->harga_jual   ?? $product->harga       ?? 0;
-    $oriPrice     = $product->harga_modal  ?? null;
-    $image        = $product->gambar       ?? null;
-    $stock        = $product->stok         ?? 0;
+    $productName  = $product->name ?? 'Produk';
+    $sellPrice    = $product->price ?? 0;
+    $oriPrice     = $product->hpp  ?? null;
+    $image        = $product->image ?? null;
+    $stock        = $product->stock ?? 0;
     $productId    = $product->id;
 
     // Discount badge: tampil jika ada harga modal lebih tinggi dari harga jual
@@ -28,10 +28,9 @@
 
     // Image URL
     $imgUrl = $image
-        ? asset('storage/barang/' . $image)
+        ? asset('storage/' . $image)
         : 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&q=80';
 @endphp
-
 <div class="product-card">
     {{-- Image Container --}}
     <div class="product-card__img-wrap">

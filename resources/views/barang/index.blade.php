@@ -435,7 +435,7 @@
                     <td>{{ $product->name }}</td>
                     <td>{{ $product->category->name }}</td>
                     <td>Pcs</td>
-                    <td>Rp {{ number_format($product->price * 0.7, 0, ',', '.') }}</td>
+                    <td>Rp {{ number_format($product->hpp ?? 0, 0, ',', '.') }}</td>
                     <td>Rp {{ number_format($product->price, 0, ',', '.') }}</td>
                     <td>
                         @if($product->stock == 0)

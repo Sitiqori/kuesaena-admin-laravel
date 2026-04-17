@@ -1,8 +1,11 @@
+@php
+    $lowStockCount = \App\Models\Product::whereColumn('stock', '<', 'min_stock')->count();
+@endphp
+
 <aside class="sidebar">
     <div class="logo" style="text-align: center; padding: 20px 0;">
         <img src="{{ asset('images/logo.png') }}" alt="KUESAENA Malky Production" style="max-width:150px;">
     </div>
-
 
     <nav class="menu">
         @if(auth()->user()->role == 'admin')
@@ -17,15 +20,21 @@
             <span>Kasir</span>
         </a>
 
-        <a href="{{ route('barang.index') }}" class="{{ request()->routeIs('barang.*') ? 'active' : '' }}">
+        <a href="{{ route('barang.index') }}" class="{{ request()->routeIs('barang.*') ? 'active' : '' }}" style="position:relative;">
             <i class="icon-box"></i>
             <span>Barang & Stok</span>
+            @if($lowStockCount > 0)
+                <span style="
+                    background: #e74c3c;
+                    color: white;
+                    border-radius: 50%;
+                    padding: 1px 6px;
+                    font-size: 11px;
+                    font-weight: 700;
+                    margin-left: auto;
+                ">{{ $lowStockCount }}</span>
+            @endif
         </a>
-
-        {{-- <a href="{{ route('kategori.index') }}" class="{{ request()->routeIs('kategori.*') ? 'active' : '' }}">
-            <i class="icon-tag"></i>
-            <span>Kategori</span>
-        </a> --}}
 
         <a href="{{ route('pesanan.index') }}" class="{{ request()->routeIs('pesanan.*') ? 'active' : '' }}">
             <i class="icon-cart"></i>
@@ -55,8 +64,6 @@
         </a>
 
         @if(auth()->user()->role == 'admin')
-
-
             <a href="{{ route('manajemen-admin.index') }}" class="{{ request()->routeIs('manajemen-admin.*') ? 'active' : '' }}">
                 <i class="icon-admin"></i>
                 <span>Manajemen Admin</span>

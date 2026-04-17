@@ -12,9 +12,6 @@ use Illuminate\Support\Facades\Storage;
 
 class BarangController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $products = Product::with('category')->orderBy('code')->get();
@@ -32,26 +29,26 @@ class BarangController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'code' => 'required|string|unique:products,code',
-            'name' => 'required|string|max:255',
+            'code'        => 'required|string|unique:products,code',
+            'name'        => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
-            'price' => 'required|numeric|min:0',
-            'stock' => 'required|integer|min:0',
-            'min_stock' => 'nullable|integer|min:0',
+            'hpp'         => 'nullable|numeric|min:0', // ← DITAMBAHKAN
+            'price'       => 'required|numeric|min:0',
+            'stock'       => 'required|integer|min:0',
+            'min_stock'   => 'nullable|integer|min:0',
             'description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image'       => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ], [
-            'code.required' => 'Kode barang harus diisi',
-            'code.unique' => 'Kode barang sudah digunakan',
-            'name.required' => 'Nama barang harus diisi',
+            'code.required'        => 'Kode barang harus diisi',
+            'code.unique'          => 'Kode barang sudah digunakan',
+            'name.required'        => 'Nama barang harus diisi',
             'category_id.required' => 'Kategori harus dipilih',
-            'price.required' => 'Harga harus diisi',
-            'stock.required' => 'Stok harus diisi',
-            'image.image' => 'File harus berupa gambar',
-            'image.max' => 'Ukuran gambar maksimal 2MB',
+            'price.required'       => 'Harga harus diisi',
+            'stock.required'       => 'Stok harus diisi',
+            'image.image'          => 'File harus berupa gambar',
+            'image.max'            => 'Ukuran gambar maksimal 2MB',
         ]);
 
-        // Handle image upload
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('products', 'public');
             $validated['image'] = $imagePath;
@@ -78,23 +75,21 @@ class BarangController extends Controller
         $product = Product::findOrFail($id);
 
         $validated = $request->validate([
-            'code' => 'required|string|unique:products,code,' . $id,
-            'name' => 'required|string|max:255',
+            'code'        => 'required|string|unique:products,code,' . $id,
+            'name'        => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
-            'price' => 'required|numeric|min:0',
-            'stock' => 'required|integer|min:0',
-            'min_stock' => 'nullable|integer|min:0',
+            'hpp'         => 'nullable|numeric|min:0', // ← DITAMBAHKAN
+            'price'       => 'required|numeric|min:0',
+            'stock'       => 'required|integer|min:0',
+            'min_stock'   => 'nullable|integer|min:0',
             'description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image'       => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        // Handle image upload
         if ($request->hasFile('image')) {
-            // Delete old image
             if ($product->image) {
                 Storage::disk('public')->delete($product->image);
             }
-
             $imagePath = $request->file('image')->store('products', 'public');
             $validated['image'] = $imagePath;
         }
@@ -108,7 +103,6 @@ class BarangController extends Controller
     {
         $product = Product::findOrFail($id);
 
-        // Delete image if exists
         if ($product->image) {
             Storage::disk('public')->delete($product->image);
         }
