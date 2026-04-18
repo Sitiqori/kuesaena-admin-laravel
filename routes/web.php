@@ -1,24 +1,26 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\Dashboard\DashboardController;
-use App\Http\Controllers\Kategori\KategoriController;
 use App\Http\Controllers\Barang\BarangController;
-use App\Http\Controllers\Pelanggan\PelangganController;
-use App\Http\Controllers\Kasir\KasirController;
-use App\Http\Controllers\Pesanan\PesananController;
-use App\Http\Controllers\Transaksi\RiwayatTransaksiController;
-use App\Http\Controllers\Pengeluaran\PengeluaranController;
-use App\Http\Controllers\Laporan\LaporanController;
-use App\Http\Controllers\ManajemenAdmin\AdminController;
-use App\Http\Controllers\Customer\HomeController;
-use App\Http\Controllers\Customer\KeranjangController;
-use App\Http\Controllers\Customer\ProfilController;
+use App\Http\Controllers\Customer\AboutController;
 use App\Http\Controllers\Customer\CustomerPesananController;
 use App\Http\Controllers\Customer\CustomerRewardController;
+use App\Http\Controllers\Customer\HomeController;
+use App\Http\Controllers\Customer\KeranjangController;
+use App\Http\Controllers\Customer\ProductController;
+use App\Http\Controllers\Customer\ProfilController;
+use App\Http\Controllers\Dashboard\DashboardController;
+use App\Http\Controllers\Kasir\KasirController;
+use App\Http\Controllers\Kategori\KategoriController;
+use App\Http\Controllers\Laporan\LaporanController;
+use App\Http\Controllers\ManajemenAdmin\AdminController;
+use App\Http\Controllers\Pelanggan\PelangganController;
+use App\Http\Controllers\Pengeluaran\PengeluaranController;
+use App\Http\Controllers\Pesanan\PesananController;
+use App\Http\Controllers\Transaksi\RiwayatTransaksiController;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 
 // ROOT
 Route::get('/', function () {
@@ -38,9 +40,8 @@ Route::get('/menu', function () {
     return view('customer.pages.home');
 })->name('customer.menu');
 
-Route::get('/about', function () {
-    return view('customer.pages.home');
-})->name('customer.about');
+Route::get('/about',[AboutController::class, 'index'])->name('customer.about');
+Route::get('/produk/{id}',[ProductController::class,'show'])->name('customer.product.show');
 
 // AUTH
 Route::middleware('guest')->group(function () {

@@ -768,26 +768,7 @@
         <div class="products-grid">
            @forelse($products as $product)
                 <a href="{{ route('customer.product.show', $product->id) }}" class="product-card">
-                    <div class="product-card__img-wrap">
-                        @if($product->image)
-                            <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}">
-                        @else
-                            <img src="https://images.unsplash.com/photo-1621303837174-89787a7d4729?w=400&q=80" alt="{{ $product->name }}">
-                        @endif
-                    </div>
-                    <div class="product-card__body">
-                        <div class="product-card__top">
-                            <h3 class="product-card__name">{{ $product->name }}</h3>
-                        </div>
-                        <div class="product-card__price-row">
-                            <span class="price-current">Rp {{ number_format($product->price, 0, ',', '.') }}</span>
-                        </div>
-                        <div class="product-card__footer">
-                            <div class="product-card__stars">
-                                @for($s=0;$s<5;$s++)<i class="fas fa-star"></i>@endfor
-                            </div>
-                        </div>
-                    </div>
+                    @include('customer.components.product-card', ['product' => $product])
                 </a>
             @empty
                 {{-- Fallback jika belum ada produk --}}
@@ -945,7 +926,9 @@
 <script>
     // Wishlist toggle
     document.querySelectorAll('.wishlist-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();   // ← cegah link ikut terpicu
+            e.stopPropagation();  // ← cegah klik naik ke <a> card
             this.classList.toggle('active');
             const icon = this.querySelector('i');
             icon.classList.toggle('far');
@@ -955,7 +938,9 @@
 
     // Cart button
     document.querySelectorAll('.cart-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();   // ← cegah link ikut terpicu
+            e.stopPropagation();  // ← cegah klik naik ke <a> card
             const id = this.dataset.id;
             // TODO: implement add to cart logic
             this.style.background = 'var(--brown-dark)';
