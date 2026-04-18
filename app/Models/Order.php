@@ -18,15 +18,44 @@ class Order extends Model
         'discount',
         'total',
         'payment_method',
+        'delivery_method',
+        'size',
+        'cake_flavor',
+        'notes',
+        'scheduled_at',
         'status',
     ];
 
     protected $casts = [
-        'subtotal' => 'decimal:2',
-        'tax' => 'decimal:2',
-        'discount' => 'decimal:2',
-        'total' => 'decimal:2',
+        'subtotal'     => 'decimal:2',
+        'tax'          => 'decimal:2',
+        'discount'     => 'decimal:2',
+        'total'        => 'decimal:2',
+        'scheduled_at' => 'datetime',
     ];
+
+    // Status labels & colors
+    public function getStatusLabelAttribute(): string
+    {
+        return match($this->status) {
+            'pending'    => 'Belum Bayar',
+            'processing' => 'Sedang Dikemas',
+            'completed'  => 'Selesai',
+            'cancelled'  => 'Dibatalkan',
+            default      => ucfirst($this->status),
+        };
+    }
+
+    public function getStatusColorAttribute(): string
+    {
+        return match($this->status) {
+            'pending'    => '#e67e22',
+            'processing' => '#2980b9',
+            'completed'  => '#27ae60',
+            'cancelled'  => '#c0392b',
+            default      => '#7f8c8d',
+        };
+    }
 
     // Relationships
     public function customer()

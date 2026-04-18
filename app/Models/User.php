@@ -44,6 +44,17 @@ class User extends Authenticatable
         return $this->hasMany(UserAddress::class);
     }
 
+    public function coinRecord()
+    {
+        return $this->hasOne(UserCoin::class);
+    }
+
+    public function redemptions()
+    {
+        return $this->hasMany(UserRewardRedemption::class);
+    }
+
+    // Helpers
     public function getMaskedPhoneAttribute(): string
     {
         if (!$this->phone) return '-';
@@ -52,5 +63,10 @@ class User extends Authenticatable
             return substr($p, 0, 4) . str_repeat('*', strlen($p) - 7) . substr($p, -3);
         }
         return $p;
+    }
+
+    public function getTotalCoinsAttribute(): int
+    {
+        return $this->coinRecord ? $this->coinRecord->coins : 0;
     }
 }

@@ -287,11 +287,11 @@
                 <h4>Hubungi Kami</h4>
                 <div class="footer-contact-item">
                     <i class="fas fa-map-marker-alt"></i>
-                    <span>Jl. Manis No. 123, Jakarta</span>
+                    <span>Jl. Raya Rajapolah - Tasikmalaya No.96-86, Rajapolah, Kec. Rajapolah, Kabupaten Tasikmalaya, Jawa Barat 46155, Indonesia</span>
                 </div>
                 <div class="footer-contact-item">
                     <i class="fas fa-envelope"></i>
-                    <span>hello@kuesaena.com</span>
+                    <span>kuesaena@gmail.com</span>
                 </div>
                 <div class="footer-contact-item">
                     <i class="fas fa-phone"></i>

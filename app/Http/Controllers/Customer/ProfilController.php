@@ -11,6 +11,32 @@ use Illuminate\Support\Facades\Storage;
 
 class ProfilController extends Controller
 {
+    /* ─── UPDATE PHOTO ─── */
+    public function updatePhoto(Request $request)
+    {
+        $request->validate([
+            'photo' => 'required|image|mimes:jpeg,jpg,png|max:2048',
+        ], [
+            'photo.required' => 'Pilih foto terlebih dahulu.',
+            'photo.image'    => 'File harus berupa gambar.',
+            'photo.mimes'    => 'Format foto harus JPG atau PNG.',
+            'photo.max'      => 'Ukuran foto maksimal 2MB.',
+        ]);
+
+        $user = Auth::user();
+
+        // Delete old photo if exists
+        if ($user->photo && Storage::disk('public')->exists($user->photo)) {
+            Storage::disk('public')->delete($user->photo);
+        }
+
+        // Store new photo
+        $path = $request->file('photo')->store('profile-photos', 'public');
+        $user->update(['photo' => $path]);
+
+        return redirect()->back()->with('success', 'Foto profil berhasil diperbarui.');
+    }
+
     /* ─── PROFIL ─── */
     public function index()
     {

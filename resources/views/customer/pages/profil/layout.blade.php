@@ -37,27 +37,35 @@
     margin-bottom: 16px;
 }
 
+.sidebar-avatar-wrap {
+    position: relative;
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
 .sidebar-avatar {
-    width: 52px;
-    height: 52px;
+    width: 64px;
+    height: 64px;
     border-radius: 50%;
     background: #e8d5b7;
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
     overflow: hidden;
-    position: relative;
+    border: 2px solid #C68B5A;
 }
 
 .sidebar-avatar img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    display: block;
 }
 
 .sidebar-avatar i {
-    font-size: 22px;
+    font-size: 26px;
     color: #7B3F18;
 }
 
@@ -65,15 +73,23 @@
     position: absolute;
     bottom: 0;
     right: 0;
-    width: 18px;
-    height: 18px;
-    background: #5C2D0E;
+    width: 22px;
+    height: 22px;
+    background: #3B1A08;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     color: #fff;
     font-size: 9px;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    transition: background 0.2s;
+    z-index: 2;
+}
+
+.sidebar-avatar-wrap:hover .sidebar-avatar-edit {
+    background: #5C2D0E;
 }
 
 .sidebar-name {
@@ -99,6 +115,16 @@
     color: #c0392b;
     margin-top: 2px;
     display: inline-block;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font-family: 'DM Sans', sans-serif;
+    transition: opacity 0.2s;
+}
+
+.sidebar-logout:hover {
+    opacity: 0.75;
 }
 
 .sidebar-group {
@@ -472,6 +498,7 @@
     justify-content: center;
     flex-shrink: 0;
     overflow: hidden;
+    border: 2px solid #C68B5A;
 }
 
 .privasi-avatar i {
@@ -496,24 +523,23 @@
             {{-- ===== SIDEBAR ===== --}}
             <div class="profil-sidebar">
                 <div class="sidebar-user">
-                    <div class="sidebar-avatar">
-                        @if(Auth::user()->photo)
-                            <img src="{{ asset('storage/' . Auth::user()->photo) }}" alt="Foto Profil">
-                        @else
-                            <i class="fas fa-user"></i>
-                        @endif
+                    <div class="sidebar-avatar-wrap" onclick="openModal('modal-foto-profil')" title="Ganti foto profil">
+                        <div class="sidebar-avatar">
+                            @if(Auth::user()->photo)
+                                <img src="{{ asset('storage/' . Auth::user()->photo) }}" alt="Foto Profil">
+                            @else
+                                <i class="fas fa-user"></i>
+                            @endif
+                        </div>
                         <div class="sidebar-avatar-edit">
-                            <i class="fas fa-pencil-alt"></i>
+                            <i class="fas fa-camera"></i>
                         </div>
                     </div>
                     <div>
                         <div class="sidebar-name">{{ Auth::user()->username ?? Auth::user()->name }}</div>
                         <div class="sidebar-phone">{{ Auth::user()->masked_phone }}</div>
                         <div class="sidebar-email">{{ Auth::user()->email }}</div>
-                        <form action="{{ route('logout') }}" method="POST" style="display:inline;">
-                            @csrf
-                            <button type="submit" class="sidebar-logout" style="background:none;border:none;cursor:pointer;padding:0;font-family:inherit;">Logout</button>
-                        </form>
+                        <button type="button" class="sidebar-logout" onclick="openModal('modal-logout')">Logout</button>
                     </div>
                 </div>
 
@@ -536,11 +562,11 @@
                         <i class="fas fa-clipboard-list"></i>
                         <span class="sidebar-group-title">Pesanan Saya</span>
                     </div>
-                    <a href="#" class="sidebar-link">All</a>
-                    <a href="#" class="sidebar-link">Belum Bayar</a>
-                    <a href="#" class="sidebar-link">Sedang Dikemas</a>
-                    <a href="#" class="sidebar-link">Selesai</a>
-                    <a href="#" class="sidebar-link">Dibatalkan</a>
+                    <a href="{{ route('customer.pesanan') }}" class="sidebar-link {{ request()->routeIs('customer.pesanan') && request()->query('status','all')=='all' ? 'active' : '' }}">Semua</a>
+                    <a href="{{ route('customer.pesanan', ['status'=>'belum-bayar']) }}" class="sidebar-link {{ request()->query('status')=='belum-bayar' ? 'active' : '' }}">Belum Bayar</a>
+                    <a href="{{ route('customer.pesanan', ['status'=>'sedang-dikemas']) }}" class="sidebar-link {{ request()->query('status')=='sedang-dikemas' ? 'active' : '' }}">Sedang Dikemas</a>
+                    <a href="{{ route('customer.pesanan', ['status'=>'selesai']) }}" class="sidebar-link {{ request()->query('status')=='selesai' ? 'active' : '' }}">Selesai</a>
+                    <a href="{{ route('customer.pesanan', ['status'=>'dibatalkan']) }}" class="sidebar-link {{ request()->query('status')=='dibatalkan' ? 'active' : '' }}">Dibatalkan</a>
                 </div>
 
                 {{-- Reward --}}
@@ -549,7 +575,7 @@
                         <i class="fas fa-dollar-sign"></i>
                         <span class="sidebar-group-title">Reward</span>
                     </div>
-                    <a href="#" class="sidebar-link">Reward Saya</a>
+                    <a href="{{ route('customer.reward') }}" class="sidebar-link {{ request()->routeIs('customer.reward') ? 'active' : '' }}">Reward Saya</a>
                 </div>
             </div>
 
@@ -568,4 +594,96 @@
         </div>
     </div>
 </div>
+{{-- ===== MODAL LOGOUT ===== --}}
+<div id="modal-logout" class="modal-overlay">
+    <div class="modal-box" style="max-width:400px; text-align:center;">
+        <div style="width:64px; height:64px; background:#fff3f3; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 18px;">
+            <i class="fas fa-sign-out-alt" style="font-size:26px; color:#c0392b;"></i>
+        </div>
+        <h3 style="font-size:18px; font-weight:700; color:#1A0A00; margin-bottom:8px;">Keluar dari Akun?</h3>
+        <p style="font-size:14px; color:#8B6050; margin-bottom:28px; line-height:1.6;">
+            Kamu akan keluar dari akun <strong>{{ Auth::user()->username ?? Auth::user()->name }}</strong>.<br>Yakin ingin logout?
+        </p>
+        <div style="display:flex; gap:12px; justify-content:center;">
+            <button type="button" class="btn-ghost" onclick="closeModal('modal-logout')" style="min-width:110px;">Batal</button>
+            <form action="{{ route('logout') }}" method="POST" style="display:inline;">
+                @csrf
+                <button type="submit" class="btn-red" style="min-width:110px;">Ya, Logout</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{-- ===== MODAL UPLOAD FOTO PROFIL ===== --}}
+<div id="modal-foto-profil" class="modal-overlay">
+    <div class="modal-box" style="max-width:420px; text-align:center;">
+        <h3 class="modal-title" style="text-align:left;"><i class="fas fa-camera" style="color:#5C2D0E; margin-right:8px;"></i>Foto Profil</h3>
+
+        {{-- Preview --}}
+        <div style="position:relative; width:120px; height:120px; margin:0 auto 20px;">
+            <div id="foto-preview-wrap" style="width:120px; height:120px; border-radius:50%; background:#e8d5b7; display:flex; align-items:center; justify-content:center; overflow:hidden; border:3px solid #C68B5A;">
+                @if(Auth::user()->photo)
+                    <img id="foto-preview-img" src="{{ asset('storage/' . Auth::user()->photo) }}" style="width:100%;height:100%;object-fit:cover;">
+                @else
+                    <i id="foto-preview-icon" class="fas fa-user" style="font-size:48px; color:#7B3F18;"></i>
+                    <img id="foto-preview-img" src="" style="width:100%;height:100%;object-fit:cover;display:none;">
+                @endif
+            </div>
+            <label for="foto-input" style="position:absolute; bottom:4px; right:4px; width:32px; height:32px; background:#3B1A08; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; border:2px solid #fff; box-shadow:0 2px 8px rgba(0,0,0,0.2);">
+                <i class="fas fa-camera" style="color:#fff; font-size:12px;"></i>
+            </label>
+        </div>
+
+        <p style="font-size:13px; color:#8B6050; margin-bottom:20px;">
+            Klik ikon kamera untuk memilih foto.<br>
+            <span style="font-size:11px;">Format: JPG, PNG, JPEG · Maks. 2MB</span>
+        </p>
+
+        <form action="{{ route('customer.profil.update.photo') }}" method="POST" enctype="multipart/form-data" id="form-foto">
+            @csrf
+            <input type="file" name="photo" id="foto-input" accept="image/jpeg,image/png,image/jpg" style="display:none;" onchange="previewFoto(event)">
+            <div class="modal-footer" style="justify-content:center;">
+                <button type="button" class="btn-ghost" onclick="closeModal('modal-foto-profil')">Batal</button>
+                <button type="submit" class="btn-brown" id="btn-simpan-foto" disabled style="opacity:0.5;">Simpan Foto</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+function openModal(id) {
+    document.getElementById(id).classList.add('open');
+}
+function closeModal(id) {
+    document.getElementById(id).classList.remove('open');
+}
+
+// Close on overlay click
+document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
+    overlay.addEventListener('click', function(e) {
+        if (e.target === this) closeModal(this.id);
+    });
+});
+
+// Preview foto before upload
+function previewFoto(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const img = document.getElementById('foto-preview-img');
+        const icon = document.getElementById('foto-preview-icon');
+        img.src = e.target.result;
+        img.style.display = 'block';
+        if (icon) icon.style.display = 'none';
+        const btn = document.getElementById('btn-simpan-foto');
+        btn.disabled = false;
+        btn.style.opacity = '1';
+    };
+    reader.readAsDataURL(file);
+}
+</script>
+@endpush
+
 @endsection
