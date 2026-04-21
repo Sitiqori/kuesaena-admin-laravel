@@ -9,6 +9,27 @@
 /* =====================
    KERANJANG SECTION
 ===================== */
+body {
+    background-color: #ffffff !important;
+    background-image: none !important;
+}
+
+.page-content {
+    padding-top: 76px;
+    background: #f9f5f0 !important;
+}
+
+.keranjang-wrapper {
+    padding: 40px 0 60px;
+    background: #f9f5f0 !important;
+    min-height: calc(100vh - 76px);
+}
+
+.rekomendasi-section {
+    padding: 80px 0 48px;
+    background: #f9f5f0 !important;
+}
+
 .keranjang-wrapper {
     padding: 40px 0 60px;
     background: #f9f5f0;
@@ -140,6 +161,7 @@
     color: #fff;
     padding: 16px 20px;
     border-radius: 0 0 8px 8px;
+    margin-bottom: 60px;
 }
 .keranjang-footer .total-text { font-size: 15px; }
 .keranjang-footer .total-text strong { font-size: 18px; margin-left: 8px; }
@@ -280,11 +302,8 @@
     @if($cartItems->count() > 0)
 
         <div class="keranjang-table">
-            {{-- Header --}}
             <div class="keranjang-header">
-                <div>
-                    <input type="checkbox" id="pilih-semua" onchange="pilihSemua(this)">
-                </div>
+                <div><input type="checkbox" id="pilih-semua" onchange="pilihSemua(this)"></div>
                 <div>Detail Produk</div>
                 <div>Detail Pesanan</div>
                 <div>Kuantitas</div>
@@ -292,15 +311,10 @@
                 <div>Aksi</div>
             </div>
 
-            {{-- Item --}}
             @foreach($cartItems as $item)
             <div class="keranjang-item" id="item-{{ $item->id }}">
-                {{-- Checkbox --}}
-                <div>
-                    <input type="checkbox" class="item-checkbox" value="{{ $item->id }}">
-                </div>
+                <div><input type="checkbox" class="item-checkbox" value="{{ $item->id }}"></div>
 
-                {{-- Produk info --}}
                 <div class="item-produk">
                     <img src="{{ $item->product->image ? asset('storage/' . $item->product->image) : asset('images/no-image.png') }}"
                          alt="{{ $item->product->name }}">
@@ -310,14 +324,12 @@
                     </div>
                 </div>
 
-                {{-- Detail rasa/ukuran --}}
                 <div class="item-detail">
                     <div>Rasa &nbsp;&nbsp;: <span>{{ $item->flavor ?? '-' }}</span></div>
                     <div>Ukuran : <span>{{ $item->size ?? '-' }}</span></div>
                     <div>Catatan : <span>{{ $item->note ?? '-' }}</span></div>
                 </div>
 
-                {{-- Kuantitas --}}
                 <div class="qty-control">
                     <button class="qty-btn" onclick="updateQty({{ $item->id }}, -1)">−</button>
                     <input type="number" class="qty-input" id="qty-{{ $item->id }}"
@@ -326,12 +338,10 @@
                     <button class="qty-btn" onclick="updateQty({{ $item->id }}, 1)">+</button>
                 </div>
 
-                {{-- Total harga --}}
                 <div class="item-total" id="subtotal-{{ $item->id }}">
                     Rp. {{ number_format($item->product->price * $item->quantity, 0, ',', '.') }}
                 </div>
 
-                {{-- Hapus --}}
                 <div>
                     <form action="{{ route('keranjang.hapus', $item->id) }}" method="POST"
                           onsubmit="return confirm('Hapus produk ini dari keranjang?')">
@@ -344,25 +354,21 @@
             @endforeach
         </div>
 
-        {{-- Footer keranjang --}}
-        <div class="keranjang-footer" style="border-radius: 8px; margin-top: 0;">
+        <div class="keranjang-footer">
             <form action="{{ route('keranjang.hapusSemua') }}" method="POST"
                   onsubmit="return confirm('Hapus semua item dari keranjang?')">
                 @csrf
                 @method('DELETE')
                 <button type="submit" class="btn-hapus-semua">Hapus</button>
             </form>
-
             <div class="total-text">
                 Total ({{ $cartItems->count() }} Produk) :
                 <strong id="grand-total">Rp.{{ number_format($total, 0, ',', '.') }}</strong>
             </div>
-
-            <a href="{{ route('pembayaran.index') }}" class="btn-checkout">Checkout</a>
+            <a href="{{ route('checkout') }}" class="btn-checkout">Checkout</a>
         </div>
 
     @else
-        {{-- Keranjang kosong --}}
         <div class="keranjang-kosong">
             <i class="fas fa-shopping-cart"></i>
             <h3>Keranjang Masih Kosong</h3>
@@ -371,7 +377,7 @@
         </div>
     @endif
 
-    {{-- ===== REKOMENDASI ===== --}}
+    {{-- ===== REKOMENDASI (SATU KALI DI BAWAH) ===== --}}
     <div class="rekomendasi-section">
         <div class="rekomendasi-header">Rekomendasi</div>
         <div class="rekomendasi-grid">

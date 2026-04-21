@@ -456,7 +456,7 @@
                             <div class="product-name">{{ $product->name }}</div>
                             <div class="product-actions">
                                 <i class="far fa-heart" onclick="alert('Added to wishlist!')"></i>
-                                <i class="fas fa-shopping-cart" onclick="addToCartMockup()"></i>
+                                <i class="fas fa-shopping-cart" onclick="tambahKeKeranjang({{ $product->id }})"></i>
                             </div>
                         </div>
                         <div class="product-price-row">
@@ -516,6 +516,28 @@
     function addToCartMockup() {
         alert('Produk ditambahkan ke keranjang!');
     }
+
+    function tambahKeKeranjang(productId) {
+    if (!{{ Auth::check() ? 'true' : 'false' }}) {
+        window.location.href = '/login';
+        return;
+    }
+ 
+    fetch('/keranjang/tambah', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({ product_id: productId, quantity: 1 })
+    })
+    .then(res => {
+        if (res.ok || res.redirected) {
+            alert('Produk berhasil ditambahkan ke keranjang!');
+        }
+    })
+    .catch(() => alert('Gagal menambahkan ke keranjang.'));
+}
 </script>
 @endpush
 

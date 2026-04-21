@@ -47,7 +47,8 @@
         }
 
         html {
-            scroll-behavior: smooth;
+        scroll-behavior: smooth;
+        color-scheme: light;
         }
 
         body {

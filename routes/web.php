@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Customer\PembayaranController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Auth\LoginController;
@@ -62,7 +63,13 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/keranjang/update/{id}', [KeranjangController::class, 'update'])->name('keranjang.update');
     Route::delete('/keranjang/hapus/{id}', [KeranjangController::class, 'hapus'])->name('keranjang.hapus');
     Route::delete('/keranjang/hapus-semua', [KeranjangController::class, 'hapusSemua'])->name('keranjang.hapusSemua');
-
+    
+    // CHECKOUT & PEMBAYARAN 
+    Route::get('/checkout', [PembayaranController::class, 'checkout'])->name('checkout');
+    Route::post('/checkout/pembayaran', [PembayaranController::class, 'pilihPembayaran'])->name('checkout.pembayaran');
+    Route::post('/pembayaran/proses', [PembayaranController::class, 'proses'])->name('pembayaran.proses');
+    Route::get('/pembayaran/berhasil/{orderNumber}', [PembayaranController::class, 'berhasil'])->name('pembayaran.berhasil');
+    
     // PROFIL CUSTOMER
     Route::get('/profil', [ProfilController::class, 'index'])->name('customer.profil');
     Route::post('/profil', [ProfilController::class, 'updateProfil'])->name('customer.profil.update');

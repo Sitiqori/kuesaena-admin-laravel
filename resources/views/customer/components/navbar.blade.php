@@ -8,8 +8,8 @@
     z-index: 1000;
     background: #ffffff;
     box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    color-scheme: light;
 }
-
 .navbar-inner {
     display: flex;
     align-items: center;
@@ -197,7 +197,9 @@
 
                 <a href="{{ route('keranjang.index') }}" class="action-btn">
                     <i class="fas fa-shopping-cart"></i>
-                    <span class="action-badge">0</span>
+                    <span class="action-badge">
+                        {{ Auth::check() ? \App\Models\Cart::where('user_id', Auth::id())->sum('quantity') : 0 }}
+                    </span>
                 </a>
 
                 @auth
