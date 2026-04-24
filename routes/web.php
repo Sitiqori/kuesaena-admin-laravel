@@ -58,6 +58,10 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [RegisterController::class, 'store']);
 });
 
+Route::get('/checkout/pembayaran', function() {
+    return redirect()->route('checkout');
+})->name('checkout.pembayaran.get')->middleware('auth');
+
 // LOGOUT
 Route::post('/logout', [LoginController::class, 'logout'])
     ->name('logout')
