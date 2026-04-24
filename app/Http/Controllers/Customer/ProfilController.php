@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Models\UserAddress;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,25 +17,22 @@ class ProfilController extends Controller
     {
         $request->validate([
             'photo' => 'required|image|mimes:jpeg,jpg,png|max:2048',
-        ], [
-            'photo.required' => 'Pilih foto terlebih dahulu.',
-            'photo.image'    => 'File harus berupa gambar.',
-            'photo.mimes'    => 'Format foto harus JPG atau PNG.',
-            'photo.max'      => 'Ukuran foto maksimal 2MB.',
         ]);
 
+        /** @var User $user */
         $user = Auth::user();
 
-        // Delete old photo if exists
         if ($user->photo && Storage::disk('public')->exists($user->photo)) {
             Storage::disk('public')->delete($user->photo);
         }
 
-        // Store new photo
         $path = $request->file('photo')->store('profile-photos', 'public');
-        $user->update(['photo' => $path]);
 
-        return redirect()->back()->with('success', 'Foto profil berhasil diperbarui.');
+        $user->update([
+            'photo' => $path
+        ]);
+
+        return back()->with('success', 'Foto profil berhasil diperbarui.');
     }
 
     /* ─── PROFIL ─── */
@@ -56,6 +54,7 @@ class ProfilController extends Controller
             'gender'   => 'nullable|in:male,female',
         ]);
 
+        /** @var User $user */
         $user = Auth::user();
 
         $birth_date = null;
@@ -82,7 +81,11 @@ class ProfilController extends Controller
     /* ─── ALAMAT ─── */
     public function alamat()
     {
-        $addresses = Auth::user()->addresses()->get();
+        /** @var User $user */
+        $user = Auth::user();
+
+        $addresses = $user->addresses()->get();
+
         return view('customer.pages.profil.alamat', compact('addresses'));
     }
 
@@ -92,15 +95,12 @@ class ProfilController extends Controller
             'label'     => 'required|string|max:50',
             'address'   => 'required|string',
             'phone'     => 'nullable|string|max:20',
-            'catatan'   => 'nullable|string|max:200',
-            'kelurahan' => 'nullable|string|max:100',
-            'kecamatan' => 'nullable|string|max:100',
-            'kota'      => 'nullable|string|max:100',
-            'provinsi'  => 'nullable|string|max:100',
-            'kode_pos'  => 'nullable|string|max:10',
         ]);
 
-        Auth::user()->addresses()->create($request->only([
+        /** @var User $user */
+        $user = Auth::user();
+
+        $user->addresses()->create($request->only([
             'label','address','kelurahan','kecamatan','kota','provinsi','kode_pos','catatan','phone'
         ]));
 
@@ -112,10 +112,9 @@ class ProfilController extends Controller
         $address = UserAddress::where('user_id', Auth::id())->findOrFail($id);
 
         $request->validate([
-            'label'     => 'required|string|max:50',
-            'address'   => 'required|string',
-            'phone'     => 'nullable|string|max:20',
-            'catatan'   => 'nullable|string|max:200',
+            'label'   => 'required|string|max:50',
+            'address' => 'required|string',
+            'phone'   => 'nullable|string|max:20',
         ]);
 
         $address->update($request->only([
@@ -133,7 +132,7 @@ class ProfilController extends Controller
         return redirect()->route('customer.profil.alamat')->with('success', 'Alamat berhasil dihapus.');
     }
 
-    /* ─── UBAH PASSWORD ─── */
+    /* ─── PASSWORD ─── */
     public function password()
     {
         return view('customer.pages.profil.password');
@@ -142,16 +141,13 @@ class ProfilController extends Controller
     public function updatePassword(Request $request)
     {
         $request->validate([
-            'new_password'              => 'required|min:6',
-            'new_password_confirmation' => 'required|same:new_password',
-        ], [
-            'new_password.required'              => 'Kata sandi baru wajib diisi.',
-            'new_password.min'                   => 'Kata sandi minimal 6 karakter.',
-            'new_password_confirmation.required' => 'Konfirmasi kata sandi wajib diisi.',
-            'new_password_confirmation.same'     => 'Konfirmasi kata sandi tidak cocok.',
+            'new_password' => 'required|min:6|confirmed',
         ]);
 
-        Auth::user()->update([
+        /** @var User $user */
+        $user = Auth::user();
+
+        $user->update([
             'password' => Hash::make($request->new_password),
         ]);
 
@@ -170,12 +166,15 @@ class ProfilController extends Controller
         $allowed = ['notif_whatsapp', 'notif_pesanan', 'notif_promo'];
 
         if (in_array($field, $allowed)) {
-            Auth::user()->update([
+            /** @var User $user */
+            $user = Auth::user();
+
+            $user->update([
                 $field => $request->has($field),
             ]);
         }
 
-        return redirect()->route('customer.profil.notifikasi')->with('success', 'Pengaturan notifikasi disimpan.');
+        return redirect()->route('customer.profil.notifikasi')->with('success', 'Pengaturan disimpan.');
     }
 
     /* ─── PRIVASI ─── */
@@ -186,11 +185,15 @@ class ProfilController extends Controller
 
     public function deleteAccount(Request $request)
     {
+        /** @var User $user */
         $user = Auth::user();
+
         Auth::logout();
         $user->delete();
+
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
         return redirect('/')->with('success', 'Akun berhasil dihapus.');
     }
 }

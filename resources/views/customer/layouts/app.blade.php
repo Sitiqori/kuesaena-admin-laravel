@@ -47,7 +47,12 @@
         }
 
         html {
+<<<<<<< HEAD
             scroll-behavior: smooth;
+=======
+        scroll-behavior: smooth;
+        color-scheme: light;
+>>>>>>> c790366f9074d7d74c963723579c5909969143cc
         }
 
         body {

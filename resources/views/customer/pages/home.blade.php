@@ -20,7 +20,7 @@
     grid-template-columns: 1.1fr 0.9fr;
     align-items: center;
     min-height: calc(100vh - 76px);
-    padding: 0 80px; /* remove top-bottom padding */
+    padding: 0 80px;
     gap: 40px;
 
     background: radial-gradient(circle at 75% 50%, #d6a77a 0%, transparent 40%),
@@ -31,7 +31,6 @@
 .hero-content {
     max-width: 520px;
     margin-left: 40px;
-
 }
 
 .hero-content h1 {
@@ -74,7 +73,7 @@
 }
 
 .hero-image img {
-    width: 600px;
+    width: 500px;
     filter: drop-shadow(0 20px 40px rgba(0,0,0,0.6));
 }
 
@@ -97,7 +96,7 @@
 
 .categories-section {
     padding: 80px 0px;
-    background: #fff; /* ← putih */
+    background: #fff;
 }
 
 /* HEADER */
@@ -131,7 +130,7 @@
 /* CARD */
 .category-card {
     min-width: 220px;
-    background: #4b2a1f; /* coklat */
+    background: #4b2a1f;
     border-radius: 16px;
     padding: 14px;
     cursor: pointer;
@@ -139,11 +138,11 @@
     border: none;
 }
 
-/* HOVER ANGKAT 🔥 */
 .category-card:hover {
     transform: translateY(-6px);
     box-shadow: 0 12px 30px rgba(0,0,0,0.15);
 }
+
 /* IMAGE */
 .category-card__img {
     width: 100%;
@@ -151,12 +150,13 @@
     object-fit: cover;
     border-radius: 12px;
     background: #fff;
-    padding: 6px; /* efek frame putih */
+    padding: 6px;
 }
 
 .category-card:hover .category-card__img {
     transform: scale(1.05);
 }
+
 /* FALLBACK */
 .category-card__img-placeholder {
     height: 160px;
@@ -190,6 +190,7 @@
     color: #fff;
     border-color: #fff;
 }
+
 /* ================================================================
    3. PRODUCTS SECTION
 ================================================================ */
@@ -211,6 +212,7 @@
 .products-grid a {
     display: block;
 }
+
 .product-card__link {
     display: block;
     text-decoration: none;
@@ -236,31 +238,29 @@
 .product-card:hover {
     transform: translateY(-5px);
 }
+
 .product-card__badge {
     position: absolute;
     top: 21px;
     left: 0px;
-
     background: #d62828;
     color: #fff;
     padding: 10px 20px;
     font-size: 14px;
     font-weight: 500;
-
     box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-
     pointer-events: none;
-
 }
+
 .product-card button {
     pointer-events: auto;
 }
+
 .product-card__badge::after {
     content: "";
     position: absolute;
     right: -20px;
     top: 0;
-
     width: 0;
     height: 0;
     border-top: 20px solid transparent;
@@ -268,6 +268,7 @@
     border-left: 20px solid #d62828;
     background: linear-gradient(90deg, #d62828, #e63946);
 }
+
 .view-all-wrap {
     text-align: center;
     margin-top: 40px;
@@ -321,7 +322,7 @@
     inset: 0;
     background: linear-gradient(
         90deg,
-        rgba(0,0,0,0.45),  /* lebih ringan */
+        rgba(0,0,0,0.45),
         rgba(0,0,0,0.1),
         rgba(0,0,0,0)
     );
@@ -354,8 +355,9 @@
 .about-text-box p {
     text-shadow: 0 2px 6px rgba(0,0,0,0.4);
 }
+
 /* ================================================================
-   5. WHY CHOOSE US (FIX POSITION)
+   5. WHY CHOOSE US
 ================================================================ */
 
 .why-section {
@@ -380,14 +382,14 @@
 .why-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(45, 25, 15, 0.7); /* Warna cokelat lebih pekat sesuai desain */
+    background: rgba(45, 25, 15, 0.7);
 }
 
 .why-content {
     position: relative;
     z-index: 2;
     width: 100%;
-    max-width: 900px; /* Sesuaikan lebar total */
+    max-width: 900px;
     margin: 0 auto;
 }
 
@@ -399,16 +401,14 @@
     font-weight: 700;
 }
 
-/* GRID SYSTEM UNTUK NEMPELIN CARD */
 .why-grid-outer {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 15px; /* Jarak tipis antar kartu */
+    gap: 15px;
     position: relative;
     padding: 20px;
 }
 
-/* CARD BASE */
 .why-card {
     background: #f8f8f8;
     padding: 40px;
@@ -433,30 +433,11 @@
     margin: 0;
 }
 
-/* ATUR RADIUS TIAP POJOK BIAR MASUK KE LINGKARAN */
+.card-tl { border-radius: 30px 30px 0 30px; text-align: right; }
+.card-tr { border-radius: 30px 30px 30px 0; text-align: left; }
+.card-bl { border-radius: 30px 0 30px 30px; text-align: right; }
+.card-br { border-radius: 0 30px 30px 30px; text-align: left; }
 
-/* Kiri Atas */
-.card-tl {
-    border-radius: 30px 30px 0 30px;
-    text-align: right;
-}
-/* Kanan Atas */
-.card-tr {
-    border-radius: 30px 30px 30px 0;
-    text-align: left;
-}
-/* Kiri Bawah */
-.card-bl {
-    border-radius: 30px 0 30px 30px;
-    text-align: right;
-}
-/* Kanan Bawah */
-.card-br {
-    border-radius: 0 30px 30px 30px;
-    text-align: left;
-}
-
-/* LOGO TENGAH */
 .why-center-logo {
     position: absolute;
     top: 50%;
@@ -466,7 +447,7 @@
     height: 160px;
     border-radius: 50%;
     background: #fff;
-    border: 10px solid #4b2e1e; /* Border cokelat tebal */
+    border: 10px solid #4b2e1e;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -479,20 +460,18 @@
     height: auto;
 }
 
-/* Responsive: Kalau di HP jadi satu kolom */
 @media (max-width: 768px) {
     .why-grid-outer {
         grid-template-columns: 1fr;
         gap: 20px;
     }
-    .why-center-logo {
-        display: none; /* Sembunyikan logo di mobile agar tidak berantakan */
-    }
+    .why-center-logo { display: none; }
     .why-card {
         border-radius: 20px !important;
         text-align: center;
     }
 }
+
 /* ================================================================
    6. GALLERY
 ================================================================ */
@@ -676,7 +655,7 @@
     </div>
 
     <div class="hero-image">
-        <img src="/images/cake.png" alt="Cake" />
+        <img src="{{ asset('images/products/6.jpg') }}" alt="Cake" style="border-radius:24px; box-shadow:0 10px 40px rgba(0,0,0,0.1); width:100%; max-width:500px;" />
     </div>
 </section>
 
@@ -695,20 +674,14 @@
         <div class="categories-scroll">
             @forelse($categories as $cat)
                 @php
-                    $catImg = $cat->gambar ?? null;
+                    $catImg = $cat->image ? asset('storage/' . $cat->image) : asset('images/products/' . ($loop->iteration % 10 + 1) . '.jpg');
                 @endphp
                 <div class="category-card">
-                    @if($catImg)
-                        <img class="category-card__img"
-                             src="{{ asset('images/flowercake.png' . $catImg) }}"
-                             alt="{{ $cat->nama_kategori ?? $cat->nama }}">
-                    @else
-                        <div class="category-card__img-placeholder">
-                            🎂
-                        </div>
-                    @endif
+                    <img class="category-card__img"
+                         src="{{ $catImg }}"
+                         alt="{{ $cat->name }}">
                     <div class="category-card__name">
-                        {{ $cat->nama_kategori ?? $cat->nama }}
+                        {{ $cat->name }}
                     </div>
                 </div>
             @empty
@@ -753,6 +726,7 @@
         </div>
     </div>
 </section>
+
 {{-- ================================================================
      3. FEATURED PRODUCTS
 ================================================================ --}}
@@ -766,7 +740,7 @@
         </div>
 
         <div class="products-grid">
-           @forelse($products as $product)
+            @forelse($products as $product)
                 <a href="{{ route('customer.product.show', $product->id) }}" class="product-card">
                     <div class="product-card__img-wrap">
                         @if($product->image)
@@ -836,6 +810,7 @@
         </div>
     </div>
 </section>
+
 {{-- ================================================================
      5. WHY CHOOSE US
 ================================================================ --}}
@@ -875,6 +850,7 @@
         </div>
     </div>
 </section>
+
 {{-- ================================================================
      6. GALLERY
 ================================================================ --}}
@@ -886,12 +862,12 @@
         <div class="gallery-grid">
             @php
                 $galleryImages = [
-                    'https://images.unsplash.com/photo-1587248720327-8eb72564be1e?w=600&q=80',
-                    'https://images.unsplash.com/photo-1557925923-33b27f3e6627?w=400&q=80',
-                    'https://images.unsplash.com/photo-1612203985729-70726954388c?w=400&q=80',
-                    'https://images.unsplash.com/photo-1621303837174-89787a7d4729?w=400&q=80',
-                    'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&q=80',
-                    'https://images.unsplash.com/photo-1535141192574-5d4897c12636?w=400&q=80',
+                    asset('images/products/1.jpg'),
+                    asset('images/products/2.jpg'),
+                    asset('images/products/3.jpg'),
+                    asset('images/products/4.jpg'),
+                    asset('images/products/5.jpg'),
+                    asset('images/products/7.jpg'),
                 ];
             @endphp
 
