@@ -655,7 +655,7 @@
     </div>
 
     <div class="hero-image">
-        <img src="{{ asset('images/products/6.jpg') }}" alt="Cake" style="border-radius:24px; box-shadow:0 10px 40px rgba(0,0,0,0.1); width:100%; max-width:500px;" />
+        <img src="{{ asset('images/cake.png') }}" alt="Cake" style="border-radius:24px; box-shadow:0 10px 40px rgba(0,0,0,0.1); width:100%; max-width:500px;" />
     </div>
 </section>
 
