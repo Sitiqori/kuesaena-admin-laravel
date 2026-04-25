@@ -19,8 +19,9 @@ class CustomerPesananController extends Controller
 
         if ($status !== 'all') {
             $statusMap = [
-                'belum-bayar'    => 'pending',
+                'pending'    => 'pending',
                 'sedang-dikemas' => 'processing',
+                'siap-diambil' => 'ready',
                 'selesai'        => 'completed',
                 'dibatalkan'     => 'cancelled',
             ];
