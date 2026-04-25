@@ -13,22 +13,32 @@ class Product extends Model
         'category_id',
         'name',
         'code',
+        'unit',
         'stock',
-        'min_stock',   // ← tambah ini
+        'min_stock',
         'price',
-        'hpp',         // ← tambah ini
+        'hpp',
         'image',
         'description',
+        'has_size',
+        'price_s',
+        'price_m',
+        'price_l',
+        'price_xl',
     ];
 
     protected $casts = [
-        'price' => 'decimal:2',
-        'hpp'   => 'decimal:2', // ← tambahkan cast juga
-        'stock' => 'integer',
-        'min_stock' => 'integer',
+        'price'    => 'decimal:2',
+        'hpp'      => 'decimal:2',
+        'price_s'  => 'decimal:2',
+        'price_m'  => 'decimal:2',
+        'price_l'  => 'decimal:2',
+        'price_xl' => 'decimal:2',
+        'stock'    => 'integer',
+        'min_stock'=> 'integer',
+        'has_size' => 'boolean',
     ];
 
-    // Relationships
     public function category()
     {
         return $this->belongsTo(Category::class);

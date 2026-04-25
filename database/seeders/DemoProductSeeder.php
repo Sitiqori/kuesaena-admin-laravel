@@ -5,83 +5,40 @@ namespace Database\Seeders;
 use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Database\Seeder;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class DemoProductSeeder extends Seeder
 {
     public function run(): void
     {
-        // Create Categories
+        // Categories
         $cake = Category::create(['name' => 'Cake', 'description' => 'Kue Ulang Tahun']);
         $cupcake = Category::create(['name' => 'CupCake', 'description' => 'Cupcake']);
         $bento = Category::create(['name' => 'Bento', 'description' => 'Bento Cake']);
         $milkshake = Category::create(['name' => 'Milkshake', 'description' => 'Milkshake']);
-        $roti = Category::create(['name' => 'Roti', 'description' => 'Roti']);
-        $birthday = Category::create(['name' => 'Birthday', 'description' => 'Birthday Package']);
         $minuman = Category::create(['name' => 'Minuman', 'description' => 'Minuman']);
 
-        // Create Products
-        Product::create([
-            'category_id' => $cake->id,
-            'name' => 'Under The Sea Birthday Cake',
-            'code' => 'BC-04',
-            'stock' => 0,
-            'price' => 220000,
-            'description' => 'Kue ulang tahun tema under the sea',
-        ]);
+        // Products (gabungan)
+        $products = [
+            ['name' => 'Kue Angka Strawberry', 'price' => 300000, 'category_id' => $cake->id, 'stock' => 5, 'image' => 'images/products/1.jpg'],
+            ['name' => 'Fondant Cake', 'price' => 199000, 'category_id' => $cake->id, 'stock' => 3, 'image' => 'images/products/2.jpg'],
+            ['name' => 'Flowers Cake', 'price' => 160000, 'category_id' => $cake->id, 'stock' => 2, 'image' => 'images/products/3.jpg'],
+            ['name' => 'Bento Cake', 'price' => 45000, 'category_id' => $bento->id, 'stock' => 10, 'image' => 'images/products/4.jpg'],
+            ['name' => 'Blue Gold Cake', 'price' => 140500, 'category_id' => $cake->id, 'stock' => 4, 'image' => 'images/products/5.jpg'],
+            ['name' => 'Milkshake Strawberry', 'price' => 15000, 'category_id' => $milkshake->id, 'stock' => 15, 'image' => null],
+            ['name' => 'Air Mineral 600ml', 'price' => 5000, 'category_id' => $minuman->id, 'stock' => 50, 'image' => null],
+            ['name' => 'Cupcake', 'price' => 25000, 'category_id' => $cupcake->id, 'stock' => 20, 'image' => null],
+        ];
 
-        Product::create([
-            'category_id' => $cake->id,
-            'name' => 'White Rose Birthday Cake',
-            'code' => 'BC-03',
-            'stock' => 0,
-            'price' => 280000,
-            'description' => 'Kue ulang tahun dengan hiasan bunga mawar putih',
-        ]);
-
-        Product::create([
-            'category_id' => $cake->id,
-            'name' => 'White Emoji Birthday Cake',
-            'code' => 'BC-02',
-            'stock' => 2,
-            'price' => 115000,
-            'description' => 'Kue ulang tahun lucu dengan emoji beruang',
-        ]);
-
-        Product::create([
-            'category_id' => $milkshake->id,
-            'name' => 'Milkshake Strawberry With Boba',
-            'code' => 'M-02',
-            'stock' => 10,
-            'price' => 15000,
-            'description' => 'Milkshake strawberry dengan topping boba',
-        ]);
-
-        Product::create([
-            'category_id' => $minuman->id,
-            'name' => 'Air Mineral 600ml',
-            'code' => 'M-01',
-            'stock' => 100,
-            'price' => 5000,
-            'description' => 'Air mineral kemasan 600ml',
-        ]);
-
-        Product::create([
-            'category_id' => $bento->id,
-            'name' => 'Roti Chocolate',
-            'code' => 'BR-02',
-            'stock' => 21,
-            'price' => 7000,
-            'description' => 'Roti dengan isian cokelat premium',
-        ]);
-
-        Product::create([
-            'category_id' => $cake->id,
-            'name' => 'Matcha Chocholate',
-            'code' => 'BC-01',
-            'stock' => 3,
-            'price' => 100000,
-            'description' => 'Cake matcha dengan cokelat',
-        ]);
+        foreach ($products as $idx => $p) {
+            Product::create([
+                'category_id' => $p['category_id'],
+                'name' => $p['name'],
+                'code' => 'PRD-' . str_pad($idx + 1, 3, '0', STR_PAD_LEFT),
+                'stock' => $p['stock'],
+                'price' => $p['price'],
+                'description' => $p['name'],
+                'image' => $p['image'],
+            ]);
+        }
     }
 }

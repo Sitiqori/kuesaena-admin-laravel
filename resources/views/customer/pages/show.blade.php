@@ -518,23 +518,49 @@
 
                     <div class="action-sep"></div>
 
-                    {{-- Size Selector --}}
-                    <div class="size-group" id="size-group">
-                        <button class="size-btn" data-size="S" type="button">S</button>
-                        <button class="size-btn active" data-size="M" type="button">M</button>
-                        <button class="size-btn" data-size="L" type="button">L</button>
-                    </div>
+                    {{-- Size Selector — hanya tampil kalau has_size = true --}}
+                    @if($product->has_size)
+                        @php
+                            $sizePrices = [
+                                'S'  => $product->price_s,
+                                'M'  => $product->price_m,
+                                'L'  => $product->price_l,
+                                'XL' => $product->price_xl,
+                            ];
+                            // Filter hanya size yang punya harga
+                            $availableSizes = array_filter($sizePrices, fn($p) => $p > 0);
+                            $firstSize = array_key_first($availableSizes);
+                        @endphp
+
+                        <div class="size-group" id="size-group">
+                            @foreach($availableSizes as $size => $price)
+                                <button class="size-btn {{ $loop->first ? 'active' : '' }}"
+                                        data-size="{{ $size }}"
+                                        data-price="{{ $price }}"
+                                        type="button">{{ $size }}</button>
+                            @endforeach
+                        </div>
+
+                        <div class="action-sep"></div>
+
+                        {{-- Price — update otomatis saat ganti size --}}
+                        <span class="detail-price" id="detail-price">
+                            Rp {{ number_format($availableSizes[$firstSize] ?? 0, 0, ',', '.') }}
+                        </span>
+                    @else
+                        {{-- Produk tanpa ukuran — tampilkan harga_jual langsung --}}
+                        <span class="detail-price" id="detail-price"
+                              data-price="{{ $product->harga_jual ?? 0 }}">
+                            Rp {{ number_format($product->harga_jual ?? 0, 0, ',', '.') }}
+                        </span>
+                    @endif
 
                     <div class="action-sep"></div>
 
-                    {{-- Price --}}
-                    <span class="detail-price" id="detail-price">
-                        Rp. {{ number_format($product->harga_jual ?? 0, 0, ',', '.') }}
-                    </span>
-
-                    {{-- Cart --}}
+                    {{-- Cart Button --}}
                     <button class="cart-action-btn" id="add-cart-btn" type="button"
                             data-id="{{ $product->id }}"
+                            data-has-size="{{ $product->has_size ? '1' : '0' }}"
                             title="Tambah ke Keranjang">
                         <i class="fas fa-shopping-cart"></i>
                         <span class="cart-badge" id="cart-count">0</span>
@@ -693,6 +719,10 @@
 
 @push('scripts')
 <script>
+    // ── Data harga per size dari server (hanya ada kalau has_size = true) ──
+    const hasSize   = {{ $product->has_size ? 'true' : 'false' }};
+    const basePrice = {{ $product->harga_jual ?? 0 }};
+
     // ── Favorite toggle ──────────────────────────────────
     const favBtn = document.getElementById('fav-btn');
     if (favBtn) {
@@ -704,33 +734,90 @@
         });
     }
 
-    // ── Size selector ────────────────────────────────────
-    const sizeBtns = document.querySelectorAll('.size-btn');
-    sizeBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            sizeBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-        });
-    });
+    // ── Size selector + update harga ─────────────────────
+    let selectedSize  = null;
+    let selectedPrice = basePrice;
 
-    // ── Add to cart ──────────────────────────────────────
+    const sizeBtns    = document.querySelectorAll('.size-btn');
+    const priceEl     = document.getElementById('detail-price');
+
+    if (sizeBtns.length > 0) {
+        // Set default ke size pertama yang aktif
+        const firstActive = document.querySelector('.size-btn.active');
+        if (firstActive) {
+            selectedSize  = firstActive.dataset.size;
+            selectedPrice = parseFloat(firstActive.dataset.price);
+        }
+
+        sizeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                sizeBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                selectedSize  = btn.dataset.size;
+                selectedPrice = parseFloat(btn.dataset.price);
+
+                // Update tampilan harga
+                priceEl.textContent = 'Rp ' + selectedPrice.toLocaleString('id-ID');
+            });
+        });
+    } else if (priceEl) {
+        // Produk tanpa ukuran — ambil harga dari data-price
+        selectedPrice = parseFloat(priceEl.dataset.price || basePrice);
+    }
+
+    // ── Add to cart — kirim ke backend ──────────────────
     const cartBtn   = document.getElementById('add-cart-btn');
     const cartCount = document.getElementById('cart-count');
-    let count = 0;
+    let   count     = 0;
 
     if (cartBtn) {
         cartBtn.addEventListener('click', () => {
-            count++;
-            cartCount.textContent = count;
+            const productId = cartBtn.dataset.id;
 
-            // visual feedback
-            cartBtn.style.background  = '#5C2D0E';
-            cartBtn.style.color       = '#fff';
-            cartBtn.style.borderColor = '#5C2D0E';
-            cartBtn.style.transform   = 'scale(1.15)';
-            setTimeout(() => {
-                cartBtn.style.transform = '';
-            }, 200);
+            const payload = {
+                product_id: productId,
+                quantity:   1,
+            };
+
+            if (hasSize) {
+                if (!selectedSize) {
+                    alert('Pilih ukuran terlebih dahulu.');
+                    return;
+                }
+                payload.size  = selectedSize;
+                payload.price = selectedPrice;
+            }
+
+            // Kirim ke CartController
+            fetch('{{ route("customer.cart.add") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type':     'application/json',
+                    'X-CSRF-TOKEN':     document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept':           'application/json',
+                },
+                body: JSON.stringify(payload),
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success || data.message) {
+                    count++;
+                    cartCount.textContent = count;
+
+                    // Visual feedback
+                    cartBtn.style.background  = '#5C2D0E';
+                    cartBtn.style.color       = '#fff';
+                    cartBtn.style.borderColor = '#5C2D0E';
+                    cartBtn.style.transform   = 'scale(1.15)';
+                    setTimeout(() => { cartBtn.style.transform = ''; }, 200);
+                } else {
+                    alert(data.error ?? 'Gagal menambahkan ke keranjang.');
+                }
+            })
+            .catch(() => {
+                alert('Terjadi kesalahan. Coba lagi.');
+            });
         });
     }
 

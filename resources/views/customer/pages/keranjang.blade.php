@@ -9,10 +9,25 @@
 /* =====================
    KERANJANG SECTION
 ===================== */
+body {
+    background-color: #ffffff !important;
+    background-image: none !important;
+}
+
+.page-content {
+    padding-top: 76px;
+    background: #f9f5f0 !important;
+}
+
 .keranjang-wrapper {
     padding: 40px 0 60px;
-    background: #f9f5f0;
+    background: #f9f5f0 !important;
     min-height: calc(100vh - 76px);
+}
+
+.rekomendasi-section {
+    padding: 80px 0 48px;
+    background: #f9f5f0 !important;
 }
 
 .keranjang-table {
@@ -140,6 +155,7 @@
     color: #fff;
     padding: 16px 20px;
     border-radius: 0 0 8px 8px;
+    margin-bottom: 60px;
 }
 .keranjang-footer .total-text { font-size: 15px; }
 .keranjang-footer .total-text strong { font-size: 18px; margin-left: 8px; }
@@ -345,7 +361,7 @@
         </div>
 
         {{-- Footer keranjang --}}
-        <div class="keranjang-footer" style="border-radius: 8px; margin-top: 0;">
+        <div class="keranjang-footer">
             <form action="{{ route('keranjang.hapusSemua') }}" method="POST"
                   onsubmit="return confirm('Hapus semua item dari keranjang?')">
                 @csrf
@@ -358,7 +374,7 @@
                 <strong id="grand-total">Rp.{{ number_format($total, 0, ',', '.') }}</strong>
             </div>
 
-            <a href="{{ route('pembayaran.index') }}" class="btn-checkout">Checkout</a>
+            <a href="{{ route('checkout') }}" class="btn-checkout">Checkout</a>
         </div>
 
     @else
@@ -371,7 +387,7 @@
         </div>
     @endif
 
-    {{-- ===== REKOMENDASI ===== --}}
+    {{-- ===== REKOMENDASI (SATU KALI DI BAWAH) ===== --}}
     <div class="rekomendasi-section">
         <div class="rekomendasi-header">Rekomendasi</div>
         <div class="rekomendasi-grid">

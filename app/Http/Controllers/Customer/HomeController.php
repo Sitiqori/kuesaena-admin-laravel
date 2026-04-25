@@ -12,7 +12,7 @@ class HomeController extends Controller
     {
         // ✅ Produk
         $products = Product::with('category')
-            ->where('stock', '>', 0) // ganti stok → stock
+            ->where('stock', '>', 0)
             ->orderByDesc('created_at')
             ->limit(6)
             ->get();

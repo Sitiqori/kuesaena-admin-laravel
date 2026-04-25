@@ -1,6 +1,8 @@
-{{--
-    Product Card Component
-    Usage: @include('customer.components.product-card', ['product' => $product])
+{{--<img src="{{ $imgUrl }}"
+     alt="{{ $productName }}"
+     loading="lazy"
+     onerror="this.src='https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&q=80'"
+     style="width:100%;height:100%;object-fit:cover;">
 
     Expected $product fields (model Barang):
         - id
@@ -27,9 +29,9 @@
         : 0;
 
     // Image URL
-    $imgUrl = $image
-        ? asset('storage/' . $image)
-        : 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&q=80';
+   $imgUrl = $image
+    ? asset('storage/' . $image)
+    : 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&q=80';
 @endphp
 <div class="product-card">
     {{-- Image Container --}}

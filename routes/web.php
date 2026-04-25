@@ -1,26 +1,34 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
+
+// AUTH
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\Barang\BarangController;
-use App\Http\Controllers\Customer\AboutController;
-use App\Http\Controllers\Customer\CustomerPesananController;
-use App\Http\Controllers\Customer\CustomerRewardController;
-use App\Http\Controllers\Customer\HomeController;
-use App\Http\Controllers\Customer\KeranjangController;
-use App\Http\Controllers\Customer\ProductController;
-use App\Http\Controllers\Customer\ProfilController;
+
+// DASHBOARD & ADMIN
 use App\Http\Controllers\Dashboard\DashboardController;
-use App\Http\Controllers\Kasir\KasirController;
 use App\Http\Controllers\Kategori\KategoriController;
-use App\Http\Controllers\Laporan\LaporanController;
-use App\Http\Controllers\ManajemenAdmin\AdminController;
+use App\Http\Controllers\Barang\BarangController;
 use App\Http\Controllers\Pelanggan\PelangganController;
-use App\Http\Controllers\Pengeluaran\PengeluaranController;
+use App\Http\Controllers\Kasir\KasirController;
 use App\Http\Controllers\Pesanan\PesananController;
 use App\Http\Controllers\Transaksi\RiwayatTransaksiController;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Pengeluaran\PengeluaranController;
+use App\Http\Controllers\Laporan\LaporanController;
+use App\Http\Controllers\ManajemenAdmin\AdminController;
+
+// CUSTOMER
+use App\Http\Controllers\Customer\HomeController;
+use App\Http\Controllers\Customer\KeranjangController;
+use App\Http\Controllers\Customer\ProfilController;
+use App\Http\Controllers\Customer\CustomerPesananController;
+use App\Http\Controllers\Customer\CustomerRewardController;
+use App\Http\Controllers\Customer\PembayaranController;
+use App\Http\Controllers\Customer\MenuController;
+use App\Http\Controllers\Customer\AboutController;
+use App\Http\Controllers\Customer\ProductController;
 
 // ROOT
 Route::get('/', function () {
@@ -36,11 +44,16 @@ Route::get('/', function () {
 })->name('customer.home');
 
 // CUSTOMER PUBLIC
+<<<<<<< HEAD
 
 Route::get('/menu', [ProductController::class, 'index'])->name('customer.menu');
+=======
+Route::get('/menu', [MenuController::class, 'index'])->name('customer.menu');
+>>>>>>> 99f97d41fa5fbc1a9cb8afe6b51afa2e9b83bd03
 
-Route::get('/about',[AboutController::class, 'index'])->name('customer.about');
-Route::get('/produk/{id}',[ProductController::class,'show'])->name('customer.product.show');
+Route::get('/about', [AboutController::class, 'index'])->name('customer.about');
+
+Route::get('/produk/{id}', [ProductController::class,'show'])->name('customer.product.show');
 
 // AUTH
 Route::middleware('guest')->group(function () {
@@ -49,6 +62,10 @@ Route::middleware('guest')->group(function () {
     Route::get('/register', [RegisterController::class, 'index'])->name('register');
     Route::post('/register', [RegisterController::class, 'store']);
 });
+
+Route::get('/checkout/pembayaran', function() {
+    return redirect()->route('checkout');
+})->name('checkout.pembayaran.get')->middleware('auth');
 
 // LOGOUT
 Route::post('/logout', [LoginController::class, 'logout'])
@@ -65,6 +82,14 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/keranjang/hapus/{id}', [KeranjangController::class, 'hapus'])->name('keranjang.hapus');
     Route::delete('/keranjang/hapus-semua', [KeranjangController::class, 'hapusSemua'])->name('keranjang.hapusSemua');
 
+    Route::post('/pesanan-saya/{id}/ulasan', [CustomerPesananController::class, 'storeReview'])->name('customer.pesanan.ulasan');
+
+    // CHECKOUT & PEMBAYARAN
+    Route::get('/checkout', [PembayaranController::class, 'checkout'])->name('checkout');
+    Route::post('/checkout/pembayaran', [PembayaranController::class, 'pilihPembayaran'])->name('checkout.pembayaran');
+    Route::post('/pembayaran/proses', [PembayaranController::class, 'proses'])->name('pembayaran.proses');
+    Route::get('/pembayaran/berhasil/{orderNumber}', [PembayaranController::class, 'berhasil'])->name('pembayaran.berhasil');
+
     // PROFIL CUSTOMER
     Route::get('/profil', [ProfilController::class, 'index'])->name('customer.profil');
     Route::post('/profil', [ProfilController::class, 'updateProfil'])->name('customer.profil.update');
@@ -79,6 +104,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/profil/notifikasi', [ProfilController::class, 'updateNotifikasi'])->name('customer.profil.notifikasi.update');
     Route::get('/profil/privasi', [ProfilController::class, 'privasi'])->name('customer.profil.privasi');
     Route::delete('/profil/privasi/hapus-akun', [ProfilController::class, 'deleteAccount'])->name('customer.profil.privasi.hapus');
+
     // PESANAN CUSTOMER
     Route::get('/pesanan-saya', [CustomerPesananController::class, 'index'])->name('customer.pesanan');
     Route::get('/pesanan-saya/{id}', [CustomerPesananController::class, 'show'])->name('customer.pesanan.show');

@@ -45,9 +45,7 @@ class PesananController extends Controller
 
     public function updateStatus(Request $request, $id)
     {
-        $request->validate([
-            'status' => 'required|in:pending,processing,completed,cancelled'
-        ]);
+        $validStatuses = ['processing', 'ready', 'completed', 'cancelled'];
 
         try {
             $order = Order::findOrFail($id);
