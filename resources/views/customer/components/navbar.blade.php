@@ -210,7 +210,6 @@
                             {{ Auth::user()->name }}
                         </div>
                         <a href="{{ route('customer.profil') }}" style="display:block; padding:10px 16px; color:#3B1A08; font-size:14px;">Profil Saya</a>
-                        <a href="{{ route('keranjang.index') }}" style="display:block; padding:10px 16px; color:#3B1A08; font-size:14px;">Keranjang</a>
                         <form action="{{ route('logout') }}" method="POST">
                             @csrf
                             <button type="submit" style="width:100%; text-align:left; padding:10px 16px; background:none; border:none; color:#e74c3c; font-size:14px; cursor:pointer; font-family:inherit;">

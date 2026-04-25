@@ -36,9 +36,8 @@ Route::get('/', function () {
 })->name('customer.home');
 
 // CUSTOMER PUBLIC
-Route::get('/menu', function () {
-    return view('customer.pages.home');
-})->name('customer.menu');
+
+Route::get('/menu', [ProductController::class, 'index'])->name('customer.menu');
 
 Route::get('/about',[AboutController::class, 'index'])->name('customer.about');
 Route::get('/produk/{id}',[ProductController::class,'show'])->name('customer.product.show');
