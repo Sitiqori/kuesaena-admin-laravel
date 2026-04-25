@@ -106,6 +106,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/reward-saya', [CustomerRewardController::class, 'index'])->name('customer.reward');
     Route::post('/reward-saya/{id}/redeem', [CustomerRewardController::class, 'redeem'])->name('customer.reward.redeem');
 
+    // Wishlist & Like
+    Route::get('/profil/wishlist', [\App\Http\Controllers\Customer\WishlistController::class, 'index'])->name('customer.profil.wishlist');
+    Route::post('/wishlist/toggle/{product}', [\App\Http\Controllers\Customer\WishlistController::class, 'toggle'])->name('wishlist.toggle');
+    Route::delete('/wishlist/{wishlist}', [\App\Http\Controllers\Customer\WishlistController::class, 'destroy'])->name('wishlist.destroy');
+    Route::get('/profil/like', [\App\Http\Controllers\Customer\ProductLikeController::class, 'index'])->name('customer.profil.like');
+    Route::post('/product/like/{product}', [\App\Http\Controllers\Customer\ProductLikeController::class, 'toggle'])->name('product.like');
+
     // ADMIN ONLY
     Route::middleware(['is.admin'])->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

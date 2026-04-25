@@ -577,6 +577,21 @@
                     </div>
                     <a href="{{ route('customer.reward') }}" class="sidebar-link {{ request()->routeIs('customer.reward') ? 'active' : '' }}">Reward Saya</a>
                 </div>
+
+                {{-- Wishlist & Like --}}
+                <div class="sidebar-group">
+                    <div class="sidebar-group-header">
+                        <i class="fas fa-heart"></i>
+                        <span class="sidebar-group-title">Favorit Saya</span>
+                    </div>
+                    <a href="{{ route('customer.profil.wishlist') }}" class="sidebar-link {{ request()->routeIs('customer.profil.wishlist') ? 'active' : '' }}">
+                        ❤️ Wishlist
+                    </a>
+                    <a href="{{ route('customer.profil.like') }}" class="sidebar-link {{ request()->routeIs('customer.profil.like') ? 'active' : '' }}">
+                        👍 Produk yang Disukai
+                    </a>
+                </div>
+
             </div>
 
             {{-- ===== MAIN CONTENT ===== --}}

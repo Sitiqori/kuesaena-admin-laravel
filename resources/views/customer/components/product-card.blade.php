@@ -61,9 +61,22 @@
         <div class="product-card__top">
             <h3 class="product-card__name">{{ $productName }}</h3>
             <div class="product-card__actions">
-                <button class="prod-action-btn wishlist-btn" title="Wishlist">
-                    <i class="far fa-heart"></i>
-                </button>
+                
+		{{-- Tombol Wishlist (Love) --}}
+		    <button class="prod-action-btn wishlist-btn" title="Wishlist" 
+		            data-id="{{ $product->id }}"
+		            onclick="toggleWishlist({{ $product->id }}, this)">
+		        <i class="far fa-heart"></i>
+		    </button>
+		    
+		    {{-- Tombol Favorite/Like (Jempol) --}}
+		    <button class="prod-action-btn like-btn" title="Suka" 
+		            data-id="{{ $product->id }}"
+		            onclick="toggleLike({{ $product->id }}, this)">
+		        <i class="far fa-thumbs-up"></i>
+		        <span class="like-count" style="font-size:10px; margin-left:3px;">{{ $product->likes()->count() }}</span>
+		    </button>
+
                 <button class="prod-action-btn cart-btn" title="Tambah ke Keranjang" data-id="{{ $productId }}">
                     <i class="fas fa-shopping-cart"></i>
                 </button>

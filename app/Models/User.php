@@ -54,6 +54,17 @@ class User extends Authenticatable
         return $this->hasMany(UserRewardRedemption::class);
     }
 
+    // Wishlist & Like relations
+    public function wishlists()
+    {
+        return $this->hasMany(Wishlist::class);
+    }
+
+    public function productLikes()
+    {
+        return $this->hasMany(ProductLike::class);
+    }
+
     // Helpers
     public function getMaskedPhoneAttribute(): string
     {
@@ -69,4 +80,5 @@ class User extends Authenticatable
     {
         return $this->coinRecord ? $this->coinRecord->coins : 0;
     }
+    
 }
