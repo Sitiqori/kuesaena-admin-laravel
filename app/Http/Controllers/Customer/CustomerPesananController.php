@@ -36,10 +36,37 @@ class CustomerPesananController extends Controller
 
     public function show($id)
     {
-        $order = Order::with(['orderItems.product'])
+        $order = Order::with(['orderItems.product', 'review'])
             ->where('user_id', Auth::id())
             ->findOrFail($id);
 
         return view('customer.pages.pesanan.detail', compact('order'));
+    }
+
+    public function storeReview(Request $request, $id)
+{
+    $request->validate([
+        'name'   => 'required|string|max:100',
+        'body'   => 'required|string|max:500',
+        'rating' => 'required|integer|min:1|max:5',
+    ]);
+
+    $order = Order::where('user_id', Auth::id())
+        ->where('status', 'completed')
+        ->findOrFail($id);
+
+    if ($order->review) {
+        return back()->with('error', 'Ulasan sudah pernah diberikan.');
+    }
+
+    \App\Models\Review::create([
+        'order_id' => $order->id,
+        'user_id'  => Auth::id(),
+        'name'     => $request->name,
+        'body'     => $request->body,
+        'rating'   => $request->rating,
+    ]);
+
+    return back()->with('success', 'Ulasan berhasil disimpan!');
     }
 }

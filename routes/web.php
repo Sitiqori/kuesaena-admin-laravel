@@ -77,6 +77,8 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/keranjang/hapus/{id}', [KeranjangController::class, 'hapus'])->name('keranjang.hapus');
     Route::delete('/keranjang/hapus-semua', [KeranjangController::class, 'hapusSemua'])->name('keranjang.hapusSemua');
 
+    Route::post('/pesanan-saya/{id}/ulasan', [CustomerPesananController::class, 'storeReview'])->name('customer.pesanan.ulasan');
+
     // CHECKOUT & PEMBAYARAN
     Route::get('/checkout', [PembayaranController::class, 'checkout'])->name('checkout');
     Route::post('/checkout/pembayaran', [PembayaranController::class, 'pilihPembayaran'])->name('checkout.pembayaran');

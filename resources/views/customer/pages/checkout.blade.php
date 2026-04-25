@@ -104,30 +104,25 @@
     color: #C68B5A;
 }
 
-/* Input ukuran dengan cm */
-.input-cm {
-    display: flex;
-    align-items: center;
+/* Size dropdown (sama style dengan select rasa) */
+.size-select {
+    padding: 10px 14px;
     border: 1px solid #e8d5b7;
     border-radius: 8px;
-    overflow: hidden;
-}
-.input-cm input {
-    border: none;
-    padding: 10px 14px;
-    flex: 1;
     font-size: 14px;
     font-family: inherit;
-    color: #1A0A00;
+    color: #C68B5A;
+    background: #3B1A08;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23C68B5A' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+    width: 100%;
 }
-.input-cm input:focus { outline: none; }
-.input-cm .cm-label {
-    padding: 10px 14px;
-    font-size: 14px;
-    color: #8B6050;
-    background: #f9f5f0;
-    border-left: 1px solid #e8d5b7;
-}
+.size-select:focus { outline: none; border-color: #C68B5A; }
+.size-select option { background: #3B1A08; color: #C68B5A; }
 
 /* Kontrol jumlah */
 .qty-control {
@@ -182,6 +177,14 @@
 .toggle-btn.active {
     background: #3B1A08;
     color: #fff;
+}
+
+/* Keterangan harga per size */
+.size-info {
+    font-size: 12px;
+    color: #8B6050;
+    margin-top: 4px;
+    font-style: italic;
 }
 
 /* ===== ALAMAT ===== */
@@ -313,12 +316,38 @@
 
         {{-- ===== KARTU PRODUK + FORM ===== --}}
         @foreach($cartItems as $item)
+        @php
+            $prod    = $item->product;
+            // Cek kolom gambar: bisa 'gambar' (path barang/) atau 'image' (path products/)
+            $imgSrc  = null;
+            if (!empty($prod->gambar)) {
+                $imgSrc = asset('storage/barang/' . $prod->gambar);
+            } elseif (!empty($prod->image)) {
+                $imgSrc = asset('storage/' . $prod->image);
+            }
+
+            // Harga per ukuran (hanya kalau has_size = true)
+            $sizePrices = [];
+            if ($prod->has_size) {
+                if ($prod->price_s  > 0) $sizePrices['S']  = $prod->price_s;
+                if ($prod->price_m  > 0) $sizePrices['M']  = $prod->price_m;
+                if ($prod->price_l  > 0) $sizePrices['L']  = $prod->price_l;
+                if ($prod->price_xl > 0) $sizePrices['XL'] = $prod->price_xl;
+            }
+
+            // Nama produk (support dua kemungkinan kolom)
+            $prodName = $prod->nama_barang ?? $prod->name ?? 'Produk';
+        @endphp
+
         <div class="checkout-card">
             <div class="produk-row">
                 {{-- Gambar --}}
-                @if($item->product->image)
-                    <img src="{{ asset('storage/' . $item->product->image) }}"
-                         alt="{{ $item->product->name }}" class="produk-img">
+                @if($imgSrc)
+                    <img src="{{ $imgSrc }}" alt="{{ $prodName }}" class="produk-img"
+                         onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                    <div class="produk-img-placeholder" style="display:none;">
+                        <i class="fas fa-birthday-cake" style="font-size:40px;color:#C68B5A;"></i>
+                    </div>
                 @else
                     <div class="produk-img-placeholder">
                         <i class="fas fa-birthday-cake" style="font-size:40px;color:#C68B5A;"></i>
@@ -327,57 +356,76 @@
 
                 {{-- Form --}}
                 <div class="produk-form">
+                    <p style="font-size:15px;font-weight:700;color:#3B1A08;margin-bottom:14px;">
+                        {{ $prodName }}
+                    </p>
+
                     <div class="form-grid">
+                        {{-- Rasa --}}
                         <div class="form-group">
                             <label>Rasa</label>
-                            <select name="cake_flavor">
+                            <select name="cake_flavor[]">
                                 <option value="">Pilih opsi</option>
-                                <option value="Coklat" {{ old('cake_flavor', $item->flavor) == 'Coklat' ? 'selected' : '' }}>Coklat</option>
-                                <option value="Vanila" {{ old('cake_flavor', $item->flavor) == 'Vanila' ? 'selected' : '' }}>Vanila</option>
-                                <option value="Stroberi" {{ old('cake_flavor', $item->flavor) == 'Stroberi' ? 'selected' : '' }}>Stroberi</option>
-                                <option value="Pandan" {{ old('cake_flavor', $item->flavor) == 'Pandan' ? 'selected' : '' }}>Pandan</option>
-                                <option value="Red Velvet" {{ old('cake_flavor', $item->flavor) == 'Red Velvet' ? 'selected' : '' }}>Red Velvet</option>
-                                <option value="Matcha" {{ old('cake_flavor', $item->flavor) == 'Matcha' ? 'selected' : '' }}>Matcha</option>
-                                <option value="Keju" {{ old('cake_flavor', $item->flavor) == 'Keju' ? 'selected' : '' }}>Keju</option>
-                                <option value="Tiramisu" {{ old('cake_flavor', $item->flavor) == 'Tiramisu' ? 'selected' : '' }}>Tiramisu</option>
+                                @foreach(['Coklat','Vanila','Stroberi','Pandan','Red Velvet','Matcha','Keju','Tiramisu'] as $rasa)
+                                    <option value="{{ $rasa }}"
+                                        {{ old('cake_flavor.0', $item->flavor ?? '') == $rasa ? 'selected' : '' }}>
+                                        {{ $rasa }}
+                                    </option>
+                                @endforeach
                             </select>
                         </div>
 
+                        {{-- Jumlah --}}
                         <div class="form-group">
                             <label>Jumlah</label>
                             <div class="qty-control">
-                                <button type="button" onclick="ubahQty(-1)">−</button>
-                                <input type="number" name="quantity" id="qty"
+                                <button type="button" onclick="ubahQty(this, -1)">−</button>
+                                <input type="number" name="quantity[]" class="qty-input"
                                        value="{{ $item->quantity }}" min="1" readonly>
-                                <button type="button" onclick="ubahQty(1)">+</button>
+                                <button type="button" onclick="ubahQty(this, 1)">+</button>
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label>Ukuran</label>
-                            <div class="input-cm">
-                                <input type="text" name="size" placeholder="11"
-                                       value="{{ old('size', $item->size) }}">
-                                <span class="cm-label">cm</span>
+                        {{-- Ukuran: dropdown kalau has_size, sembunyi kalau tidak --}}
+                        @if($prod->has_size && count($sizePrices) > 0)
+                            <div class="form-group">
+                                <label>Ukuran</label>
+                                <select name="size[]" class="size-select"
+                                        data-prices="{{ json_encode($sizePrices) }}"
+                                        onchange="updateHarga(this)">
+                                    <option value="">Pilih ukuran</option>
+                                    @foreach($sizePrices as $label => $harga)
+                                        <option value="{{ $label }}"
+                                                data-price="{{ $harga }}"
+                                            {{ old('size.0', $item->size ?? '') == $label ? 'selected' : '' }}>
+                                            {{ $label }} — Rp {{ number_format($harga, 0, ',', '.') }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <span class="size-info">Harga menyesuaikan ukuran yang dipilih</span>
                             </div>
-                        </div>
+                        @else
+                            {{-- Produk tanpa ukuran: kirim size kosong agar controller tidak error --}}
+                            <input type="hidden" name="size[]" value="">
+                        @endif
 
+                        {{-- Pengambilan --}}
                         <div class="form-group">
                             <label>Pengambilan</label>
                             <div class="toggle-group">
-                                <button type="button" class="toggle-btn active" id="btn-pickup"
-                                        onclick="pilihPengambilan('pickup')">Pickup</button>
-                                <button type="button" class="toggle-btn" id="btn-antar"
-                                        onclick="pilihPengambilan('antar')">Antar</button>
+                                <button type="button" class="toggle-btn active" id="btn-pickup-{{ $loop->index }}"
+                                        onclick="pilihPengambilan('pickup', {{ $loop->index }})">Pickup</button>
+                                <button type="button" class="toggle-btn" id="btn-antar-{{ $loop->index }}"
+                                        onclick="pilihPengambilan('antar', {{ $loop->index }})">Antar</button>
                             </div>
-                            <input type="hidden" name="delivery_method" id="delivery_method" value="pickup">
+                            <input type="hidden" name="delivery_method[]" id="delivery_method_{{ $loop->index }}" value="pickup">
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label>Catatan</label>
-                        <input type="text" name="notes" placeholder="Krimnya jangan terlalu banyak."
-                               value="{{ old('notes', $item->note) }}">
+                        <input type="text" name="notes[]" placeholder="Krimnya jangan terlalu banyak."
+                               value="{{ old('notes.0', $item->note ?? '') }}">
                     </div>
                 </div>
             </div>
@@ -413,7 +461,7 @@
             <h2>Harga</h2>
             <div class="harga-row">
                 <span>Subtotal</span>
-                <span>Rp {{ number_format($total, 0, ',', '.') }}</span>
+                <span id="subtotal-display">Rp {{ number_format($total, 0, ',', '.') }}</span>
             </div>
             <div class="harga-row">
                 <span>Biaya Layanan</span>
@@ -421,7 +469,7 @@
             </div>
             <div class="harga-row total">
                 <span>Total Pembayaran</span>
-                <span>Rp {{ number_format($total, 0, ',', '.') }}</span>
+                <span id="total-display">Rp {{ number_format($total, 0, ',', '.') }}</span>
             </div>
         </div>
 
@@ -437,26 +485,54 @@
 
 @push('scripts')
 <script>
-function ubahQty(delta) {
-    const input = document.getElementById('qty');
+// ── Qty per item ──────────────────────────────────────────────
+function ubahQty(btn, delta) {
+    const input = btn.closest('.qty-control').querySelector('.qty-input');
     let val = parseInt(input.value) + delta;
     if (val < 1) val = 1;
     input.value = val;
 }
 
-function pilihPengambilan(metode) {
-    document.getElementById('delivery_method').value = metode;
+// ── Pilih metode pengambilan per item ────────────────────────
+function pilihPengambilan(metode, idx) {
+    document.getElementById('delivery_method_' + idx).value = metode;
     if (metode === 'pickup') {
-        document.getElementById('btn-pickup').classList.add('active');
-        document.getElementById('btn-antar').classList.remove('active');
-        document.getElementById('alamat-card').style.display = 'none';
+        document.getElementById('btn-pickup-' + idx).classList.add('active');
+        document.getElementById('btn-antar-'  + idx).classList.remove('active');
+        // Sembunyikan alamat kalau semua item pickup
+        const anyAntar = [...document.querySelectorAll('[id^="delivery_method_"]')]
+            .some(el => el.value === 'antar');
+        if (!anyAntar) document.getElementById('alamat-card').style.display = 'none';
     } else {
-        document.getElementById('btn-antar').classList.add('active');
-        document.getElementById('btn-pickup').classList.remove('active');
+        document.getElementById('btn-antar-'  + idx).classList.add('active');
+        document.getElementById('btn-pickup-' + idx).classList.remove('active');
         document.getElementById('alamat-card').style.display = 'block';
     }
 }
 
+// ── Update harga saat pilih ukuran ───────────────────────────
+function updateHarga(selectEl) {
+    const selectedOpt = selectEl.options[selectEl.selectedIndex];
+    const harga = parseFloat(selectedOpt.dataset.price || 0);
+
+    // Hitung total semua size yang sudah dipilih
+    let total = 0;
+    document.querySelectorAll('.size-select').forEach(sel => {
+        const opt = sel.options[sel.selectedIndex];
+        if (opt && opt.dataset.price) {
+            total += parseFloat(opt.dataset.price);
+        }
+    });
+
+    // Produk tanpa size: ambil base price dari server (dikirim via hidden input kalau ada)
+    // Sementara hanya total dari size yang diselect
+    if (total > 0) {
+        document.getElementById('subtotal-display').textContent = 'Rp ' + total.toLocaleString('id-ID');
+        document.getElementById('total-display').textContent    = 'Rp ' + total.toLocaleString('id-ID');
+    }
+}
+
+// ── Pilih alamat ─────────────────────────────────────────────
 function pilihAlamat(id, el) {
     document.querySelectorAll('.alamat-item').forEach(c => c.classList.remove('selected'));
     el.classList.add('selected');

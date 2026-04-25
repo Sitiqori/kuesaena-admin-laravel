@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\DB;
 
 class PembayaranController extends Controller
 {
-    // Halaman checkout — tampilkan isi keranjang + form detail pesanan
     public function checkout()
     {
         $cartItems = Cart::with('product')
@@ -31,25 +30,39 @@ class PembayaranController extends Controller
         return view('customer.pages.checkout', compact('cartItems', 'addresses', 'total'));
     }
 
-    // Proses dari checkout → ke halaman pilih pembayaran
     public function pilihPembayaran(Request $request)
     {
+        // delivery_method, size, cake_flavor, notes dikirim sebagai array (per item)
         $request->validate([
-            'delivery_method' => 'required|in:pickup,delivery',
-            'address_id'      => 'required_if:delivery_method,delivery|nullable|exists:user_addresses,id',
-            'size'            => 'nullable|string|max:50',
-            'cake_flavor'     => 'nullable|string|max:100',
-            'notes'           => 'nullable|string|max:255',
+            'delivery_method'   => 'required|array',
+            'delivery_method.*' => 'in:pickup,antar',
+            'address_id'        => 'nullable|exists:user_addresses,id',
+            'size'              => 'nullable|array',
+            'size.*'            => 'nullable|string|max:50',
+            'cake_flavor'       => 'nullable|array',
+            'cake_flavor.*'     => 'nullable|string|max:100',
+            'notes'             => 'nullable|array',
+            'notes.*'           => 'nullable|string|max:255',
         ]);
 
-        // Simpan data checkout ke session
+        // Ambil nilai pertama untuk sesi (order masih 1 item per checkout)
+        $deliveryMethods = $request->input('delivery_method', []);
+        $sizes           = $request->input('size', []);
+        $flavors         = $request->input('cake_flavor', []);
+        $notes           = $request->input('notes', []);
+
         session([
             'checkout_data' => [
-                'delivery_method' => $request->delivery_method,
+                'delivery_method' => $deliveryMethods[0] ?? 'pickup',
                 'address_id'      => $request->address_id,
-                'size'            => $request->size,
-                'cake_flavor'     => $request->cake_flavor,
-                'notes'           => $request->notes,
+                'size'            => $sizes[0] ?? null,
+                'cake_flavor'     => $flavors[0] ?? null,
+                'notes'           => $notes[0] ?? null,
+                // simpan semua array juga untuk multi-item kalau dibutuhkan
+                'delivery_methods' => $deliveryMethods,
+                'sizes'            => $sizes,
+                'flavors'          => $flavors,
+                'all_notes'        => $notes,
             ]
         ]);
 
@@ -57,27 +70,31 @@ class PembayaranController extends Controller
             ->where('user_id', Auth::id())
             ->get();
 
-        $total = $cartItems->sum(fn($item) => $item->product->price * $item->quantity);
-        $address = $request->address_id
-            ? UserAddress::find($request->address_id)
-            : null;
+        // Hitung total: kalau item punya size yang dipilih, pakai harga size
+        $total = 0;
+        foreach ($cartItems as $idx => $item) {
+            $prod      = $item->product;
+            $size      = $sizes[$idx] ?? null;
+            $unitPrice = $prod->price; // default harga jual biasa
+
+            if ($prod->has_size && $size) {
+                $priceKey  = 'price_' . strtolower($size);
+                $unitPrice = $prod->$priceKey ?? $prod->price;
+            }
+
+            $total += $unitPrice * $item->quantity;
+        }
+
+        $address = $request->address_id ? UserAddress::find($request->address_id) : null;
 
         return view('customer.pages.pembayaran', compact('cartItems', 'total', 'address'));
     }
 
-    // Proses pembayaran → buat order → redirect ke halaman berhasil
     public function proses(Request $request)
     {
         $request->validate([
             'payment_method' => 'required|in:qris,shopee_pay,dana,gopay,ovo,cod,kartu_kredit,transfer_bank',
         ]);
-
-        $checkoutData = session('checkout_data');
-
-        if (!$checkoutData) {
-            return redirect()->route('checkout')
-                ->with('error', 'Sesi checkout sudah habis, silakan ulangi.');
-        }
 
         $cartItems = Cart::with('product')
             ->where('user_id', Auth::id())
@@ -88,11 +105,29 @@ class PembayaranController extends Controller
                 ->with('error', 'Keranjang kamu kosong!');
         }
 
-        $subtotal = $cartItems->sum(fn($item) => $item->product->price * $item->quantity);
+        $checkoutData    = session('checkout_data', []);
+        $deliveryMethods = $checkoutData['delivery_methods'] ?? [$checkoutData['delivery_method'] ?? 'pickup'];
+        $sizes           = $checkoutData['sizes']     ?? [$checkoutData['size']       ?? null];
+        $flavors         = $checkoutData['flavors']   ?? [$checkoutData['cake_flavor'] ?? null];
+        $allNotes        = $checkoutData['all_notes'] ?? [$checkoutData['notes']       ?? null];
+
+        // Hitung subtotal dengan harga per ukuran
+        $subtotal = 0;
+        foreach ($cartItems as $idx => $item) {
+            $prod      = $item->product;
+            $size      = $sizes[$idx] ?? null;
+            $unitPrice = $prod->price;
+
+            if ($prod->has_size && $size) {
+                $priceKey  = 'price_' . strtolower($size);
+                $unitPrice = $prod->$priceKey ?? $prod->price;
+            }
+
+            $subtotal += $unitPrice * $item->quantity;
+        }
 
         DB::beginTransaction();
         try {
-            // Buat order
             $order = Order::create([
                 'user_id'         => Auth::id(),
                 'order_number'    => Order::generateOrderNumber(),
@@ -101,42 +136,44 @@ class PembayaranController extends Controller
                 'discount'        => 0,
                 'total'           => $subtotal,
                 'payment_method'  => $request->payment_method,
-                'delivery_method' => $checkoutData['delivery_method'],
-                'size'            => $checkoutData['size'],
-                'cake_flavor'     => $checkoutData['cake_flavor'],
-                'notes'           => $checkoutData['notes'],
-                'status'          => 'pending',
+                'delivery_method' => $deliveryMethods[0] ?? 'pickup',
+                'size'            => $sizes[0] ?? null,
+                'cake_flavor'     => $flavors[0] ?? null,
+                'notes'           => $allNotes[0] ?? null,
+                'status'          => 'processing',
             ]);
 
-            // Buat order items dari keranjang
-            foreach ($cartItems as $item) {
+            foreach ($cartItems as $idx => $item) {
+                $prod      = $item->product;
+                $size      = $sizes[$idx] ?? null;
+                $unitPrice = $prod->price;
+
+                if ($prod->has_size && $size) {
+                    $priceKey  = 'price_' . strtolower($size);
+                    $unitPrice = $prod->$priceKey ?? $prod->price;
+                }
+
                 OrderItem::create([
                     'order_id'   => $order->id,
                     'product_id' => $item->product_id,
                     'quantity'   => $item->quantity,
-                    'price'      => $item->product->price,
-                    'subtotal'   => $item->product->price * $item->quantity,
+                    'price'      => $unitPrice,
+                    'subtotal'   => $unitPrice * $item->quantity,
                 ]);
             }
 
-            // Kosongkan keranjang
             Cart::where('user_id', Auth::id())->delete();
-
-            // Hapus session checkout
             session()->forget('checkout_data');
-
             DB::commit();
 
             return redirect()->route('pembayaran.berhasil', $order->order_number);
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()
-                ->with('error', 'Terjadi kesalahan, silakan coba lagi.');
+            dd($e->getMessage());
         }
     }
 
-    // Halaman pemesanan berhasil
     public function berhasil($orderNumber)
     {
         $order = Order::with('orderItems.product')
