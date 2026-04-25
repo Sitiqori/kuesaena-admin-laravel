@@ -45,10 +45,8 @@ Route::get('/', function () {
 
 // CUSTOMER PUBLIC
 Route::get('/menu', [MenuController::class, 'index'])->name('customer.menu');
-
 Route::get('/about', [AboutController::class, 'index'])->name('customer.about');
-
-Route::get('/produk/{id}', [ProductController::class,'show'])->name('customer.product.show');
+Route::get('/produk/{id}', [ProductController::class, 'show'])->name('customer.product.show');
 
 // AUTH
 Route::middleware('guest')->group(function () {
@@ -58,7 +56,7 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [RegisterController::class, 'store']);
 });
 
-Route::get('/checkout/pembayaran', function() {
+Route::get('/checkout/pembayaran', function () {
     return redirect()->route('checkout');
 })->name('checkout.pembayaran.get')->middleware('auth');
 

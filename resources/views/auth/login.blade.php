@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <style>
         * {
@@ -357,7 +358,7 @@
                             <input type="password" id="password" name="password"
                                    placeholder="••••••••••" required>
                             <button type="button" class="password-toggle" onclick="togglePassword()">
-                                👁️
+                                <i class="fas fa-eye" id="toggle-icon"></i>
                             </button>
                         </div>
                     </div>
@@ -396,8 +397,11 @@
     <script>
         function togglePassword() {
             const passwordInput = document.getElementById('password');
-            const type = passwordInput.type === 'password' ? 'text' : 'password';
-            passwordInput.type = type;
+            const icon = document.getElementById('toggle-icon');
+            const isHidden = passwordInput.type === 'password';
+            passwordInput.type = isHidden ? 'text' : 'password';
+            icon.classList.toggle('fa-eye', !isHidden);
+            icon.classList.toggle('fa-eye-slash', isHidden);
         }
     </script>
 </body>

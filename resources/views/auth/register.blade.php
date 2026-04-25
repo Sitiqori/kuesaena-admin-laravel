@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <style>
         * {
@@ -317,8 +318,8 @@
                         <div class="password-wrapper">
                             <input type="password" id="password" name="password"
                                    placeholder="••••••••••" required>
-                            <button type="button" class="password-toggle" onclick="togglePassword('password')">
-                                👁️
+                            <button type="button" class="password-toggle" onclick="togglePassword('password', 'icon-password')">
+                                <i class="fas fa-eye" id="icon-password"></i>
                             </button>
                         </div>
                     </div>
@@ -328,8 +329,8 @@
                         <div class="password-wrapper">
                             <input type="password" id="password_confirmation" name="password_confirmation"
                                    placeholder="••••••••••" required>
-                            <button type="button" class="password-toggle" onclick="togglePassword('password_confirmation')">
-                                👁️
+                            <button type="button" class="password-toggle" onclick="togglePassword('password_confirmation', 'icon-confirm')">
+                                <i class="fas fa-eye" id="icon-confirm"></i>
                             </button>
                         </div>
                     </div>
@@ -358,10 +359,14 @@
     </div>
 
     <script>
-        function togglePassword(fieldId) {
-            const passwordInput = document.getElementById(fieldId);
-            const type = passwordInput.type === 'password' ? 'text' : 'password';
-            passwordInput.type = type;
+        function togglePassword(fieldId, iconId) {
+            const input = document.getElementById(fieldId);
+            const icon  = document.getElementById(iconId);
+            const isHidden = input.type === 'password';
+            input.type = isHidden ? 'text' : 'password';
+            icon.classList.toggle('fa-eye', !isHidden);
+            icon.classList.toggle('fa-eye-slash', isHidden);
+        }
         }
     </script>
 </body>
