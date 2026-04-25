@@ -44,16 +44,9 @@ Route::get('/', function () {
 })->name('customer.home');
 
 // CUSTOMER PUBLIC
-<<<<<<< HEAD
-
-Route::get('/menu', [ProductController::class, 'index'])->name('customer.menu');
-=======
 Route::get('/menu', [MenuController::class, 'index'])->name('customer.menu');
->>>>>>> 99f97d41fa5fbc1a9cb8afe6b51afa2e9b83bd03
-
 Route::get('/about', [AboutController::class, 'index'])->name('customer.about');
-
-Route::get('/produk/{id}', [ProductController::class,'show'])->name('customer.product.show');
+Route::get('/produk/{id}', [ProductController::class, 'show'])->name('customer.product.show');
 
 // AUTH
 Route::middleware('guest')->group(function () {
@@ -63,7 +56,7 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [RegisterController::class, 'store']);
 });
 
-Route::get('/checkout/pembayaran', function() {
+Route::get('/checkout/pembayaran', function () {
     return redirect()->route('checkout');
 })->name('checkout.pembayaran.get')->middleware('auth');
 
