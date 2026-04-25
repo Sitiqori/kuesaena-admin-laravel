@@ -217,14 +217,89 @@
 </div>
 
 {{-- Action --}}
-<div style="display:flex; gap:12px;">
+<div style="display:flex; gap:12px; flex-wrap:wrap;">
     <a href="{{ route('customer.pesanan') }}" class="btn-ghost" style="text-decoration:none;">
         ← Kembali ke Pesanan
     </a>
+    <button onclick="document.getElementById('modal-struk').style.display='flex'"
+            class="btn-brown" style="border:none; cursor:pointer;">
+        Lihat Tagihan
+    </button>
     <a href="https://wa.me/6281234567890?text=Halo, saya ingin bertanya terkait pesanan {{ $order->order_number }}"
        target="_blank" class="btn-brown" style="text-decoration:none;">
         <i class="fab fa-whatsapp" style="margin-right:6px;"></i> Hubungi Penjual
     </a>
+</div>
+
+{{-- Modal Struk --}}
+<div id="modal-struk" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+    <div style="background:white; border-radius:12px; padding:28px; width:90%; max-width:360px; position:relative; font-family: monospace;">
+        <button onclick="document.getElementById('modal-struk').style.display='none'"
+                style="position:absolute; top:12px; right:16px; background:none; border:none; font-size:22px; cursor:pointer; color:#888;">×</button>
+
+        {{-- Header --}}
+        <div style="text-align:center; margin-bottom:16px;">
+            <p style="font-weight:700; font-size:16px; letter-spacing:1px;">KUESAENA</p>
+            <p style="font-size:11px; color:#555; line-height:1.6;">
+                Jl. Manis No. 123, Jakarta<br>
+                No. Telp +62 812-3456-7890
+            </p>
+        </div>
+
+        <hr style="border:none; border-top:1px dashed #ccc; margin:12px 0;">
+
+        <div style="font-size:12px; color:#333; margin-bottom:12px; line-height:2;">
+            <div style="display:flex; justify-content:space-between;">
+                <span>Tanggal</span>
+                <span>{{ $order->created_at->format('Y-m-d') }}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+                <span>No. Pesanan</span>
+                <span>{{ $order->order_number }}</span>
+            </div>
+        </div>
+
+        <hr style="border:none; border-top:1px dashed #ccc; margin:12px 0;">
+
+        {{-- Items --}}
+        @foreach($order->orderItems as $item)
+        <div style="margin-bottom:10px; font-size:12px;">
+            <div style="display:flex; justify-content:space-between; font-weight:700;">
+                <span>{{ $item->product?->name ?? 'Produk' }}</span>
+                <span>Rp {{ number_format($item->subtotal, 0, ',', '.') }}</span>
+            </div>
+            <div style="color:#888;">
+                Rp {{ number_format($item->price, 0, ',', '.') }} x {{ $item->quantity }}
+            </div>
+        </div>
+        @endforeach
+
+        <hr style="border:none; border-top:1px dashed #ccc; margin:12px 0;">
+
+        <div style="font-size:12px; line-height:2.2;">
+            <div style="display:flex; justify-content:space-between;">
+                <span>Total</span>
+                <span>Rp {{ number_format($order->total, 0, ',', '.') }}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+                <span>Kembalian</span>
+                <span>Rp 0</span>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+                <span>Metode Pembayaran</span>
+                <span>{{ strtoupper($order->payment_method) }}</span>
+            </div>
+        </div>
+
+        <hr style="border:none; border-top:1px dashed #ccc; margin:12px 0;">
+
+        <p style="text-align:center; font-size:12px; color:#555; margin-bottom:4px;">
+            Terima kasih telah berbelanja disini!
+        </p>
+        <p style="text-align:center; font-size:10px; color:#aaa;">
+            https://kuesaena.com/kritik-saran-belanja/
+        </p>
+    </div>
 </div>
 
 @push('scripts')

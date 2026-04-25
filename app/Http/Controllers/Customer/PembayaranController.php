@@ -13,16 +13,25 @@ use Illuminate\Support\Facades\DB;
 
 class PembayaranController extends Controller
 {
-    public function checkout()
+    public function checkout(Request $request)
     {
-        $cartItems = Cart::with('product')
-            ->where('user_id', Auth::id())
-            ->get();
+        $selectedIds = $request->input('items', []);
+
+        $query = Cart::with('product')->where('user_id', Auth::id());
+
+        if (!empty($selectedIds)) {
+            $query->whereIn('id', $selectedIds);
+        }
+
+        $cartItems = $query->get();
 
         if ($cartItems->isEmpty()) {
             return redirect()->route('keranjang.index')
                 ->with('error', 'Keranjang kamu masih kosong!');
         }
+
+        // Simpan ID yang dipilih ke session
+        session(['selected_cart_ids' => $cartItems->pluck('id')->toArray()]);
 
         $addresses = UserAddress::where('user_id', Auth::id())->get();
         $total = $cartItems->sum(fn($item) => $item->product->price * $item->quantity);
@@ -32,59 +41,44 @@ class PembayaranController extends Controller
 
     public function pilihPembayaran(Request $request)
     {
-        // delivery_method, size, cake_flavor, notes dikirim sebagai array (per item)
-        $request->validate([
-            'delivery_method'   => 'required|array',
-            'delivery_method.*' => 'in:pickup,antar',
-            'address_id'        => 'nullable|exists:user_addresses,id',
-            'size'              => 'nullable|array',
-            'size.*'            => 'nullable|string|max:50',
-            'cake_flavor'       => 'nullable|array',
-            'cake_flavor.*'     => 'nullable|string|max:100',
-            'notes'             => 'nullable|array',
-            'notes.*'           => 'nullable|string|max:255',
-        ]);
+        $deliveryMethod = is_array($request->delivery_method)
+            ? $request->delivery_method[0]
+            : $request->delivery_method;
 
-        // Ambil nilai pertama untuk sesi (order masih 1 item per checkout)
-        $deliveryMethods = $request->input('delivery_method', []);
-        $sizes           = $request->input('size', []);
-        $flavors         = $request->input('cake_flavor', []);
-        $notes           = $request->input('notes', []);
+        $cakeFlavor = is_array($request->cake_flavor)
+            ? implode(', ', array_filter($request->cake_flavor))
+            : $request->cake_flavor;
+
+        $size = is_array($request->size)
+            ? implode(', ', array_filter($request->size))
+            : $request->size;
+
+        $notes = is_array($request->notes)
+            ? implode(', ', array_filter($request->notes))
+            : $request->notes;
+
+        $request->validate([
+            'address_id' => 'nullable|exists:user_addresses,id',
+        ]);
 
         session([
             'checkout_data' => [
-                'delivery_method' => $deliveryMethods[0] ?? 'pickup',
+                'delivery_method' => $deliveryMethod ?? 'pickup',
                 'address_id'      => $request->address_id,
-                'size'            => $sizes[0] ?? null,
-                'cake_flavor'     => $flavors[0] ?? null,
-                'notes'           => $notes[0] ?? null,
-                // simpan semua array juga untuk multi-item kalau dibutuhkan
-                'delivery_methods' => $deliveryMethods,
-                'sizes'            => $sizes,
-                'flavors'          => $flavors,
-                'all_notes'        => $notes,
+                'size'            => $size,
+                'cake_flavor'     => $cakeFlavor,
+                'notes'           => $notes,
             ]
         ]);
 
+        $selectedIds = session('selected_cart_ids', []);
+
         $cartItems = Cart::with('product')
             ->where('user_id', Auth::id())
+            ->when(!empty($selectedIds), fn($q) => $q->whereIn('id', $selectedIds))
             ->get();
 
-        // Hitung total: kalau item punya size yang dipilih, pakai harga size
-        $total = 0;
-        foreach ($cartItems as $idx => $item) {
-            $prod      = $item->product;
-            $size      = $sizes[$idx] ?? null;
-            $unitPrice = $prod->price; // default harga jual biasa
-
-            if ($prod->has_size && $size) {
-                $priceKey  = 'price_' . strtolower($size);
-                $unitPrice = $prod->$priceKey ?? $prod->price;
-            }
-
-            $total += $unitPrice * $item->quantity;
-        }
-
+        $total = $cartItems->sum(fn($item) => $item->product->price * $item->quantity);
         $address = $request->address_id ? UserAddress::find($request->address_id) : null;
 
         return view('customer.pages.pembayaran', compact('cartItems', 'total', 'address'));
@@ -96,8 +90,11 @@ class PembayaranController extends Controller
             'payment_method' => 'required|in:qris,shopee_pay,dana,gopay,ovo,cod,kartu_kredit,transfer_bank',
         ]);
 
+        $selectedIds = session('selected_cart_ids', []);
+
         $cartItems = Cart::with('product')
             ->where('user_id', Auth::id())
+            ->when(!empty($selectedIds), fn($q) => $q->whereIn('id', $selectedIds))
             ->get();
 
         if ($cartItems->isEmpty()) {
@@ -105,26 +102,8 @@ class PembayaranController extends Controller
                 ->with('error', 'Keranjang kamu kosong!');
         }
 
-        $checkoutData    = session('checkout_data', []);
-        $deliveryMethods = $checkoutData['delivery_methods'] ?? [$checkoutData['delivery_method'] ?? 'pickup'];
-        $sizes           = $checkoutData['sizes']     ?? [$checkoutData['size']       ?? null];
-        $flavors         = $checkoutData['flavors']   ?? [$checkoutData['cake_flavor'] ?? null];
-        $allNotes        = $checkoutData['all_notes'] ?? [$checkoutData['notes']       ?? null];
-
-        // Hitung subtotal dengan harga per ukuran
-        $subtotal = 0;
-        foreach ($cartItems as $idx => $item) {
-            $prod      = $item->product;
-            $size      = $sizes[$idx] ?? null;
-            $unitPrice = $prod->price;
-
-            if ($prod->has_size && $size) {
-                $priceKey  = 'price_' . strtolower($size);
-                $unitPrice = $prod->$priceKey ?? $prod->price;
-            }
-
-            $subtotal += $unitPrice * $item->quantity;
-        }
+        $subtotal = $cartItems->sum(fn($item) => $item->product->price * $item->quantity);
+        $checkoutData = session('checkout_data', []);
 
         DB::beginTransaction();
         try {
@@ -136,41 +115,38 @@ class PembayaranController extends Controller
                 'discount'        => 0,
                 'total'           => $subtotal,
                 'payment_method'  => $request->payment_method,
-                'delivery_method' => $deliveryMethods[0] ?? 'pickup',
-                'size'            => $sizes[0] ?? null,
-                'cake_flavor'     => $flavors[0] ?? null,
-                'notes'           => $allNotes[0] ?? null,
-                'status'          => 'processing',
+                'delivery_method' => $checkoutData['delivery_method'] ?? 'pickup',
+                'size'            => $checkoutData['size'] ?? null,
+                'cake_flavor'     => $checkoutData['cake_flavor'] ?? null,
+                'notes'           => $checkoutData['notes'] ?? null,
+                'status'          => 'pending',
             ]);
 
-            foreach ($cartItems as $idx => $item) {
-                $prod      = $item->product;
-                $size      = $sizes[$idx] ?? null;
-                $unitPrice = $prod->price;
-
-                if ($prod->has_size && $size) {
-                    $priceKey  = 'price_' . strtolower($size);
-                    $unitPrice = $prod->$priceKey ?? $prod->price;
-                }
-
+            foreach ($cartItems as $item) {
                 OrderItem::create([
                     'order_id'   => $order->id,
                     'product_id' => $item->product_id,
                     'quantity'   => $item->quantity,
-                    'price'      => $unitPrice,
-                    'subtotal'   => $unitPrice * $item->quantity,
+                    'price'      => $item->product->price,
+                    'subtotal'   => $item->product->price * $item->quantity,
                 ]);
             }
 
-            Cart::where('user_id', Auth::id())->delete();
+            // Hapus hanya item yang dipilih
+            Cart::where('user_id', Auth::id())
+                ->when(!empty($selectedIds), fn($q) => $q->whereIn('id', $selectedIds))
+                ->delete();
+
             session()->forget('checkout_data');
+            session()->forget('selected_cart_ids');
+
             DB::commit();
 
             return redirect()->route('pembayaran.berhasil', $order->order_number);
 
         } catch (\Exception $e) {
             DB::rollBack();
-            dd($e->getMessage());
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
 
