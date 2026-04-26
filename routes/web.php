@@ -115,6 +115,13 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/notifikasi/{id}', [NotificationController::class, 'destroy'])->name('customer.notifikasi.destroy');
     Route::delete('/notifikasi', [NotificationController::class, 'destroyAll'])->name('customer.notifikasi.destroyAll');
 
+    // WISHLIST & LIKE
+    Route::get('/profil/wishlist', [\App\Http\Controllers\Customer\WishlistController::class, 'index'])->name('customer.profil.wishlist');
+    Route::post('/wishlist/toggle/{product}', [\App\Http\Controllers\Customer\WishlistController::class, 'toggle'])->name('wishlist.toggle');
+    Route::delete('/wishlist/{wishlist}', [\App\Http\Controllers\Customer\WishlistController::class, 'destroy'])->name('wishlist.destroy');
+    Route::get('/profil/like', [\App\Http\Controllers\Customer\ProductLikeController::class, 'index'])->name('customer.profil.like');
+    Route::post('/product/like/{product}', [\App\Http\Controllers\Customer\ProductLikeController::class, 'toggle'])->name('product.like');
+
     // ADMIN ONLY
     Route::middleware(['is.admin'])->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

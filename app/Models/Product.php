@@ -48,4 +48,29 @@ class Product extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
+    // Wishlist & Like relations
+    public function wishlists()
+    {
+        return $this->hasMany(Wishlist::class);
+    }
+
+    public function likes()
+    {
+        return $this->hasMany(ProductLike::class);
+    }
+
+    public function getLikeCountAttribute()
+    {
+        return $this->likes()->count();
+    }
+
+    public function isLikedByUser($userId)
+    {
+        return $this->likes()->where('user_id', $userId)->exists();
+    }
+
+    public function isInWishlistByUser($userId)
+    {
+        return $this->wishlists()->where('user_id', $userId)->exists();
+    }
 }

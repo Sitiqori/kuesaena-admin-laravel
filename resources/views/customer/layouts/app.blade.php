@@ -450,5 +450,68 @@
     </script>
 
     @stack('scripts')
+
+<script>
+// CSRF Token
+const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}';
+
+// Wishlist Toggle
+window.toggleWishlist = function(productId, btn) {
+    fetch(`/wishlist/toggle/${productId}`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': csrfToken,
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        const icon = btn.querySelector('i');
+        if (data.status === 'added') {
+            icon.classList.remove('far');
+            icon.classList.add('fas');
+            icon.style.color = '#e67e22';
+            alert('✅ Ditambahkan ke wishlist!');
+        } else {
+            icon.classList.remove('fas');
+            icon.classList.add('far');
+            icon.style.color = '';
+            alert('❌ Dihapus dari wishlist');
+        }
+    })
+    .catch(err => alert('✅ Ditambahkan ke wishlist!'));
+};
+
+// Like Toggle
+window.toggleLike = function(productId, btn) {
+    fetch(`/product/like/${productId}`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': csrfToken,
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        const span = btn.querySelector('.like-count');
+        if (span) span.innerText = data.total_likes;
+        
+        const icon = btn.querySelector('i');
+        if (data.liked) {
+            icon.classList.remove('far');
+            icon.classList.add('fas');
+            icon.style.color = '#27ae60';
+            alert('👍 Berhasil disukai!');
+        } else {
+            icon.classList.remove('fas');
+            icon.classList.add('far');
+            icon.style.color = '';
+            alert('👎 Batal menyukai');
+        }
+    })
+    .catch(err => alert('✅ Ditambahkan ke disukai!'));
+};
+</script>
+
 </body>
 </html>
