@@ -7,6 +7,7 @@ use App\Models\Cart;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\UserAddress;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -139,6 +140,9 @@ class PembayaranController extends Controller
 
             session()->forget('checkout_data');
             session()->forget('selected_cart_ids');
+
+            // ── Kirim notifikasi pesanan masuk ──────────────────────────────
+            NotificationService::pesananMasuk(Auth::id(), $order->order_number);
 
             DB::commit();
 

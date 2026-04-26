@@ -120,13 +120,20 @@
 .action-btn:hover {
     background: #5C2D0E;
     color: white;
+    border-color: #5C2D0E;
+    box-shadow: 0 4px 14px rgba(92,45,14,0.25);
+}
+
+.action-btn:hover .action-badge {
+    border-color: #fff;
+    box-shadow: 0 0 0 1.5px #5C2D0E;
 }
 
 .action-badge {
     position: absolute;
     top: -3px;
     right: -3px;
-    background: #5C2D0E;
+    background: #e74c3c;
     color: white;
     font-size: 10px;
     width: 18px;
@@ -135,6 +142,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    border: 2px solid #fff;
+    z-index: 1;
+    pointer-events: none;
 }
 
 /* ===== RESPONSIVE ===== */
@@ -190,14 +200,56 @@
 
             <!-- ICON -->
             <div class="navbar-actions">
+                @auth
+                <div style="position:relative;">
+                    <button type="button" class="action-btn" onclick="toggleNotifPopup(event)" id="btn-notif">
+                        <i class="fas fa-bell"></i>
+                        <span class="action-badge" id="notif-badge" style="display:none;">0</span>
+                    </button>
+
+                    {{-- NOTIF POPUP --}}
+                    <div id="notif-popup" style="display:none; position:absolute; right:0; top:52px; width:340px; background:#fff; border-radius:14px; box-shadow:0 8px 32px rgba(0,0,0,0.15); z-index:9999; overflow:hidden; border:1px solid #ede0d0;">
+                        {{-- Popup Header --}}
+                        <div style="display:flex; justify-content:space-between; align-items:center; padding:14px 18px; border-bottom:1px solid #f0e8df; background:#faf5ee;">
+                            <span style="font-weight:700; font-size:14px; color:#1A0A00;">Notifikasi</span>
+                            <div style="display:flex; gap:8px; align-items:center;">
+                                <button onclick="markAllReadPopup()" style="background:none; border:none; font-size:12px; color:#8B6050; cursor:pointer; font-family:inherit;" title="Tandai semua dibaca">
+                                    <i class="fas fa-check-double"></i> Baca Semua
+                                </button>
+                                <a href="{{ route('customer.notifikasi') }}" style="font-size:12px; color:#5C2D0E; font-weight:600; text-decoration:none;">Lihat Semua</a>
+                            </div>
+                        </div>
+                        {{-- Popup List --}}
+                        <div id="notif-popup-list" style="max-height:360px; overflow-y:auto;">
+                            <div style="padding:32px; text-align:center; color:#8B6050;">
+                                <i class="fas fa-bell-slash" style="font-size:28px; color:#d4bfa0; display:block; margin-bottom:10px;"></i>
+                                <span style="font-size:13px;">Belum ada notifikasi</span>
+                            </div>
+                        </div>
+                        {{-- Popup Footer --}}
+                        <div style="padding:12px 18px; border-top:1px solid #f0e8df; text-align:center;">
+                            <a href="{{ route('customer.profil.notifikasi') }}" style="font-size:12px; color:#8B6050; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:6px;">
+                                <i class="fas fa-cog"></i> Pengaturan Notifikasi
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                @endauth
+
+                @guest
                 <a href="#" class="action-btn">
                     <i class="fas fa-bell"></i>
-                    <span class="action-badge">0</span>
                 </a>
+                @endguest
 
                 <a href="{{ route('keranjang.index') }}" class="action-btn">
                     <i class="fas fa-shopping-cart"></i>
-                    <span class="action-badge">0</span>
+                    @auth
+                    @php $cartCount = \App\Models\Cart::where('user_id', Auth::id())->sum('quantity'); @endphp
+                    @if($cartCount > 0)
+                    <span class="action-badge">{{ $cartCount > 99 ? '99+' : $cartCount }}</span>
+                    @endif
+                    @endauth
                 </a>
 
                 @auth
@@ -230,7 +282,7 @@
 </nav>
 
 <script>
-    // Search clear button
+    // ===== SEARCH CLEAR =====
     const searchInput = document.getElementById('search-input');
     const searchClear = document.getElementById('search-clear');
     if (searchInput && searchClear) {
@@ -244,15 +296,161 @@
         });
     }
 
+    // ===== PROFIL DROPDOWN =====
     function toggleDropdownProfil(e) {
-    e.preventDefault();
-    const d = document.getElementById('dropdown-profil');
-    d.style.display = d.style.display === 'none' ? 'block' : 'none';
-}
-document.addEventListener('click', function(e) {
-    const d = document.getElementById('dropdown-profil');
-    if (d && !e.target.closest('.action-btn')) {
-        d.style.display = 'none';
+        e.preventDefault();
+        e.stopPropagation();
+        const d = document.getElementById('dropdown-profil');
+        const notif = document.getElementById('notif-popup');
+        if (notif) notif.style.display = 'none';
+        d.style.display = d.style.display === 'none' ? 'block' : 'none';
     }
-});
+
+    // ===== NOTIFIKASI POPUP =====
+    let notifLoaded = false;
+
+    function toggleNotifPopup(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const popup = document.getElementById('notif-popup');
+        const profil = document.getElementById('dropdown-profil');
+        if (profil) profil.style.display = 'none';
+
+        const isOpen = popup.style.display !== 'none';
+        popup.style.display = isOpen ? 'none' : 'block';
+
+        if (!isOpen) {
+            loadNotifPopup();
+        }
+    }
+
+    function loadNotifPopup() {
+        const list = document.getElementById('notif-popup-list');
+        list.innerHTML = '<div style="padding:24px; text-align:center; color:#8B6050;"><i class="fas fa-spinner fa-spin"></i></div>';
+
+        fetch('{{ route("customer.notifikasi.popup") }}', {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(res => res.json())
+        .then(data => {
+            // Update badge
+            const badge = document.getElementById('notif-badge');
+            if (data.unread > 0) {
+                badge.textContent = data.unread > 99 ? '99+' : data.unread;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+
+            // Render list
+            if (!data.notifications || data.notifications.length === 0) {
+                list.innerHTML = `
+                    <div style="padding:32px; text-align:center; color:#8B6050;">
+                        <i class="fas fa-bell-slash" style="font-size:28px; color:#d4bfa0; display:block; margin-bottom:10px;"></i>
+                        <span style="font-size:13px;">Belum ada notifikasi</span>
+                    </div>`;
+                return;
+            }
+
+            list.innerHTML = data.notifications.map(n => `
+                <div onclick="markReadPopup(${n.id}, this)" style="padding:14px 18px; border-bottom:1px solid #f5ece0; cursor:pointer; background:${n.is_read ? '#fff' : '#fdf7f0'}; transition:background 0.2s;"
+                     onmouseover="this.style.background='#f5ece0'" onmouseout="this.style.background='${n.is_read ? '#fff' : '#fdf7f0'}'">
+                    <div style="display:flex; align-items:flex-start; gap:10px;">
+                        <div style="width:8px; height:8px; border-radius:50%; background:${n.is_read ? 'transparent' : '#5C2D0E'}; margin-top:5px; flex-shrink:0;"></div>
+                        <div style="flex:1;">
+                            <div style="font-size:13px; font-weight:${n.is_read ? '400' : '600'}; color:#1A0A00; margin-bottom:3px;">${escapeHtml(n.title || 'Notifikasi')}</div>
+                            <div style="font-size:12px; color:#6b7280; margin-bottom:4px;">${escapeHtml(n.message || '')}</div>
+                            <div style="font-size:11px; color:#a0855b;">${timeAgo(n.created_at)}</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        })
+        .catch(() => {
+            list.innerHTML = '<div style="padding:24px; text-align:center; color:#e74c3c; font-size:13px;"><i class="fas fa-exclamation-circle"></i> Gagal memuat notifikasi</div>';
+        });
+    }
+
+    function markReadPopup(id, el) {
+        fetch(`/notifikasi/${id}/read`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        }).then(() => {
+            el.style.background = '#fff';
+            const dot = el.querySelector('div[style*="border-radius:50%"]');
+            if (dot) dot.style.background = 'transparent';
+            const title = el.querySelector('div[style*="font-weight"]');
+            if (title) title.style.fontWeight = '400';
+            // Refresh badge
+            refreshNotifBadge();
+        });
+    }
+
+    function markAllReadPopup() {
+        fetch('{{ route("customer.notifikasi.markAllRead") }}', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        }).then(() => {
+            loadNotifPopup();
+        });
+    }
+
+    function refreshNotifBadge() {
+        fetch('{{ route("customer.notifikasi.popup") }}', {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(res => res.json())
+        .then(data => {
+            const badge = document.getElementById('notif-badge');
+            if (data.unread > 0) {
+                badge.textContent = data.unread > 99 ? '99+' : data.unread;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        });
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function timeAgo(dateStr) {
+        const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
+        if (diff < 60) return 'Baru saja';
+        if (diff < 3600) return Math.floor(diff/60) + ' menit lalu';
+        if (diff < 86400) return Math.floor(diff/3600) + ' jam lalu';
+        return Math.floor(diff/86400) + ' hari lalu';
+    }
+
+    // ===== CLOSE ON OUTSIDE CLICK =====
+    document.addEventListener('click', function(e) {
+        const profil = document.getElementById('dropdown-profil');
+        const notif = document.getElementById('notif-popup');
+        const btnNotif = document.getElementById('btn-notif');
+
+        if (profil && !e.target.closest('[onclick="toggleDropdownProfil(event)"]')) {
+            profil.style.display = 'none';
+        }
+        if (notif && e.target !== btnNotif && !btnNotif?.contains(e.target) && !notif.contains(e.target)) {
+            notif.style.display = 'none';
+        }
+    });
+
+    // ===== LOAD BADGE ON PAGE LOAD =====
+    document.addEventListener('DOMContentLoaded', function() {
+        const badge = document.getElementById('notif-badge');
+        if (badge) {
+            refreshNotifBadge();
+            // Auto-refresh badge setiap 30 detik
+            setInterval(refreshNotifBadge, 30000);
+        }
+    });
 </script>

@@ -553,6 +553,7 @@
                     <a href="{{ route('customer.profil.alamat') }}" class="sidebar-link {{ request()->routeIs('customer.profil.alamat') ? 'active' : '' }}">Alamat</a>
                     <a href="{{ route('customer.profil.password') }}" class="sidebar-link {{ request()->routeIs('customer.profil.password') ? 'active' : '' }}">Ubah Password</a>
                     <a href="{{ route('customer.profil.notifikasi') }}" class="sidebar-link {{ request()->routeIs('customer.profil.notifikasi') ? 'active' : '' }}">Pengaturan Notifikasi</a>
+                    <a href="{{ route('customer.notifikasi') }}" class="sidebar-link {{ request()->routeIs('customer.notifikasi') ? 'active' : '' }}">Semua Notifikasi</a>
                     <a href="{{ route('customer.profil.privasi') }}" class="sidebar-link {{ request()->routeIs('customer.profil.privasi') ? 'active' : '' }}">Pengaturan Privasi</a>
                 </div>
 
@@ -563,7 +564,7 @@
                         <span class="sidebar-group-title">Pesanan Saya</span>
                     </div>
                     <a href="{{ route('customer.pesanan') }}" class="sidebar-link {{ request()->routeIs('customer.pesanan') && request()->query('status','all')=='all' ? 'active' : '' }}">Semua</a>
-                    <a href="{{ route('customer.pesanan', ['status'=>'pending']) }}" class="sidebar-link {{ request()->query('status')=='pending' ? 'active' : '' }}">Menunggu Konfirmasi</a>
+                    <a href="{{ route('customer.pesanan', ['status'=>'belum-bayar']) }}" class="sidebar-link {{ request()->query('status')=='belum-bayar' ? 'active' : '' }}">Belum Bayar</a>
                     <a href="{{ route('customer.pesanan', ['status'=>'sedang-dikemas']) }}" class="sidebar-link {{ request()->query('status')=='sedang-dikemas' ? 'active' : '' }}">Sedang Dikemas</a>
                     <a href="{{ route('customer.pesanan', ['status'=>'selesai']) }}" class="sidebar-link {{ request()->query('status')=='selesai' ? 'active' : '' }}">Selesai</a>
                     <a href="{{ route('customer.pesanan', ['status'=>'dibatalkan']) }}" class="sidebar-link {{ request()->query('status')=='dibatalkan' ? 'active' : '' }}">Dibatalkan</a>

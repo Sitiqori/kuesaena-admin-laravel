@@ -25,6 +25,7 @@ use App\Http\Controllers\Customer\KeranjangController;
 use App\Http\Controllers\Customer\ProfilController;
 use App\Http\Controllers\Customer\CustomerPesananController;
 use App\Http\Controllers\Customer\CustomerRewardController;
+use App\Http\Controllers\Customer\NotificationController;
 use App\Http\Controllers\Customer\PembayaranController;
 use App\Http\Controllers\Customer\MenuController;
 use App\Http\Controllers\Customer\AboutController;
@@ -105,6 +106,14 @@ Route::middleware(['auth'])->group(function () {
     // REWARD CUSTOMER
     Route::get('/reward-saya', [CustomerRewardController::class, 'index'])->name('customer.reward');
     Route::post('/reward-saya/{id}/redeem', [CustomerRewardController::class, 'redeem'])->name('customer.reward.redeem');
+
+    // NOTIFIKASI CUSTOMER
+    Route::get('/notifikasi', [NotificationController::class, 'index'])->name('customer.notifikasi');
+    Route::get('/notifikasi/popup', [NotificationController::class, 'popup'])->name('customer.notifikasi.popup');
+    Route::post('/notifikasi/mark-all-read', [NotificationController::class, 'markAllRead'])->name('customer.notifikasi.markAllRead');
+    Route::post('/notifikasi/{id}/read', [NotificationController::class, 'markRead'])->name('customer.notifikasi.markRead');
+    Route::delete('/notifikasi/{id}', [NotificationController::class, 'destroy'])->name('customer.notifikasi.destroy');
+    Route::delete('/notifikasi', [NotificationController::class, 'destroyAll'])->name('customer.notifikasi.destroyAll');
 
     // ADMIN ONLY
     Route::middleware(['is.admin'])->group(function () {

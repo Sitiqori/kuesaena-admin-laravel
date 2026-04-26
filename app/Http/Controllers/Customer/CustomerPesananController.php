@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -19,9 +20,9 @@ class CustomerPesananController extends Controller
 
         if ($status !== 'all') {
             $statusMap = [
-                'pending'    => 'pending',
+                'pending'        => 'pending',
                 'sedang-dikemas' => 'processing',
-                'siap-diambil' => 'ready',
+                'siap-diambil'   => 'ready',
                 'selesai'        => 'completed',
                 'dibatalkan'     => 'cancelled',
             ];
@@ -45,29 +46,32 @@ class CustomerPesananController extends Controller
     }
 
     public function storeReview(Request $request, $id)
-{
-    $request->validate([
-        'name'   => 'required|string|max:100',
-        'body'   => 'required|string|max:500',
-        'rating' => 'required|integer|min:1|max:5',
-    ]);
+    {
+        $request->validate([
+            'name'   => 'required|string|max:100',
+            'body'   => 'required|string|max:500',
+            'rating' => 'required|integer|min:1|max:5',
+        ]);
 
-    $order = Order::where('user_id', Auth::id())
-        ->where('status', 'completed')
-        ->findOrFail($id);
+        $order = Order::where('user_id', Auth::id())
+            ->where('status', 'completed')
+            ->findOrFail($id);
 
-    if ($order->review) {
-        return back()->with('error', 'Ulasan sudah pernah diberikan.');
-    }
+        if ($order->review) {
+            return back()->with('error', 'Ulasan sudah pernah diberikan.');
+        }
 
-    \App\Models\Review::create([
-        'order_id' => $order->id,
-        'user_id'  => Auth::id(),
-        'name'     => $request->name,
-        'body'     => $request->body,
-        'rating'   => $request->rating,
-    ]);
+        \App\Models\Review::create([
+            'order_id' => $order->id,
+            'user_id'  => Auth::id(),
+            'name'     => $request->name,
+            'body'     => $request->body,
+            'rating'   => $request->rating,
+        ]);
 
-    return back()->with('success', 'Ulasan berhasil disimpan!');
+        // ── Kirim notifikasi ulasan berhasil ────────────────────────────────
+        NotificationService::ulasanTersimpan(Auth::id());
+
+        return back()->with('success', 'Ulasan berhasil disimpan!');
     }
 }

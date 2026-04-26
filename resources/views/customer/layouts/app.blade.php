@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Kuesaena - Your Sweetness Start From Here')</title>
     <meta name="description" content="@yield('description', 'Kuesaena - Bakery premium dengan cita rasa homemade, menggunakan bahan pilihan terbaik untuk moment spesialmu.')">
 
@@ -351,7 +352,7 @@
 <body>
 
     {{-- ===== PAGE LOADER ===== --}}
-    <div id="page-loader">
+    <div id="page-loader" class="hidden">
         <div class="loader-mixer">
             {{-- splashes --}}
             <div class="mixer-splash"></div>
@@ -406,30 +407,45 @@
     </script>
 
     <script>
-        // Hide loader immediately on load/pageshow
-        function hideLoader() {
-            const loader = document.getElementById('page-loader');
-            if (loader) loader.classList.add('hidden');
-        }
-        window.addEventListener('load', function () { setTimeout(hideLoader, 200); });
-        window.addEventListener('pageshow', hideLoader);
+        // Show page loader on ALL internal navigation links
+        document.addEventListener('click', function (e) {
+            const link = e.target.closest('a');
+            if (!link || !link.href) return;
 
-        // Show loader ONLY when clicking "Profil Saya" from navbar dropdown
-        function showLoaderForNavProfil(e) {
+            // Skip: external links, anchors only (#), javascript:, mailto:, new tab
+            const url = link.href;
+            const isSameOrigin = url.startsWith(window.location.origin);
+            const isHashOnly   = link.getAttribute('href') && link.getAttribute('href').startsWith('#');
+            const isJavascript = url.startsWith('javascript:');
+            const opensNewTab  = link.target === '_blank';
+
+            // Skip popup close / toggle buttons (href="#")
+            if (!isSameOrigin || isHashOnly || isJavascript || opensNewTab) return;
+
+            // Skip "Lihat Semua" & "Pengaturan Notifikasi" inside notif popup
+            // (they already navigate, loader will show — keep them)
+
+            const loader = document.getElementById('page-loader');
+            if (!loader) return;
+
+            loader.classList.remove('hidden');
+            const bar = loader.querySelector('.loader-bar');
+            if (bar) { bar.style.animation = 'none'; bar.offsetHeight; bar.style.animation = ''; }
+        });
+
+        // Also show loader on form submit (checkout, logout, dll)
+        document.addEventListener('submit', function (e) {
+            // Skip AJAX forms (those with data-no-loader attribute)
+            if (e.target.dataset.noLoader) return;
+            // Skip DELETE method forms (hapus notifikasi, dll) — terlalu cepat
+            const method = e.target.querySelector('input[name="_method"]');
+            if (method && (method.value === 'DELETE' || method.value === 'PATCH')) return;
+
             const loader = document.getElementById('page-loader');
             if (!loader) return;
             loader.classList.remove('hidden');
             const bar = loader.querySelector('.loader-bar');
             if (bar) { bar.style.animation = 'none'; bar.offsetHeight; bar.style.animation = ''; }
-        }
-
-        document.addEventListener('DOMContentLoaded', function () {
-            // Only the navbar dropdown "Profil Saya" link — identified by being inside #dropdown-profil
-            const dropdownProfil = document.getElementById('dropdown-profil');
-            if (dropdownProfil) {
-                const profilLink = dropdownProfil.querySelector('a[href*="/profil"]');
-                if (profilLink) profilLink.addEventListener('click', showLoaderForNavProfil);
-            }
         });
     </script>
 
