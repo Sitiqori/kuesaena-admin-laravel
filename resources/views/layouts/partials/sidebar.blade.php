@@ -1,5 +1,8 @@
 @php
-    $lowStockCount = \App\Models\Product::whereColumn('stock', '<', 'min_stock')->count();
+    $lowStockCount = \App\Models\Product::where('stock', '>', 0)
+        ->whereColumn('stock', '<', 'min_stock')->count();
+    $outOfStockCount = \App\Models\Product::where('stock', '<=', 0)->count();
+    $totalAlertCount = $lowStockCount + $outOfStockCount;
 @endphp
 
 <aside class="sidebar">
@@ -23,18 +26,12 @@
         <a href="{{ route('barang.index') }}" class="{{ request()->routeIs('barang.*') ? 'active' : '' }}" style="position:relative;">
             <i class="icon-box"></i>
             <span>Barang & Stok</span>
-            @if($lowStockCount > 0)
-                <span style="
-                    background: #e74c3c;
-                    color: white;
-                    border-radius: 50%;
-                    padding: 1px 6px;
-                    font-size: 11px;
-                    font-weight: 700;
-                    margin-left: auto;
-                ">{{ $lowStockCount }}</span>
+            @if($outOfStockCount > 0)
+                <span style="background:#c0392b; color:white; border-radius:50%; padding:1px 6px; font-size:11px; font-weight:700; margin-left:auto;">{{ $outOfStockCount }}</span>
             @endif
-        </a>
+            @if($lowStockCount > 0)
+                <span style="background:#e67e22; color:white; border-radius:50%; padding:1px 6px; font-size:11px; font-weight:700; margin-left:4px;">{{ $lowStockCount }}</span>
+            @endif
 
         <a href="{{ route('pesanan.index') }}" class="{{ request()->routeIs('pesanan.*') ? 'active' : '' }}">
             <i class="icon-cart"></i>

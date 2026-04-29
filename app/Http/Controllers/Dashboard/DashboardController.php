@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Dashboard;
 
+use App\Models\Expense;
 use Carbon\Carbon;
 use App\Models\Order;
 use Illuminate\Http\Request;
@@ -23,7 +24,9 @@ class DashboardController extends Controller
             ->sum('total');
 
         // Total pengeluaran (dummy data - bisa diganti dengan model Expense)
-        $totalPengeluaran = 980000; // Placeholder
+       $totalPengeluaran = Expense::whereMonth('date', now()->month)
+        ->whereYear('date', now()->year)
+        ->sum('amount');
 
         // Recent Orders (Pesanan Baru - pending)
         $recentOrders = Order::with(['customer', 'orderItems.product'])
@@ -69,7 +72,8 @@ class DashboardController extends Controller
                 $revenue[] = $dailyRevenue;
 
                 // Generate dummy expense data (30-50% of revenue)
-                $expense[] = $dailyRevenue > 0 ? $dailyRevenue * rand(30, 50) / 100 : 0;
+                $dailyExpense = Expense::whereDate('date', $date)->sum('amount');
+                $expense[] = $dailyExpense;
             }
 
             $data[$month] = [

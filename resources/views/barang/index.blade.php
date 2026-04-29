@@ -436,9 +436,15 @@
 @endif
 
 @php
-    $lowStockCount = $products->where('stock', '<=', 3)->where('stock', '>', 0)->count();
+    $outOfStockCount = $products->where('stock', '<=', 0)->count();
+    $lowStockCount = $products->where('stock', '>', 0)->filter(fn($p) => $p->stock < ($p->min_stock ?? 3))->count();
 @endphp
 
+@if($outOfStockCount > 0)
+<div class="alert alert-warning" style="background:#ffebee; border-color:#ffcdd2; color:#c62828;">
+    ⛔ {{ $outOfStockCount }} barang habis stok
+</div>
+@endif
 @if($lowStockCount > 0)
 <div class="alert alert-warning">
     ⚠️ {{ $lowStockCount }} barang memiliki stok di bawah minimum
@@ -492,10 +498,10 @@
                     <td>Rp {{ number_format($product->hpp ?? 0, 0, ',', '.') }}</td>
                     <td>Rp {{ number_format($product->price, 0, ',', '.') }}</td>
                     <td>
-                        @if($product->stock == 0)
-                            <span class="stock-badge stock-out">0</span>
-                        @elseif($product->stock <= ($product->min_stock ?? 3))
-                            <span class="stock-badge stock-low">{{ $product->stock }}</span>
+                        @if($product->stock <= 0)
+                            <span class="stock-badge stock-out" style="background:#ffebee; color:#c62828;">{{ $product->stock }}</span>
+                        @elseif($product->stock < ($product->min_stock ?? 3))
+                            <span class="stock-badge stock-low" style="background:#fff3e0; color:#e65100;">{{ $product->stock }}</span>
                         @else
                             <span class="stock-badge stock-ok">{{ $product->stock }}</span>
                         @endif

@@ -1,77 +1,60 @@
 <?php
 
-namespace App\Http\Controllers\Customer;
+namespace App\Http\Controllers\Pesanan;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
-use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
-class CustomerPesananController extends Controller
+class PesananController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        $status = $request->query('status', 'all');
+        $orders = Order::with(['orderItems.product', 'user'])
+            ->latest()
+            ->get();
 
-        $query = Order::with(['orderItems.product'])
-            ->where('user_id', Auth::id())
-            ->latest();
+        $newOrders        = $orders->where('status', 'pending');
+        $processingOrders = $orders->where('status', 'processing');
+        $completedToday = $orders->where('status', 'completed')
+            ->filter(fn($o) => $o->updated_at->isToday())
+            ->count(); // tambah ->count()
 
-        if ($status !== 'all') {
-            $statusMap = [
-                'pending'        => 'pending',
-                'sedang-dikemas' => 'processing',
-                'siap-diambil'   => 'ready',
-                'selesai'        => 'completed',
-                'dibatalkan'     => 'cancelled',
-            ];
-            if (isset($statusMap[$status])) {
-                $query->where('status', $statusMap[$status]);
-            }
-        }
-
-        $orders = $query->get();
-
-        return view('customer.pages.pesanan.index', compact('orders', 'status'));
+        return view('pesanan.index', compact('orders', 'newOrders', 'processingOrders', 'completedToday'));
     }
 
     public function show($id)
     {
-        $order = Order::with(['orderItems.product', 'review'])
-            ->where('user_id', Auth::id())
-            ->findOrFail($id);
-
-        return view('customer.pages.pesanan.detail', compact('order'));
+        $order = Order::with(['orderItems.product', 'user'])->findOrFail($id);
+        return view('pesanan.show', compact('order'));
     }
 
-    public function storeReview(Request $request, $id)
+    public function updateStatus(Request $request, $id)
     {
         $request->validate([
-            'name'   => 'required|string|max:100',
-            'body'   => 'required|string|max:500',
-            'rating' => 'required|integer|min:1|max:5',
+            'status' => 'required|in:pending,processing,ready,completed,cancelled'
         ]);
 
-        $order = Order::where('user_id', Auth::id())
-            ->where('status', 'completed')
-            ->findOrFail($id);
+        try {
+            $order = Order::findOrFail($id);
+            $oldStatus = $order->status;
+            $order->status = $request->status;
+            $order->save();
 
-        if ($order->review) {
-            return back()->with('error', 'Ulasan sudah pernah diberikan.');
+            $user = Auth::user();
+            Log::info("Order {$order->order_number} status changed from {$oldStatus} to {$request->status} by {$user->name}");
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Status pesanan berhasil diupdate'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 400);
         }
-
-        \App\Models\Review::create([
-            'order_id' => $order->id,
-            'user_id'  => Auth::id(),
-            'name'     => $request->name,
-            'body'     => $request->body,
-            'rating'   => $request->rating,
-        ]);
-
-        // ── Kirim notifikasi ulasan berhasil ────────────────────────────────
-        NotificationService::ulasanTersimpan(Auth::id());
-
-        return back()->with('success', 'Ulasan berhasil disimpan!');
     }
 }
