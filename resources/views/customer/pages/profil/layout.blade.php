@@ -526,7 +526,9 @@
                     <div class="sidebar-avatar-wrap" onclick="openModal('modal-foto-profil')" title="Ganti foto profil">
                         <div class="sidebar-avatar">
                             @if(Auth::user()->photo)
-                                <img src="{{ asset('storage/' . Auth::user()->photo) }}" alt="Foto Profil">
+                                <img src="{{ asset('storage/' . Auth::user()->photo) }}" alt="Foto Profil"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <i class="fas fa-user" style="display:none;"></i>
                             @else
                                 <i class="fas fa-user"></i>
                             @endif
@@ -568,15 +570,6 @@
                     <a href="{{ route('customer.pesanan', ['status'=>'sedang-dikemas']) }}" class="sidebar-link {{ request()->query('status')=='sedang-dikemas' ? 'active' : '' }}">Sedang Dikemas</a>
                     <a href="{{ route('customer.pesanan', ['status'=>'selesai']) }}" class="sidebar-link {{ request()->query('status')=='selesai' ? 'active' : '' }}">Selesai</a>
                     <a href="{{ route('customer.pesanan', ['status'=>'dibatalkan']) }}" class="sidebar-link {{ request()->query('status')=='dibatalkan' ? 'active' : '' }}">Dibatalkan</a>
-                </div>
-
-                {{-- Reward --}}
-                <div class="sidebar-group">
-                    <div class="sidebar-group-header">
-                        <i class="fas fa-dollar-sign"></i>
-                        <span class="sidebar-group-title">Reward</span>
-                    </div>
-                    <a href="{{ route('customer.reward') }}" class="sidebar-link {{ request()->routeIs('customer.reward') ? 'active' : '' }}">Reward Saya</a>
                 </div>
 
                 {{-- Wishlist & Like --}}
