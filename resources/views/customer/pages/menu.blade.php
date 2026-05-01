@@ -440,7 +440,7 @@
             <div class="products-grid">
                 @foreach($products as $product)
                 @php
-                    $isDark = $loop->iteration <= 4;
+                    $isDark = true;
                 @endphp
                 <div class="product-card {{ $isDark ? 'dark-card' : '' }}">
                     <div class="product-image-wrapper">
