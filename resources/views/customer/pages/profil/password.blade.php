@@ -1,5 +1,15 @@
 @extends('customer.pages.profil.layout')
 
+@push('styles')
+<style>
+/* Sembunyikan icon password bawaan browser */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear,
+input[type="password"]::-webkit-credentials-auto-fill-button,
+input[type="password"]::-webkit-textfield-decoration-container { display: none !important; }
+</style>
+@endpush
+
 @section('profil-content')
 
 <h2 class="profil-section-title">UBAH PASSWORD</h2>
@@ -26,6 +36,7 @@
                 <input
                     type="password"
                     name="new_password"
+                    autocomplete="new-password"
                     id="new_password"
                     placeholder="Masukkan kata sandi baru"
                     style="width:100%; padding:14px 48px 14px 18px; border:none; border-radius:12px; background:#fff; font-size:14px; font-family:'DM Sans',sans-serif; outline:none; color:#1A0A00;"
@@ -44,6 +55,7 @@
                 <input
                     type="password"
                     name="new_password_confirmation"
+                    autocomplete="new-password"
                     id="confirm_password"
                     placeholder="Masukkan ulang kata sandi"
                     style="width:100%; padding:14px 48px 14px 18px; border:none; border-radius:12px; background:#fff; font-size:14px; font-family:'DM Sans',sans-serif; outline:none; color:#1A0A00;"
