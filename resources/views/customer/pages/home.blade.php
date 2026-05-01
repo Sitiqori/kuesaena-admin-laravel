@@ -256,6 +256,57 @@
     pointer-events: auto;
 }
 
+.product-card__img-wrap {
+    width: 100%;
+    height: 220px;
+    overflow: hidden;
+    background: #f5f0eb;
+    position: relative;
+}
+
+.product-card__img-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.product-card:hover .product-card__img-wrap img {
+    transform: scale(1.05);
+}
+
+.product-card__body {
+    padding: 16px;
+}
+
+.product-card__name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #2b1a14;
+    margin: 0 0 8px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.product-card__price-row {
+    margin-bottom: 8px;
+}
+
+.price-current {
+    font-size: 14px;
+    font-weight: 700;
+    color: #5C2D0E;
+}
+
+.product-card__stars {
+    color: #f4c430;
+    font-size: 12px;
+    gap: 2px;
+    display: flex;
+}
+
 .product-card__badge::after {
     content: "";
     position: absolute;
@@ -740,67 +791,28 @@
         </div>
 
         <div class="products-grid">
-            @forelse($products as $product)
+            @foreach($products->take(6) as $product)
                 <a href="{{ route('customer.product.show', $product->id) }}" class="product-card">
                     <div class="product-card__img-wrap">
                         @if($product->image)
                             <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}">
                         @else
-                            <img src="https://images.unsplash.com/photo-1621303837174-89787a7d4729?w=400&q=80" alt="{{ $product->name }}">
+                            <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#f0e8df;">
+                                <i class="fas fa-birthday-cake" style="font-size:48px;color:#d4bfa0;"></i>
+                            </div>
                         @endif
                     </div>
                     <div class="product-card__body">
-                        <div class="product-card__top">
-                            <h3 class="product-card__name">{{ $product->name }}</h3>
-                        </div>
+                        <h3 class="product-card__name">{{ $product->name }}</h3>
                         <div class="product-card__price-row">
                             <span class="price-current">Rp {{ number_format($product->price, 0, ',', '.') }}</span>
                         </div>
-                        <div class="product-card__footer">
-                            <div class="product-card__stars">
-                                @for($s=0;$s<5;$s++)<i class="fas fa-star"></i>@endfor
-                            </div>
+                        <div class="product-card__stars">
+                            @for($s=0;$s<5;$s++)<i class="fas fa-star"></i>@endfor
                         </div>
                     </div>
                 </a>
-            @empty
-                {{-- Fallback jika belum ada produk --}}
-                @for($i = 0; $i < 6; $i++)
-                    <div class="product-card">
-                        <div class="product-card__img-wrap">
-                            <div class="product-card__badge">
-                                <i class="fas fa-tag"></i> Get up to 10% off Today Only!
-                            </div>
-                            <img src="https://images.unsplash.com/photo-1621303837174-89787a7d4729?w=400&q=80"
-                                 alt="Combo Cupcake">
-                        </div>
-                        <div class="product-card__body">
-                            <div class="product-card__top">
-                                <h3 class="product-card__name">Combo Cupcake</h3>
-                                <div class="product-card__actions">
-                                    <button class="prod-action-btn"><i class="far fa-heart"></i></button>
-                                    <button class="prod-action-btn"><i class="fas fa-shopping-cart"></i></button>
-                                </div>
-                            </div>
-                            <div class="product-card__price-row">
-                                <span class="price-current">Rp 249.999</span>
-                                <span class="price-original">Rp 269.999</span>
-                            </div>
-                            <p class="product-card__po"><i class="fas fa-clock" style="color:#e67e22"></i> PO 5 hari</p>
-                            <div class="product-card__footer">
-                                <div class="product-card__stars">
-                                    @for($s=0;$s<5;$s++)<i class="fas fa-star"></i>@endfor
-                                </div>
-                                <div class="product-card__dots">
-                                    <span class="dot dot--cream"></span>
-                                    <span class="dot dot--red"></span>
-                                    <span class="dot dot--green"></span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                @endfor
-            @endforelse
+            @endforeach
         </div>
 
         <div class="view-all-wrap">

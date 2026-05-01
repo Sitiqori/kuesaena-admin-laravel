@@ -666,6 +666,8 @@
 
 @push('scripts')
 <script>
+let currentEditId = null;
+
 // Toggle size fields
 function toggleSizeFields(show) {
     document.getElementById('size-price-fields').style.display = show ? 'block' : 'none';
@@ -693,9 +695,8 @@ function filterProducts() {
 
 // Open Add Modal
 function openAddModal() {
+    currentEditId = null;
     document.getElementById('modalTitle').textContent = 'Tambah Barang';
-    document.getElementById('productForm').action = '{{ route("barang.store") }}';
-    document.getElementById('formMethod').value = 'POST';
     document.getElementById('productForm').reset();
     document.getElementById('productId').value = '';
     document.getElementById('unit').value = 'Pcs';
@@ -712,18 +713,17 @@ function openAddModal() {
 
 // Open Edit Modal
 function openEditModal(id) {
+    currentEditId = id;
     fetch(`/barang/${id}/edit`)
         .then(response => response.json())
         .then(data => {
             document.getElementById('modalTitle').textContent = 'Edit Barang';
-            document.getElementById('productForm').action = `/barang/${id}`;
-            document.getElementById('formMethod').value = 'PUT';
             document.getElementById('productId').value = data.id;
             document.getElementById('code').value = data.code;
             document.getElementById('name').value = data.name;
             document.getElementById('category_id').value = data.category_id;
             document.getElementById('unit').value = data.unit || 'Pcs';
-            document.getElementById('hpp').value = data.hpp || Math.round(data.price * 0.7);
+            document.getElementById('hpp').value = data.hpp || '';
             document.getElementById('price').value = data.price;
             document.getElementById('stock').value = data.stock;
             document.getElementById('min_stock').value = data.min_stock || 3;
@@ -761,6 +761,7 @@ function openEditModal(id) {
 // Close Modal
 function closeProductModal() {
     document.getElementById('productModal').classList.remove('show');
+    currentEditId = null;
 }
 
 // Preview Image
@@ -776,6 +777,68 @@ function previewImage(event) {
         reader.readAsDataURL(file);
     }
 }
+
+// Submit Form pakai fetch + FormData agar foto bisa terkirim
+document.getElementById('productForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+
+    let url, method;
+    if (currentEditId) {
+        // Mode Edit
+        url = `/barang/${currentEditId}`;
+        formData.append('_method', 'PUT');
+        method = 'POST';
+    } else {
+        // Mode Tambah
+        url = '{{ route("barang.store") }}';
+        method = 'POST';
+    }
+
+    formData.append('_token', '{{ csrf_token() }}');
+
+    const saveBtn = this.querySelector('button[type="submit"]');
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Menyimpan...';
+
+    fetch(url, {
+        method: method,
+        body: formData,
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            // JANGAN set Content-Type — biarkan browser set otomatis supaya boundary multipart benar
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            closeProductModal();
+            // Tampilkan notif sukses lalu reload
+            alert(data.message);
+            window.location.reload();
+        } else {
+            // Tampilkan error validasi
+            let errorMsg = 'Terjadi kesalahan:\n';
+            if (data.errors) {
+                Object.values(data.errors).forEach(errs => {
+                    errs.forEach(e => errorMsg += '- ' + e + '\n');
+                });
+            } else {
+                errorMsg += data.message || 'Unknown error';
+            }
+            alert(errorMsg);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Gagal menyimpan data. Coba lagi.');
+    })
+    .finally(() => {
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Simpan';
+    });
+});
 
 // Delete Product
 function deleteProduct(id) {

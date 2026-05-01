@@ -192,10 +192,20 @@
 
             <!-- SEARCH -->
             <div class="navbar-search">
-                <div class="search-input-wrap">
-                    <i class="fas fa-search"></i>
-                    <input type="text" placeholder="Search...">
-                </div>
+                <form action="{{ route('customer.menu') }}" method="GET" id="navbar-search-form">
+                    <div class="search-input-wrap">
+                        <i class="fas fa-search" style="cursor:pointer;" onclick="document.getElementById('navbar-search-form').submit()"></i>
+                        <input
+                            type="text"
+                            id="search-input"
+                            name="search"
+                            placeholder="Cari kue, kategori..."
+                            value="{{ request('search') }}"
+                            autocomplete="off"
+                        >
+                        <i class="fas fa-times search-clear-btn" id="search-clear" style="cursor:pointer; display:none; color:#bbb; font-size:12px;"></i>
+                    </div>
+                </form>
             </div>
 
             <!-- ICON -->
@@ -283,18 +293,28 @@
 
 <script>
     // ===== SEARCH CLEAR =====
-    const searchInput = document.getElementById('search-input');
-    const searchClear = document.getElementById('search-clear');
-    if (searchInput && searchClear) {
-        searchInput.addEventListener('input', () => {
-            searchClear.classList.toggle('show', searchInput.value.length > 0);
-        });
-        searchClear.addEventListener('click', () => {
-            searchInput.value = '';
-            searchClear.classList.remove('show');
-            searchInput.focus();
-        });
-    }
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('search-input');
+        const searchClear = document.getElementById('search-clear');
+        if (searchInput && searchClear) {
+            // Tampilkan X kalau sudah ada value (misal balik dari halaman menu)
+            if (searchInput.value.length > 0) {
+                searchClear.style.display = 'block';
+            }
+            searchInput.addEventListener('input', () => {
+                searchClear.style.display = searchInput.value.length > 0 ? 'block' : 'none';
+            });
+            searchClear.addEventListener('click', () => {
+                searchInput.value = '';
+                searchClear.style.display = 'none';
+                searchInput.focus();
+                // Kalau lagi di halaman menu, langsung reset hasil
+                if (window.location.pathname.includes('/menu')) {
+                    document.getElementById('navbar-search-form').submit();
+                }
+            });
+        }
+    });
 
     // ===== PROFIL DROPDOWN =====
     function toggleDropdownProfil(e) {
