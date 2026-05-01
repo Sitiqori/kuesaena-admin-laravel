@@ -348,6 +348,7 @@
 
     </style>
     @stack('styles')
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
 
@@ -455,6 +456,30 @@
 // CSRF Token
 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}';
 
+// Update cart badge di navbar tanpa reload
+window.updateCartBadge = function(delta) {
+    const badge = document.querySelector('a[href*="keranjang"] .action-badge');
+    if (badge) {
+        const current = parseInt(badge.innerText) || 0;
+        const newCount = current + delta;
+        if (newCount > 0) {
+            badge.innerText = newCount > 99 ? '99+' : newCount;
+            badge.style.display = 'flex';
+        } else {
+            badge.style.display = 'none';
+        }
+    } else {
+        // Badge belum ada (keranjang kosong sebelumnya), buat baru
+        const cartLink = document.querySelector('a[href*="keranjang"]');
+        if (cartLink && delta > 0) {
+            const newBadge = document.createElement('span');
+            newBadge.className = 'action-badge';
+            newBadge.innerText = delta > 99 ? '99+' : delta;
+            cartLink.appendChild(newBadge);
+        }
+    }
+};
+
 // Wishlist Toggle
 window.toggleWishlist = function(productId, btn) {
     fetch(`/wishlist/toggle/${productId}`, {
@@ -471,15 +496,13 @@ window.toggleWishlist = function(productId, btn) {
             icon.classList.remove('far');
             icon.classList.add('fas');
             icon.style.color = '#e67e22';
-            alert('✅ Ditambahkan ke wishlist!');
         } else {
             icon.classList.remove('fas');
             icon.classList.add('far');
             icon.style.color = '';
-            alert('❌ Dihapus dari wishlist');
         }
     })
-    .catch(err => alert('✅ Ditambahkan ke wishlist!'));
+    .catch(err => console.error(err));
 };
 
 // Like Toggle
@@ -495,21 +518,19 @@ window.toggleLike = function(productId, btn) {
     .then(data => {
         const span = btn.querySelector('.like-count');
         if (span) span.innerText = data.total_likes;
-        
+
         const icon = btn.querySelector('i');
         if (data.liked) {
             icon.classList.remove('far');
             icon.classList.add('fas');
             icon.style.color = '#27ae60';
-            alert('👍 Berhasil disukai!');
         } else {
             icon.classList.remove('fas');
             icon.classList.add('far');
             icon.style.color = '';
-            alert('👎 Batal menyukai');
         }
     })
-    .catch(err => alert('✅ Ditambahkan ke disukai!'));
+    .catch(err => console.error(err));
 };
 </script>
 

@@ -58,6 +58,15 @@ class PembayaranController extends Controller
             ? implode(', ', array_filter($request->notes))
             : $request->notes;
 
+        $deliveryMethods = $request->input('delivery_method', []);
+        $needsAddress = in_array('antar', (array) $deliveryMethods);
+
+        if ($needsAddress && empty($request->address_id)) {
+            return redirect()->route('checkout')
+                ->withInput()
+                ->with('error', 'Kamu memilih pengiriman "Antar" tapi belum ada alamat. Silakan tambah alamat terlebih dahulu.');
+        }
+
         $request->validate([
             'address_id' => 'nullable|exists:user_addresses,id',
         ]);

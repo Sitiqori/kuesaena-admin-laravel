@@ -449,8 +449,8 @@
                 <input type="hidden" name="address_id" id="address_id" value="{{ $addresses->first()->id }}">
             @else
                 <p style="font-size:13px;color:#8B6050;">
-                    Belum ada alamat.
-                    <a href="{{ route('customer.profil.alamat') }}" style="color:#3B1A08;font-weight:600;">Tambah alamat</a>
+                    Belum ada alamat. Jika memilih pengiriman "Antar", kamu harus menambah alamat terlebih dahulu.
+                    <a href="{{ route('customer.profil.alamat') }}" style="color:#3B1A08;font-weight:600;text-decoration:underline;">+ Tambah Alamat Sekarang</a>
                 </p>
                 <input type="hidden" name="address_id" id="address_id" value="">
             @endif

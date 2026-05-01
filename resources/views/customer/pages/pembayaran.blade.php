@@ -52,20 +52,20 @@
             <div class="metode-list">
                 @php
                 $metodes = [
-                    ['value' => 'qris',         'label' => 'QRIS',         'icon' => '▪️'],
-                    ['value' => 'shopee_pay',    'label' => 'Shopee Pay',   'icon' => '🛍️'],
-                    ['value' => 'dana',          'label' => 'Dana',         'icon' => '💙'],
-                    ['value' => 'gopay',         'label' => 'Gopay',        'icon' => '💚'],
-                    ['value' => 'ovo',           'label' => 'OVO',          'icon' => '💜'],
-                    ['value' => 'cod',           'label' => 'COD',          'icon' => '💵'],
-                    ['value' => 'kartu_kredit',  'label' => 'Kartu Kredit', 'icon' => '💳'],
-                    ['value' => 'transfer_bank', 'label' => 'Transfer Bank','icon' => '🏦'],
+                    ['value' => 'qris',         'label' => 'QRIS',         'icon' => 'fa-solid fa-qrcode',          'color' => '#342DF0'],
+                    ['value' => 'shopee_pay',   'label' => 'Shopee Pay',   'icon' => 'fa-solid fa-bag-shopping',    'color' => '#EE4D2D'],
+                    ['value' => 'dana',         'label' => 'Dana',         'icon' => 'fa-solid fa-wallet',          'color' => '#108EE9'],
+                    ['value' => 'gopay',        'label' => 'Gopay',        'icon' => 'fa-solid fa-g',               'color' => '#00AED6'],
+                    ['value' => 'ovo',          'label' => 'OVO',          'icon' => 'fa-solid fa-circle-dot',      'color' => '#4C3494'],
+                    ['value' => 'cod',          'label' => 'COD',          'icon' => 'fa-solid fa-money-bill-wave', 'color' => '#2ECC71'],
+                    ['value' => 'kartu_kredit', 'label' => 'Kartu Kredit', 'icon' => 'fa-solid fa-credit-card',     'color' => '#1A1F71'],
+                    ['value' => 'transfer_bank','label' => 'Transfer Bank','icon' => 'fa-solid fa-building-columns', 'color' => '#F7941D'],
                 ];
                 @endphp
 
                 @foreach($metodes as $m)
                 <label class="metode-item" id="label-{{ $m['value'] }}" onclick="pilihMetode('{{ $m['value'] }}')">
-                    <div class="metode-icon">{{ $m['icon'] }}</div>
+                    <div class="metode-icon" style="background:{{ $m['color'] }}1a;"><i class="{{ $m['icon'] }}" style="font-size:20px;color:{{ $m['color'] }};"></i></div>
                     <span class="metode-nama">{{ $m['label'] }}</span>
                     <input type="radio" name="payment_method" value="{{ $m['value'] }}"
                            class="metode-radio" id="radio-{{ $m['value'] }}">
