@@ -150,13 +150,17 @@ class PembayaranController extends Controller
             session()->forget('checkout_data');
             session()->forget('selected_cart_ids');
 
-            // ── Kirim notifikasi pesanan masuk ──────────────────────────────
-            NotificationService::pesananMasuk(Auth::id(), $order->order_number);
-
             DB::commit();
 
-            return redirect()->route('pembayaran.berhasil', $order->order_number);
+            // ── Kirim notifikasi pesanan masuk ──────────────────────────────
+            try {
+                NotificationService::pesananMasuk(Auth::id(), $order->order_number);
+            } catch (\Exception $e) {
+                // notifikasi gagal tidak batalkan order
+            }
 
+            return redirect()->route('pembayaran.berhasil', $order->order_number);
+            
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());

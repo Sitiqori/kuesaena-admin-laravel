@@ -75,7 +75,7 @@
             {{-- Product Image --}}
             <div style="width:90px; height:90px; flex-shrink:0; border-radius:10px; overflow:hidden; background:#f5ead8;">
                 @if($product && $product->image)
-                    <img src="{{ asset('images/products/' . $product->image) }}"
+                    <img src="{{ asset('storage/' . $product->image) }}"
                          alt="{{ $product->name }}"
                          style="width:100%; height:100%; object-fit:cover;">
                 @else
