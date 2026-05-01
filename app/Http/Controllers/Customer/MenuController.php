@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 
 class MenuController extends Controller
 {
+<<<<<<< HEAD
     public function index(Request $request)
     {
         $categories = Category::all();
@@ -52,6 +53,15 @@ class MenuController extends Controller
         }
 
         $products = $query->get();
+=======
+    public function index()
+    {
+        $categories = Category::all();
+        $products = Product::with('category')
+            ->where('stock', '>', 0)
+            ->orderBy('name')
+            ->get();
+>>>>>>> d07f41bcb216716dc31f54d38658c83380117c94
 
         return view('customer.pages.menu', compact('categories', 'products'));
     }

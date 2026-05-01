@@ -359,7 +359,11 @@
 
     <div class="menu-container">
         <!-- Sidebar Filter -->
+<<<<<<< HEAD
         <form method="GET" action="{{ route('customer.menu') }}" id="filterForm" class="sidebar-filter">
+=======
+        <aside class="sidebar-filter">
+>>>>>>> d07f41bcb216716dc31f54d38658c83380117c94
             <div class="filter-header">
                 <i class="fas fa-filter"></i> Filter
             </div>
@@ -367,6 +371,7 @@
             <!-- Kategori Produk -->
             <div class="filter-group">
                 <div class="filter-group-title">Kategori Produk</div>
+<<<<<<< HEAD
                 @foreach($categories as $category)
                 <label class="filter-item">{{ $category->name }} <input type="checkbox" name="categories[]" value="{{ $category->id }}" {{ (is_array(request('categories')) && in_array($category->id, request('categories'))) ? 'checked' : '' }} onchange="document.getElementById('filterForm').submit()"></label>
                 @endforeach
@@ -374,6 +379,18 @@
 
             <!-- Tema (Disabled - No DB Columns) -->
             <!--
+=======
+                <label class="filter-item">Kue/cake <input type="checkbox" checked></label>
+                <label class="filter-item">Cupcake <input type="checkbox"></label>
+                <label class="filter-item">Roti & Pastry <input type="checkbox"></label>
+                <label class="filter-item">Brownies <input type="checkbox"></label>
+                <label class="filter-item">Tart <input type="checkbox"></label>
+                <label class="filter-item">Minuman <input type="checkbox"></label>
+                <label class="filter-item">Hampers <input type="checkbox"></label>
+            </div>
+
+            <!-- Tema -->
+>>>>>>> d07f41bcb216716dc31f54d38658c83380117c94
             <div class="filter-group">
                 <div class="filter-group-title">Tema</div>
                 <label class="filter-item">Ulang Tahun <input type="checkbox"></label>
@@ -382,30 +399,45 @@
                 <label class="filter-item">Graduation <input type="checkbox"></label>
                 <label class="filter-item">Custom <input type="checkbox"></label>
             </div>
+<<<<<<< HEAD
             -->
 
             <!-- Ukuran (Disabled - No DB Columns) -->
             <!--
+=======
+
+            <!-- Ukuran -->
+>>>>>>> d07f41bcb216716dc31f54d38658c83380117c94
             <div class="filter-group">
                 <div class="filter-group-title">Ukuran</div>
                 <label class="filter-item">Small <input type="checkbox"></label>
                 <label class="filter-item">Medium <input type="checkbox"></label>
                 <label class="filter-item">Large <input type="checkbox"></label>
             </div>
+<<<<<<< HEAD
             -->
 
             <!-- Rasa (Disabled - No DB Columns) -->
             <!--
+=======
+
+            <!-- Rasa -->
+>>>>>>> d07f41bcb216716dc31f54d38658c83380117c94
             <div class="filter-group">
                 <div class="filter-group-title">Rasa</div>
                 <label class="filter-item">Coklat <input type="checkbox"></label>
                 <label class="filter-item">Strawberry <input type="checkbox"></label>
                 <label class="filter-item">Vanilla <input type="checkbox"></label>
             </div>
+<<<<<<< HEAD
             -->
             
             <!-- Kategori Spesial (Disabled - No DB Columns) -->
             <!--
+=======
+            
+            <!-- Kategori Spesial -->
+>>>>>>> d07f41bcb216716dc31f54d38658c83380117c94
             <div class="filter-group">
                 <div class="filter-group-title">Kategori Spesial</div>
                 <label class="filter-item">Vegan <input type="checkbox"></label>
@@ -430,6 +462,7 @@
             <!-- Urut Berdasarkan -->
             <div class="filter-group">
                 <div class="filter-group-title">Urut Berdasarkan</div>
+<<<<<<< HEAD
                 <label class="filter-item">Terbaru <input type="radio" name="sort_by" value="terbaru" {{ request('sort_by') == 'terbaru' ? 'checked' : '' }} onchange="document.getElementById('filterForm').submit()"></label>
                 <label class="filter-item">Terlaris <input type="radio" name="sort_by" value="terlaris" {{ request('sort_by') == 'terlaris' ? 'checked' : '' }} onchange="document.getElementById('filterForm').submit()"></label>
                 <label class="filter-item">Terendah <input type="radio" name="sort_by" value="terendah" {{ request('sort_by') == 'terendah' ? 'checked' : '' }} onchange="document.getElementById('filterForm').submit()"></label>
@@ -437,6 +470,15 @@
             </div>
 
         </form>
+=======
+                <label class="filter-item">Terbaru <input type="checkbox"></label>
+                <label class="filter-item">Terlaris <input type="checkbox"></label>
+                <label class="filter-item">Terendah <input type="checkbox"></label>
+                <label class="filter-item">Tertinggi <input type="checkbox"></label>
+            </div>
+
+        </aside>
+>>>>>>> d07f41bcb216716dc31f54d38658c83380117c94
 
         <!-- Products Section -->
         <div class="products-section">
@@ -445,6 +487,7 @@
                 @php
                     $isDark = true;
                 @endphp
+<<<<<<< HEAD
                 <div class="product-card {{ $isDark ? 'dark-card' : '' }}" onclick="window.location.href='{{ route('customer.product.show', $product->id) }}'" style="cursor: pointer;">
                     <a href="{{ route('customer.product.show', $product->id) }}" style="text-decoration:none; color:inherit; display:block;" onclick="event.preventDefault();">
                         <div class="product-image-wrapper">
@@ -482,6 +525,25 @@
                                     <i   class="far fa-thumbs-up" style="cursor:pointer;" onclick="event.stopPropagation(); toggleLike({{ $product->id }}, this)"></i>
                                  <span  pan class="like-count-{{ $product->id }}" style="font-size:9px; margin-left:2px;">{{ $product->likes()->count() }}</span>
                                     <i   class="fas fa-shopping-cart" style="cursor:pointer;" onclick="event.stopPropagation(); tambahKeKeranjang({{ $product->id }})"></i>
+=======
+                <div class="product-card {{ $isDark ? 'dark-card' : '' }}">
+                    <div class="product-image-wrapper">
+                        @if($isDark)
+                        <span class="discount-badge">Get it on 10% Off Today Only</span>
+                        @endif
+                        <span class="po-badge">PO 5 Hari</span>
+                        <img src="{{ $product->image ? asset($product->image) : asset('images/no-image.jpg') }}" alt="{{ $product->name }}" class="product-image">
+                    </div>
+                    
+                    <div class="product-info-wrap">
+                        <div class="product-header-row">
+                            <div class="product-name">{{ $product->name }}</div>
+                            <div class="product-actions">
+                                    <i   class="far fa-heart" style="cursor:pointer;" onclick="toggleWishlist({{ $product->id }}, this)"></i>
+                                    <i   class="far fa-thumbs-up" style="cursor:pointer;" onclick="toggleLike({{ $product->id }}, this)"></i>
+                                 <span  pan class="like-count-{{ $product->id }}" style="font-size:9px; margin-left:2px;">{{ $product->likes()->count() }}</span>
+                                    <i   class="fas fa-shopping-cart" style="cursor:pointer;" onclick="tambahKeKeranjang({{ $product->id }})"></i>
+>>>>>>> d07f41bcb216716dc31f54d38658c83380117c94
                                 </div>  
                         </div>
                         <div class="product-price-row">
