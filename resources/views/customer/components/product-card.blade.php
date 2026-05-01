@@ -1,6 +1,8 @@
-{{--
-    Product Card Component
-    Usage: @include('customer.components.product-card', ['product' => $product])
+{{--<img src="{{ $imgUrl }}"
+     alt="{{ $productName }}"
+     loading="lazy"
+     onerror="this.src='https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&q=80'"
+     style="width:100%;height:100%;object-fit:cover;">
 
     Expected $product fields (model Barang):
         - id
@@ -27,9 +29,9 @@
         : 0;
 
     // Image URL
-    $imgUrl = $image
-        ? asset('storage/' . $image)
-        : 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&q=80';
+   $imgUrl = $image
+    ? asset('storage/' . $image)
+    : 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&q=80';
 @endphp
 <div class="product-card">
     {{-- Image Container --}}
@@ -59,9 +61,22 @@
         <div class="product-card__top">
             <h3 class="product-card__name">{{ $productName }}</h3>
             <div class="product-card__actions">
-                <button class="prod-action-btn wishlist-btn" title="Wishlist">
-                    <i class="far fa-heart"></i>
-                </button>
+                
+		{{-- Tombol Wishlist (Love) --}}
+		    <button class="prod-action-btn wishlist-btn" title="Wishlist" 
+		            data-id="{{ $product->id }}"
+		            onclick="toggleWishlist({{ $product->id }}, this)">
+		        <i class="far fa-heart"></i>
+		    </button>
+		    
+		    {{-- Tombol Favorite/Like (Jempol) --}}
+		    <button class="prod-action-btn like-btn" title="Suka" 
+		            data-id="{{ $product->id }}"
+		            onclick="toggleLike({{ $product->id }}, this)">
+		        <i class="far fa-thumbs-up"></i>
+		        <span class="like-count" style="font-size:10px; margin-left:3px;">{{ $product->likes()->count() }}</span>
+		    </button>
+
                 <button class="prod-action-btn cart-btn" title="Tambah ke Keranjang" data-id="{{ $productId }}">
                     <i class="fas fa-shopping-cart"></i>
                 </button>
@@ -104,7 +119,7 @@
 <style>
 /* ===== PRODUCT CARD ===== */
 .product-card {
-    background: var(--white);
+    background:  #3B1A08;
     border-radius: var(--radius-lg);
     overflow: hidden;
     box-shadow: var(--shadow-sm);
@@ -198,6 +213,7 @@
 /* Body */
 .product-card__body {
     padding: 16px 18px 18px;
+    background: #3B1A08;
 }
 
 .product-card__top {
@@ -212,7 +228,7 @@
     font-family: 'DM Sans', sans-serif;
     font-size: 15px;
     font-weight: 600;
-    color: var(--text-dark);
+    color: #F5EAD8;
     line-height: 1.3;
     flex: 1;
 }
@@ -228,9 +244,9 @@
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    border: 1.5px solid var(--cream-dark);
+    border: 1.5px solid #5C3020;
     background: transparent;
-    color: var(--text-muted);
+    color: #C68B5A;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -260,18 +276,18 @@
     font-family: 'DM Sans', sans-serif;
     font-size: 16px;
     font-weight: 700;
-    color: var(--brown-dark);
+    color: #C68B5A;
 }
 
 .price-original {
     font-size: 13px;
-    color: var(--text-muted);
+    color: #A07850;
     text-decoration: line-through;
 }
 
 .product-card__po {
     font-size: 12px;
-    color: var(--text-muted);
+    color:  #A07850;
     margin-bottom: 10px;
     display: flex;
     align-items: center;

@@ -25,6 +25,7 @@ use App\Http\Controllers\Customer\KeranjangController;
 use App\Http\Controllers\Customer\ProfilController;
 use App\Http\Controllers\Customer\CustomerPesananController;
 use App\Http\Controllers\Customer\CustomerRewardController;
+use App\Http\Controllers\Customer\NotificationController;
 use App\Http\Controllers\Customer\PembayaranController;
 use App\Http\Controllers\Customer\MenuController;
 use App\Http\Controllers\Customer\AboutController;
@@ -45,10 +46,8 @@ Route::get('/', function () {
 
 // CUSTOMER PUBLIC
 Route::get('/menu', [MenuController::class, 'index'])->name('customer.menu');
-
 Route::get('/about', [AboutController::class, 'index'])->name('customer.about');
-
-Route::get('/produk/{id}', [ProductController::class,'show'])->name('customer.product.show');
+Route::get('/produk/{id}', [ProductController::class, 'show'])->name('customer.product.show');
 
 // AUTH
 Route::middleware('guest')->group(function () {
@@ -57,6 +56,10 @@ Route::middleware('guest')->group(function () {
     Route::get('/register', [RegisterController::class, 'index'])->name('register');
     Route::post('/register', [RegisterController::class, 'store']);
 });
+
+Route::get('/checkout/pembayaran', function () {
+    return redirect()->route('checkout');
+})->name('checkout.pembayaran.get')->middleware('auth');
 
 // LOGOUT
 Route::post('/logout', [LoginController::class, 'logout'])
@@ -72,6 +75,8 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/keranjang/update/{id}', [KeranjangController::class, 'update'])->name('keranjang.update');
     Route::delete('/keranjang/hapus/{id}', [KeranjangController::class, 'hapus'])->name('keranjang.hapus');
     Route::delete('/keranjang/hapus-semua', [KeranjangController::class, 'hapusSemua'])->name('keranjang.hapusSemua');
+
+    Route::post('/pesanan-saya/{id}/ulasan', [CustomerPesananController::class, 'storeReview'])->name('customer.pesanan.ulasan');
 
     // CHECKOUT & PEMBAYARAN
     Route::get('/checkout', [PembayaranController::class, 'checkout'])->name('checkout');
@@ -101,6 +106,21 @@ Route::middleware(['auth'])->group(function () {
     // REWARD CUSTOMER
     Route::get('/reward-saya', [CustomerRewardController::class, 'index'])->name('customer.reward');
     Route::post('/reward-saya/{id}/redeem', [CustomerRewardController::class, 'redeem'])->name('customer.reward.redeem');
+
+    // NOTIFIKASI CUSTOMER
+    Route::get('/notifikasi', [NotificationController::class, 'index'])->name('customer.notifikasi');
+    Route::get('/notifikasi/popup', [NotificationController::class, 'popup'])->name('customer.notifikasi.popup');
+    Route::post('/notifikasi/mark-all-read', [NotificationController::class, 'markAllRead'])->name('customer.notifikasi.markAllRead');
+    Route::post('/notifikasi/{id}/read', [NotificationController::class, 'markRead'])->name('customer.notifikasi.markRead');
+    Route::delete('/notifikasi/{id}', [NotificationController::class, 'destroy'])->name('customer.notifikasi.destroy');
+    Route::delete('/notifikasi', [NotificationController::class, 'destroyAll'])->name('customer.notifikasi.destroyAll');
+
+    // WISHLIST & LIKE
+    Route::get('/profil/wishlist', [\App\Http\Controllers\Customer\WishlistController::class, 'index'])->name('customer.profil.wishlist');
+    Route::post('/wishlist/toggle/{product}', [\App\Http\Controllers\Customer\WishlistController::class, 'toggle'])->name('wishlist.toggle');
+    Route::delete('/wishlist/{wishlist}', [\App\Http\Controllers\Customer\WishlistController::class, 'destroy'])->name('wishlist.destroy');
+    Route::get('/profil/like', [\App\Http\Controllers\Customer\ProductLikeController::class, 'index'])->name('customer.profil.like');
+    Route::post('/product/like/{product}', [\App\Http\Controllers\Customer\ProductLikeController::class, 'toggle'])->name('product.like');
 
     // ADMIN ONLY
     Route::middleware(['is.admin'])->group(function () {

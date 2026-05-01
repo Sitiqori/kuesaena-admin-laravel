@@ -38,8 +38,9 @@ class Order extends Model
     public function getStatusLabelAttribute(): string
     {
         return match($this->status) {
-            'pending'    => 'Belum Bayar',
+            'pending'    => 'Menunggu Konfirmasi',
             'processing' => 'Sedang Dikemas',
+            'ready'      => 'Siap Diambil',
             'completed'  => 'Selesai',
             'cancelled'  => 'Dibatalkan',
             default      => ucfirst($this->status),
@@ -51,6 +52,7 @@ class Order extends Model
         return match($this->status) {
             'pending'    => '#e67e22',
             'processing' => '#2980b9',
+            'ready'      => '#8e44ad',
             'completed'  => '#27ae60',
             'cancelled'  => '#c0392b',
             default      => '#7f8c8d',
@@ -71,6 +73,11 @@ class Order extends Model
     public function orderItems()
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function review()
+    {
+    return $this->hasOne(Review::class);
     }
 
     // Generate order number

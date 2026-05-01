@@ -15,6 +15,7 @@ class AdminController extends Controller
             ->with(['orders' => function($query) {
                 $query->where('status', 'completed');
             }])
+            ->whereIn('role', ['admin', 'kasir'])
             ->orderBy('created_at', 'desc')
             ->get();
 

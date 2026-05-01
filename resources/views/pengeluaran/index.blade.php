@@ -427,7 +427,7 @@
                     </td>
                     <td>{{ $expense->description }}</td>
                     <td style="color: #d32f2f; font-weight: 600;">Rp {{ number_format($expense->amount, 0, ',', '.') }}</td>
-                    <td>{{ $expense->user->name }}</td>
+                    <td>{{ $expense->user->name ?? '-' }}</td>
                     <td>
                         <div class="action-buttons">
                             <button class="icon-btn btn-edit" onclick="editExpense({{ $expense->id }})" title="Edit">

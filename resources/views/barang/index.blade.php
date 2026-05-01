@@ -72,13 +72,13 @@
     }
 
     .search-box-wrapper{
-    position: relative;
-    display: flex;
-    align-items: center;
-    background: #fff;
-    border: 1px solid #ddd;
-    padding: 10px 15px;
-    border-radius: 10px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        background: #fff;
+        border: 1px solid #ddd;
+        padding: 10px 15px;
+        border-radius: 10px;
     }
 
     .search-box-wrapper input {
@@ -362,6 +362,57 @@
         text-align: center;
         color: #999;
     }
+
+    .size-toggle-wrap {
+        background: #f9f9f9;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 14px;
+        margin-bottom: 20px;
+    }
+
+    .size-toggle-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        color: #333;
+        margin-bottom: 0;
+    }
+
+    .size-toggle-label input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+        margin: 0;
+        padding: 0;
+        border: none;
+    }
+
+    #size-price-fields {
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px dashed #ddd;
+    }
+
+    #size-price-fields p {
+        font-size: 12px;
+        color: #888;
+        margin-bottom: 10px;
+    }
+
+    /* Badge has_size */
+    .size-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 11px;
+        font-weight: 600;
+        background: #e8f5e9;
+        color: #2e7d32;
+    }
 </style>
 @endpush
 
@@ -385,9 +436,15 @@
 @endif
 
 @php
-    $lowStockCount = $products->where('stock', '<=', 3)->where('stock', '>', 0)->count();
+    $outOfStockCount = $products->where('stock', '<=', 0)->count();
+    $lowStockCount = $products->where('stock', '>', 0)->filter(fn($p) => $p->stock < ($p->min_stock ?? 3))->count();
 @endphp
 
+@if($outOfStockCount > 0)
+<div class="alert alert-warning" style="background:#ffebee; border-color:#ffcdd2; color:#c62828;">
+    ⛔ {{ $outOfStockCount }} barang habis stok
+</div>
+@endif
 @if($lowStockCount > 0)
 <div class="alert alert-warning">
     ⚠️ {{ $lowStockCount }} barang memiliki stok di bawah minimum
@@ -408,8 +465,6 @@
             <span class="search-icon">🔍</span>
             <input type="text" id="searchInput" placeholder="Cari nama atau kode barang..." onkeyup="filterProducts()">
         </div>
-
-
     </div>
 
     <div class="table-wrapper">
@@ -432,21 +487,26 @@
                 @forelse($products as $product)
                 <tr data-category="{{ $product->category_id }}" data-name="{{ strtolower($product->name) }}" data-code="{{ strtolower($product->code) }}">
                     <td>{{ $product->code }}</td>
-                    <td>{{ $product->name }}</td>
+                    <td>
+                        {{ $product->name }}
+                        @if($product->has_size)
+                            <span class="size-badge">S/M/L/XL</span>
+                        @endif
+                    </td>
                     <td>{{ $product->category->name }}</td>
-                    <td>Pcs</td>
+                    <td>{{ $product->unit ?? 'Pcs' }}</td>
                     <td>Rp {{ number_format($product->hpp ?? 0, 0, ',', '.') }}</td>
                     <td>Rp {{ number_format($product->price, 0, ',', '.') }}</td>
                     <td>
-                        @if($product->stock == 0)
-                            <span class="stock-badge stock-out">0</span>
-                        @elseif($product->stock <= 3)
-                            <span class="stock-badge stock-low">{{ $product->stock }}</span>
+                        @if($product->stock <= 0)
+                            <span class="stock-badge stock-out" style="background:#ffebee; color:#c62828;">{{ $product->stock }}</span>
+                        @elseif($product->stock < ($product->min_stock ?? 3))
+                            <span class="stock-badge stock-low" style="background:#fff3e0; color:#e65100;">{{ $product->stock }}</span>
                         @else
                             <span class="stock-badge stock-ok">{{ $product->stock }}</span>
                         @endif
                     </td>
-                    <td>3</td>
+                    <td>{{ $product->min_stock ?? 3 }}</td>
                     <td><span class="status-badge">Aktif</span></td>
                     <td>
                         <div class="action-buttons">
@@ -504,9 +564,22 @@
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label>Nama Barang *</label>
-                    <input type="text" name="name" id="name" required placeholder="Matcha Chocolate">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nama Barang *</label>
+                        <input type="text" name="name" id="name" required placeholder="Matcha Chocolate">
+                    </div>
+                    <div class="form-group">
+                        <label>Satuan</label>
+                        <select name="unit" id="unit">
+                            <option value="Pcs">Pcs</option>
+                            <option value="Box">Box</option>
+                            <option value="Lusin">Lusin</option>
+                            <option value="Pack">Pack</option>
+                            <option value="Loyang">Loyang</option>
+                            <option value="Toples">Toples</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="form-row">
@@ -536,6 +609,39 @@
                     <textarea name="description" id="description" placeholder="Deskripsi produk..."></textarea>
                 </div>
 
+                {{-- Toggle Has Size --}}
+                <div class="size-toggle-wrap">
+                    <label class="size-toggle-label">
+                        <input type="checkbox" name="has_size" id="has_size" value="1"
+                               onchange="toggleSizeFields(this.checked)">
+                        Produk ini memiliki pilihan ukuran (S/M/L/XL)
+                    </label>
+
+                    <div id="size-price-fields" style="display:none;">
+                        <p>Isi harga per ukuran (kosongkan jika ukuran tidak tersedia)</p>
+                        <div class="form-row">
+                            <div class="form-group" style="margin-bottom:10px;">
+                                <label>Harga Size S</label>
+                                <input type="number" name="price_s" id="price_s" placeholder="50000" min="0">
+                            </div>
+                            <div class="form-group" style="margin-bottom:10px;">
+                                <label>Harga Size M</label>
+                                <input type="number" name="price_m" id="price_m" placeholder="75000" min="0">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label>Harga Size L</label>
+                                <input type="number" name="price_l" id="price_l" placeholder="100000" min="0">
+                            </div>
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label>Harga Size XL</label>
+                                <input type="number" name="price_xl" id="price_xl" placeholder="150000" min="0">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label>Foto Produk</label>
                     <input type="file" name="image" id="image" accept="image/*" onchange="previewImage(event)">
@@ -560,6 +666,11 @@
 
 @push('scripts')
 <script>
+// Toggle size fields
+function toggleSizeFields(show) {
+    document.getElementById('size-price-fields').style.display = show ? 'block' : 'none';
+}
+
 // Filter Products
 function filterProducts() {
     const category = document.getElementById('categoryFilter').value;
@@ -567,7 +678,7 @@ function filterProducts() {
     const rows = document.querySelectorAll('#productsTable tbody tr');
 
     rows.forEach(row => {
-        if (row.cells.length === 1) return; // Skip empty row
+        if (row.cells.length === 1) return;
 
         const rowCategory = row.dataset.category;
         const rowName = row.dataset.name;
@@ -587,6 +698,9 @@ function openAddModal() {
     document.getElementById('formMethod').value = 'POST';
     document.getElementById('productForm').reset();
     document.getElementById('productId').value = '';
+    document.getElementById('unit').value = 'Pcs';
+    document.getElementById('has_size').checked = false;
+    toggleSizeFields(false);
     document.getElementById('imagePreview').innerHTML = `
         <div class="image-preview-placeholder">
             <div style="font-size: 40px; margin-bottom: 10px;">📷</div>
@@ -608,11 +722,20 @@ function openEditModal(id) {
             document.getElementById('code').value = data.code;
             document.getElementById('name').value = data.name;
             document.getElementById('category_id').value = data.category_id;
+            document.getElementById('unit').value = data.unit || 'Pcs';
             document.getElementById('hpp').value = data.hpp || Math.round(data.price * 0.7);
             document.getElementById('price').value = data.price;
             document.getElementById('stock').value = data.stock;
             document.getElementById('min_stock').value = data.min_stock || 3;
             document.getElementById('description').value = data.description || '';
+
+            const hasSize = data.has_size == 1;
+            document.getElementById('has_size').checked = hasSize;
+            toggleSizeFields(hasSize);
+            document.getElementById('price_s').value  = data.price_s  || '';
+            document.getElementById('price_m').value  = data.price_m  || '';
+            document.getElementById('price_l').value  = data.price_l  || '';
+            document.getElementById('price_xl').value = data.price_xl || '';
 
             if (data.image) {
                 document.getElementById('imagePreview').innerHTML = `

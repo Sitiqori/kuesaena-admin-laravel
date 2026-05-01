@@ -553,6 +553,7 @@
                     <a href="{{ route('customer.profil.alamat') }}" class="sidebar-link {{ request()->routeIs('customer.profil.alamat') ? 'active' : '' }}">Alamat</a>
                     <a href="{{ route('customer.profil.password') }}" class="sidebar-link {{ request()->routeIs('customer.profil.password') ? 'active' : '' }}">Ubah Password</a>
                     <a href="{{ route('customer.profil.notifikasi') }}" class="sidebar-link {{ request()->routeIs('customer.profil.notifikasi') ? 'active' : '' }}">Pengaturan Notifikasi</a>
+                    <a href="{{ route('customer.notifikasi') }}" class="sidebar-link {{ request()->routeIs('customer.notifikasi') ? 'active' : '' }}">Semua Notifikasi</a>
                     <a href="{{ route('customer.profil.privasi') }}" class="sidebar-link {{ request()->routeIs('customer.profil.privasi') ? 'active' : '' }}">Pengaturan Privasi</a>
                 </div>
 
@@ -577,6 +578,21 @@
                     </div>
                     <a href="{{ route('customer.reward') }}" class="sidebar-link {{ request()->routeIs('customer.reward') ? 'active' : '' }}">Reward Saya</a>
                 </div>
+
+                {{-- Wishlist & Like --}}
+                <div class="sidebar-group">
+                    <div class="sidebar-group-header">
+                        <i class="fas fa-heart"></i>
+                        <span class="sidebar-group-title">Favorit Saya</span>
+                    </div>
+                    <a href="{{ route('customer.profil.wishlist') }}" class="sidebar-link {{ request()->routeIs('customer.profil.wishlist') ? 'active' : '' }}">
+                        ❤️ Wishlist
+                    </a>
+                    <a href="{{ route('customer.profil.like') }}" class="sidebar-link {{ request()->routeIs('customer.profil.like') ? 'active' : '' }}">
+                        👍 Produk yang Disukai
+                    </a>
+                </div>
+
             </div>
 
             {{-- ===== MAIN CONTENT ===== --}}

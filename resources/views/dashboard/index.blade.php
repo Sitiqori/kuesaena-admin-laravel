@@ -291,9 +291,6 @@
                     <button class="tab-btn" data-chart="expense" onclick="switchChart('expense')">Pengeluaran</button>
                     <button class="tab-btn" data-chart="comparison" onclick="switchChart('comparison')">Perbandingan</button>
                 </div>
-                <button class="download-btn" onclick="downloadReport()">
-                    📥 Unduh Laporan
-                </button>
             </div>
         </div>
         <div class="chart-wrapper">
@@ -458,9 +455,5 @@ function updateCharts() {
     initChart();
 }
 
-function downloadReport() {
-    const month = document.getElementById('monthSelector').value;
-    window.open(`/dashboard/export-pdf?month=${month}`, '_blank');
-}
 </script>
 @endpush

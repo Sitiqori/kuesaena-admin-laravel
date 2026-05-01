@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\Category;
 
 class ProductController extends Controller
 {
@@ -23,5 +24,14 @@ class ProductController extends Controller
             ->get();
 
         return view('customer.pages.show', compact('product', 'popularProducts'));
+    }
+
+    public function index()
+    {
+        $categories = Category::all();
+        $products = Product::all();
+        $testimonials = [];
+
+        return view('customer.pages.home', compact('categories', 'products', 'testimonials'));
     }
 }

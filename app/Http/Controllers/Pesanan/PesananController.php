@@ -2,51 +2,39 @@
 
 namespace App\Http\Controllers\Pesanan;
 
+use App\Http\Controllers\Controller;
 use App\Models\Order;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class PesananController extends Controller
 {
     public function index()
     {
-        // Pesanan dengan status pending
-        $newOrders = Order::with(['customer', 'orderItems.product', 'user'])
-            ->where('status', 'pending')
-            ->orderBy('created_at', 'desc')
+        $orders = Order::with(['orderItems.product', 'user'])
+            ->latest()
             ->get();
 
-        // Pesanan dengan status processing
-        $processingOrders = Order::with(['customer', 'orderItems.product', 'user'])
-            ->where('status', 'processing')
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $newOrders        = $orders->where('status', 'pending');
+        $processingOrders = $orders->where('status', 'processing');
+        $completedToday = $orders->where('status', 'completed')
+            ->filter(fn($o) => $o->updated_at->isToday())
+            ->count(); // tambah ->count()
 
-        // Count pesanan selesai hari ini
-        $completedToday = Order::where('status', 'completed')
-            ->whereDate('updated_at', today())
-            ->count();
-
-        return view('pesanan.index', compact('newOrders', 'processingOrders', 'completedToday'));
+        return view('pesanan.index', compact('orders', 'newOrders', 'processingOrders', 'completedToday'));
     }
 
     public function show($id)
     {
-        $order = Order::with(['customer', 'orderItems.product', 'user'])
-            ->findOrFail($id);
-
-        return response()->json([
-            'success' => true,
-            'order' => $order
-        ]);
+        $order = Order::with(['orderItems.product', 'user'])->findOrFail($id);
+        return view('pesanan.show', compact('order'));
     }
 
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
-            'status' => 'required|in:pending,processing,completed,cancelled'
+            'status' => 'required|in:pending,processing,ready,completed,cancelled'
         ]);
 
         try {
@@ -55,10 +43,8 @@ class PesananController extends Controller
             $order->status = $request->status;
             $order->save();
 
-            // Log status change
             $user = Auth::user();
             Log::info("Order {$order->order_number} status changed from {$oldStatus} to {$request->status} by {$user->name}");
-
 
             return response()->json([
                 'success' => true,
@@ -69,24 +55,6 @@ class PesananController extends Controller
                 'success' => false,
                 'message' => $e->getMessage()
             ], 400);
-        }
-    }
-
-    public function destroy($id)
-    {
-        try {
-            $order = Order::findOrFail($id);
-
-            // Return stock to products
-            foreach ($order->orderItems as $item) {
-                $item->product->increment('stock', $item->quantity);
-            }
-
-            $order->delete();
-
-            return redirect()->route('pesanan.index')->with('success', 'Pesanan berhasil dihapus');
-        } catch (\Exception $e) {
-            return redirect()->route('pesanan.index')->with('error', 'Gagal menghapus pesanan: ' . $e->getMessage());
         }
     }
 }

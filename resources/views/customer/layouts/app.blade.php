@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Kuesaena - Your Sweetness Start From Here')</title>
     <meta name="description" content="@yield('description', 'Kuesaena - Bakery premium dengan cita rasa homemade, menggunakan bahan pilihan terbaik untuk moment spesialmu.')">
 
@@ -47,12 +48,8 @@
         }
 
         html {
-<<<<<<< HEAD
             scroll-behavior: smooth;
-=======
-        scroll-behavior: smooth;
-        color-scheme: light;
->>>>>>> c790366f9074d7d74c963723579c5909969143cc
+            color-scheme: light;
         }
 
         body {
@@ -190,11 +187,194 @@
         @media (max-width: 768px) {
             .container { padding: 0 16px; }
         }
-    </style>
 
+
+        /* ===== PAGE LOADING OVERLAY ===== */
+        /* ===== PAGE LOADER ===== */
+        #page-loader {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            backdrop-filter: blur(3px);
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+        #page-loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        /* Mixer SVG container */
+        .loader-mixer {
+            position: relative;
+            width: 100px;
+            height: 100px;
+        }
+
+        /* Bowl */
+        .mixer-bowl {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70px;
+            height: 38px;
+            background: var(--cream-dark);
+            border-radius: 0 0 40px 40px;
+            border: 3px solid var(--brown-light);
+        }
+
+        /* Batter swirl inside bowl */
+        .mixer-bowl::after {
+            content: '';
+            position: absolute;
+            bottom: 6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 44px;
+            height: 18px;
+            border-radius: 0 0 30px 30px;
+            background: var(--brown-light);
+            opacity: 0.5;
+        }
+
+        /* Mixer head (body) */
+        .mixer-head {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 28px;
+            background: var(--brown-dark);
+            border-radius: 12px 12px 6px 6px;
+        }
+
+        /* Handle */
+        .mixer-head::before {
+            content: '';
+            position: absolute;
+            top: 4px;
+            right: -16px;
+            width: 16px;
+            height: 8px;
+            border: 3px solid var(--brown-dark);
+            border-left: none;
+            border-radius: 0 8px 8px 0;
+        }
+
+        /* Beaters shaft */
+        .mixer-shaft {
+            position: absolute;
+            bottom: 38px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 22px;
+            background: var(--brown-mid);
+        }
+
+        /* Beaters spinning */
+        .mixer-beaters {
+            position: absolute;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 28px;
+            height: 28px;
+            animation: spin 0.6s linear infinite;
+            transform-origin: 50% 0%;
+        }
+
+        .mixer-beater {
+            position: absolute;
+            top: 0;
+            width: 8px;
+            height: 24px;
+            border-radius: 4px;
+            background: var(--brown-mid);
+        }
+        .mixer-beater:nth-child(1) { left: 2px; }
+        .mixer-beater:nth-child(2) { right: 2px; }
+
+        /* Batter splashes */
+        .mixer-splash {
+            position: absolute;
+            border-radius: 50%;
+            background: var(--brown-light);
+            opacity: 0;
+            animation: splash 1.2s ease-in-out infinite;
+        }
+        .mixer-splash:nth-child(1) { width:6px; height:6px; top:30px; left:4px;  animation-delay: 0s; }
+        .mixer-splash:nth-child(2) { width:4px; height:4px; top:22px; right:6px; animation-delay: 0.3s; }
+        .mixer-splash:nth-child(3) { width:5px; height:5px; top:18px; left:10px; animation-delay: 0.6s; }
+
+        @keyframes spin {
+            from { transform: translateX(-50%) rotate(0deg); }
+            to   { transform: translateX(-50%) rotate(360deg); }
+        }
+        @keyframes splash {
+            0%   { opacity: 0; transform: translateY(0) scale(0.5); }
+            40%  { opacity: 0.8; }
+            100% { opacity: 0; transform: translateY(-14px) scale(1.2); }
+        }
+
+        /* Progress bar */
+        .loader-bar-wrap {
+            width: 160px;
+            height: 3px;
+            background: var(--cream-dark);
+            border-radius: 99px;
+            overflow: hidden;
+        }
+        .loader-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--brown-main), var(--brown-light));
+            border-radius: 99px;
+            animation: loaderProgress 1.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        @keyframes loaderProgress {
+            0%   { width: 0%; }
+            60%  { width: 70%; }
+            100% { width: 100%; }
+        }
+
+    </style>
     @stack('styles')
 </head>
 <body>
+
+    {{-- ===== PAGE LOADER ===== --}}
+    <div id="page-loader" class="hidden">
+        <div class="loader-mixer">
+            {{-- splashes --}}
+            <div class="mixer-splash"></div>
+            <div class="mixer-splash"></div>
+            <div class="mixer-splash"></div>
+            {{-- mixer head --}}
+            <div class="mixer-head"></div>
+            {{-- shaft --}}
+            <div class="mixer-shaft"></div>
+            {{-- spinning beaters --}}
+            <div class="mixer-beaters">
+                <div class="mixer-beater"></div>
+                <div class="mixer-beater"></div>
+            </div>
+            {{-- bowl --}}
+            <div class="mixer-bowl"></div>
+        </div>
+        <div class="loader-bar-wrap">
+            <div class="loader-bar"></div>
+        </div>
+    </div>
+
 
     @include('customer.components.navbar')
 
@@ -226,6 +406,112 @@
         }
     </script>
 
+    <script>
+        // Show page loader on ALL internal navigation links
+        document.addEventListener('click', function (e) {
+            const link = e.target.closest('a');
+            if (!link || !link.href) return;
+
+            // Skip: external links, anchors only (#), javascript:, mailto:, new tab
+            const url = link.href;
+            const isSameOrigin = url.startsWith(window.location.origin);
+            const isHashOnly   = link.getAttribute('href') && link.getAttribute('href').startsWith('#');
+            const isJavascript = url.startsWith('javascript:');
+            const opensNewTab  = link.target === '_blank';
+
+            // Skip popup close / toggle buttons (href="#")
+            if (!isSameOrigin || isHashOnly || isJavascript || opensNewTab) return;
+
+            // Skip "Lihat Semua" & "Pengaturan Notifikasi" inside notif popup
+            // (they already navigate, loader will show — keep them)
+
+            const loader = document.getElementById('page-loader');
+            if (!loader) return;
+
+            loader.classList.remove('hidden');
+            const bar = loader.querySelector('.loader-bar');
+            if (bar) { bar.style.animation = 'none'; bar.offsetHeight; bar.style.animation = ''; }
+        });
+
+        // Also show loader on form submit (checkout, logout, dll)
+        document.addEventListener('submit', function (e) {
+            // Skip AJAX forms (those with data-no-loader attribute)
+            if (e.target.dataset.noLoader) return;
+            // Skip DELETE method forms (hapus notifikasi, dll) — terlalu cepat
+            const method = e.target.querySelector('input[name="_method"]');
+            if (method && (method.value === 'DELETE' || method.value === 'PATCH')) return;
+
+            const loader = document.getElementById('page-loader');
+            if (!loader) return;
+            loader.classList.remove('hidden');
+            const bar = loader.querySelector('.loader-bar');
+            if (bar) { bar.style.animation = 'none'; bar.offsetHeight; bar.style.animation = ''; }
+        });
+    </script>
+
     @stack('scripts')
+
+<script>
+// CSRF Token
+const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}';
+
+// Wishlist Toggle
+window.toggleWishlist = function(productId, btn) {
+    fetch(`/wishlist/toggle/${productId}`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': csrfToken,
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        const icon = btn.querySelector('i');
+        if (data.status === 'added') {
+            icon.classList.remove('far');
+            icon.classList.add('fas');
+            icon.style.color = '#e67e22';
+            alert('✅ Ditambahkan ke wishlist!');
+        } else {
+            icon.classList.remove('fas');
+            icon.classList.add('far');
+            icon.style.color = '';
+            alert('❌ Dihapus dari wishlist');
+        }
+    })
+    .catch(err => alert('✅ Ditambahkan ke wishlist!'));
+};
+
+// Like Toggle
+window.toggleLike = function(productId, btn) {
+    fetch(`/product/like/${productId}`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': csrfToken,
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        const span = btn.querySelector('.like-count');
+        if (span) span.innerText = data.total_likes;
+        
+        const icon = btn.querySelector('i');
+        if (data.liked) {
+            icon.classList.remove('far');
+            icon.classList.add('fas');
+            icon.style.color = '#27ae60';
+            alert('👍 Berhasil disukai!');
+        } else {
+            icon.classList.remove('fas');
+            icon.classList.add('far');
+            icon.style.color = '';
+            alert('👎 Batal menyukai');
+        }
+    })
+    .catch(err => alert('✅ Ditambahkan ke disukai!'));
+};
+</script>
+
 </body>
 </html>

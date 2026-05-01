@@ -440,7 +440,7 @@
             <div class="products-grid">
                 @foreach($products as $product)
                 @php
-                    $isDark = $loop->iteration <= 4;
+                    $isDark = true;
                 @endphp
                 <div class="product-card {{ $isDark ? 'dark-card' : '' }}">
                     <div class="product-image-wrapper">
@@ -455,9 +455,11 @@
                         <div class="product-header-row">
                             <div class="product-name">{{ $product->name }}</div>
                             <div class="product-actions">
-                                <i class="far fa-heart" onclick="alert('Added to wishlist!')"></i>
-                                <i class="fas fa-shopping-cart" onclick="tambahKeKeranjang({{ $product->id }})"></i>
-                            </div>
+                                    <i   class="far fa-heart" style="cursor:pointer;" onclick="toggleWishlist({{ $product->id }}, this)"></i>
+                                    <i   class="far fa-thumbs-up" style="cursor:pointer;" onclick="toggleLike({{ $product->id }}, this)"></i>
+                                 <span  pan class="like-count-{{ $product->id }}" style="font-size:9px; margin-left:2px;">{{ $product->likes()->count() }}</span>
+                                    <i   class="fas fa-shopping-cart" style="cursor:pointer;" onclick="tambahKeKeranjang({{ $product->id }})"></i>
+                                </div>  
                         </div>
                         <div class="product-price-row">
                             <span class="price-current">Rp {{ number_format($product->price, 0, ',', '.') }}</span>
@@ -538,6 +540,61 @@
     })
     .catch(() => alert('Gagal menambahkan ke keranjang.'));
 }
+
+// Wishlist Toggle
+window.toggleWishlist = function(productId, element) {
+    fetch(`/wishlist/toggle/${productId}`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === 'added') {
+            element.classList.remove('far');
+            element.classList.add('fas');
+            element.style.color = '#e67e22';
+            alert('✅ Ditambahkan ke wishlist!');
+        } else {
+            element.classList.remove('fas');
+            element.classList.add('far');
+            element.style.color = '';
+            alert('❌ Dihapus dari wishlist');
+        }
+    })
+    .catch(() => alert('Silakan login dulu'));
+};
+
+// Like Toggle
+window.toggleLike = function(productId, element) {
+    fetch(`/product/like/${productId}`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        const countSpan = document.querySelector(`.like-count-${productId}`);
+        if (countSpan) countSpan.innerText = data.total_likes;
+        
+        if (data.liked) {
+            element.classList.remove('far');
+            element.classList.add('fas');
+            element.style.color = '#27ae60';
+            alert('👍 Berhasil disukai!');
+        } else {
+            element.classList.remove('fas');
+            element.classList.add('far');
+            element.style.color = '';
+            alert('👎 Batal menyukai');
+        }
+    })
+    .catch(() => alert('Silakan login dulu'));
+};
 </script>
 @endpush
 

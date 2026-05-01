@@ -15,7 +15,7 @@ class KasirController extends Controller
 {
     public function index()
     {
-        $categories = Category::all();
+        $categories = Category::orderBy('name')->get()->unique('name')->values();
         $products = Product::with('category')
             ->where('stock', '>', 0)
             ->orderBy('name')
@@ -107,7 +107,7 @@ class KasirController extends Controller
             // Prepare response with order details
             $orderData = [
                 'order_number' => $order->order_number,
-                'customer_name' => $customer->name,
+                'customer_name' => isset($customer) ? $customer->name : $validated['customer_name'],
                 'subtotal' => $subtotal,
                 'tax' => $tax,
                 'total' => $total,

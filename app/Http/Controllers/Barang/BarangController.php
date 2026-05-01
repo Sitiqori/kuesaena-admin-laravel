@@ -32,12 +32,18 @@ class BarangController extends Controller
             'code'        => 'required|string|unique:products,code',
             'name'        => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
-            'hpp'         => 'nullable|numeric|min:0', // ← DITAMBAHKAN
+            'unit'        => 'nullable|string|in:Pcs,Box,Lusin,Pack,Loyang,Toples',
+            'hpp'         => 'nullable|numeric|min:0',
             'price'       => 'required|numeric|min:0',
             'stock'       => 'required|integer|min:0',
             'min_stock'   => 'nullable|integer|min:0',
             'description' => 'nullable|string',
             'image'       => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'has_size'    => 'nullable|boolean',
+            'price_s'     => 'nullable|numeric|min:0',
+            'price_m'     => 'nullable|numeric|min:0',
+            'price_l'     => 'nullable|numeric|min:0',
+            'price_xl'    => 'nullable|numeric|min:0',
         ], [
             'code.required'        => 'Kode barang harus diisi',
             'code.unique'          => 'Kode barang sudah digunakan',
@@ -48,6 +54,14 @@ class BarangController extends Controller
             'image.image'          => 'File harus berupa gambar',
             'image.max'            => 'Ukuran gambar maksimal 2MB',
         ]);
+
+        $hasSize = $request->boolean('has_size');
+        $validated['unit']     = $request->input('unit', 'Pcs');
+        $validated['has_size'] = $hasSize;
+        $validated['price_s']  = $hasSize ? $request->price_s : null;
+        $validated['price_m']  = $hasSize ? $request->price_m : null;
+        $validated['price_l']  = $hasSize ? $request->price_l : null;
+        $validated['price_xl'] = $hasSize ? $request->price_xl : null;
 
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('products', 'public');
@@ -78,13 +92,27 @@ class BarangController extends Controller
             'code'        => 'required|string|unique:products,code,' . $id,
             'name'        => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
-            'hpp'         => 'nullable|numeric|min:0', // ← DITAMBAHKAN
+            'unit'        => 'nullable|string|in:Pcs,Box,Lusin,Pack,Loyang,Toples',
+            'hpp'         => 'nullable|numeric|min:0',
             'price'       => 'required|numeric|min:0',
             'stock'       => 'required|integer|min:0',
             'min_stock'   => 'nullable|integer|min:0',
             'description' => 'nullable|string',
             'image'       => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'has_size'    => 'nullable|boolean',
+            'price_s'     => 'nullable|numeric|min:0',
+            'price_m'     => 'nullable|numeric|min:0',
+            'price_l'     => 'nullable|numeric|min:0',
+            'price_xl'    => 'nullable|numeric|min:0',
         ]);
+
+        $hasSize = $request->boolean('has_size');
+        $validated['unit']     = $request->input('unit', 'Pcs');
+        $validated['has_size'] = $hasSize;
+        $validated['price_s']  = $hasSize ? $request->price_s : null;
+        $validated['price_m']  = $hasSize ? $request->price_m : null;
+        $validated['price_l']  = $hasSize ? $request->price_l : null;
+        $validated['price_xl'] = $hasSize ? $request->price_xl : null;
 
         if ($request->hasFile('image')) {
             if ($product->image) {
