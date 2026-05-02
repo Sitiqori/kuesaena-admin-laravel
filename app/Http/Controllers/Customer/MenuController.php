@@ -12,7 +12,7 @@ class MenuController extends Controller
     public function index(Request $request)
     {
         $search = $request->input('search');
-        $categories = Category::all();
+        $categories = Category::orderBy('name')->get()->unique('name')->values();
 
         $query = Product::with('category')
             ->where('stock', '>', 0);

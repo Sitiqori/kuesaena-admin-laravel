@@ -452,24 +452,19 @@
                             <span class="discount-badge">Get it on 10% Off Today Only</span>
                             @endif
                             <span class="po-badge">PO 5 Hari</span>
-                            @php
-                                $imgSrc = $product->image;
-                                if (!$imgSrc || !file_exists(public_path($imgSrc))) {
-                                    $jpgPath = 'images/products/' . $product->id . '.jpg';
-                                    $pngPath = 'images/products/' . $product->id . '.png';
-                                    if (file_exists(public_path($jpgPath))) {
-                                        $imgSrc = $jpgPath;
-                                    } elseif (file_exists(public_path($pngPath))) {
-                                        $imgSrc = $pngPath;
-                                    } else {
-                                        // Pick a default image from the products folder as a placeholder
-                                        $fallbackImages = ['1.jpg', '2.jpg', '3.jpg', '4.jpg', '5.jpg', '6.jpg', '7.jpg', '8.jpg', '10.jpg', '11.jpg', '12.jpg', '13.jpg', '14.jpg', '15.jpg'];
-                                        $imgSrc = 'images/products/' . $fallbackImages[$product->id % count($fallbackImages)];
-                                    }
+                           @php
+                                $imgRaw = $product->image;
+                                if ($imgRaw && str_starts_with($imgRaw, 'images/')) {
+                                    $imgSrc = asset($imgRaw);
+                                } elseif ($imgRaw) {
+                                    $imgSrc = asset('storage/' . $imgRaw);
+                                } else {
+                                    $fallback = ['1.jpg','2.jpg','3.jpg','4.jpg','5.jpg'];
+                                    $imgSrc = asset('images/products/' . $fallback[$product->id % count($fallback)]);
                                 }
                             @endphp
-                            <img src="{{ asset($imgSrc) }}" alt="{{ $product->name }}" class="product-image" onerror="this.src='{{ asset('images/no-image.jpg') }}'">
-                        </div>
+                            <img src="{{ $imgSrc }}" alt="{{ $product->name }}" class="product-image" onerror="this.src='{{ asset('images/no-image.jpg') }}'">
+                            </div>
                     </a>
                     
                     <div class="product-info-wrap">
