@@ -472,7 +472,8 @@
                     <input type="checkbox" id="order-{{ $order->id }}">
                 </div>
 
-                <img src="{{ $order->orderItems->first()->product->image ? asset('storage/'.$order->orderItems->first()->product->image) : asset('images/no-image.jpg') }}"
+                @php $img = $order->orderItems->first()->product->image; @endphp
+                <img src="{{ $img ? (str_starts_with($img, 'images/') ? asset($img) : asset('storage/'.$img)) : asset('images/no-image.jpg') }}"
                      alt="{{ $order->orderItems->first()->product->name }}"
                      class="order-image">
 
