@@ -611,7 +611,7 @@
         image: {{ json_encode($product->image ? asset('storage/' . $product->image) : asset('images/no-image.jpg')) }}
     })">
                             {{-- ← PASTIKAN ADA > DI SINI --}}
-                            <img src="{{ $product->image ? asset('storage/' . $product->image) : asset('images/no-image.jpg') }}"
+                            <img src="{{ $product->image ? (str_starts_with($product->image, 'images/') ? asset($product->image) : asset('storage/' . $product->image)) : asset('images/no-image.jpg') }}"
                                 alt="{{ $product->name }}" class="product-image"
                                 onerror="this.src='{{ asset('images/no-image.jpg') }}'">
                             <span class="product-badge">{{ $product->category->name }}</span>
@@ -631,7 +631,7 @@
                     code: {{ json_encode($product->code) }},
                     price: {{ $product->price }},
                     stock: {{ $product->stock }},
-                    image: {{ json_encode($product->image ? asset('storage/' . $product->image) : asset('images/no-image.jpg')) }}
+                    image: {{ json_encode($product->image ? (str_starts_with($product->image, 'images/') ? asset($product->image) : asset('storage/' . $product->image)) : asset('images/no-image.jpg')) }}
                 })">
                                         +
                                     </button>
