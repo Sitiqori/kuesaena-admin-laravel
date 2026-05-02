@@ -182,7 +182,10 @@
     <div style="display:flex; align-items:center; gap:14px; padding:14px 20px; border-bottom:{{ !$loop->last ? '1px solid #f0e8df' : 'none' }};">
         <div style="width:56px; height:56px; border-radius:8px; overflow:hidden; background:#f5ead8; flex-shrink:0;">
             @if($item->product && $item->product->image)
-                <img src="{{ asset('images/products/' . $item->product->image) }}" style="width:100%;height:100%;object-fit:cover;">
+                @php $img = $item->product->image; @endphp
+                <img src="{{ $img ? (str_starts_with($img, 'images/') ? asset($img) : asset('storage/'.$img)) : '' }}"
+                style="width:100%;height:100%;object-fit:cover;"
+                onerror="this.style.display='none'">
             @else
                 <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;">
                     <i class="fas fa-birthday-cake" style="color:#C68B5A;"></i>
