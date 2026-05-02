@@ -45,6 +45,8 @@ class BarangController extends Controller
                 'price_m'     => 'nullable|numeric|min:0',
                 'price_l'     => 'nullable|numeric|min:0',
                 'price_xl'    => 'nullable|numeric|min:0',
+                'is_po'       => 'nullable|boolean',
+                'po_days'     => 'nullable|integer|min:1',
             ], [
                 'code.required'        => 'Kode barang harus diisi',
                 'code.unique'          => 'Kode barang sudah digunakan',
@@ -57,17 +59,20 @@ class BarangController extends Controller
             ]);
 
             $hasSize = $request->boolean('has_size');
+            $isPo    = $request->boolean('is_po');
+
             $validated['unit']     = $request->input('unit', 'Pcs');
             $validated['has_size'] = $hasSize;
             $validated['price_s']  = $hasSize ? $request->price_s : null;
             $validated['price_m']  = $hasSize ? $request->price_m : null;
             $validated['price_l']  = $hasSize ? $request->price_l : null;
             $validated['price_xl'] = $hasSize ? $request->price_xl : null;
+            $validated['is_po']    = $isPo;
+            $validated['po_days']  = $isPo ? $request->po_days : null;
 
             if ($request->hasFile('image')) {
-                $file = $request->file('image');
-                $filename = time() . '_' . $file->getClientOriginalName();
-
+                $file      = $request->file('image');
+                $filename  = time() . '_' . $file->getClientOriginalName();
                 $imagePath = $file->storeAs('products', $filename, 'public');
                 $validated['image'] = $imagePath;
             }
@@ -122,6 +127,8 @@ class BarangController extends Controller
                 'price_m'     => 'nullable|numeric|min:0',
                 'price_l'     => 'nullable|numeric|min:0',
                 'price_xl'    => 'nullable|numeric|min:0',
+                'is_po'       => 'nullable|boolean',
+                'po_days'     => 'nullable|integer|min:1',
             ], [
                 'code.required'        => 'Kode barang harus diisi',
                 'code.unique'          => 'Kode barang sudah digunakan',
@@ -134,21 +141,23 @@ class BarangController extends Controller
             ]);
 
             $hasSize = $request->boolean('has_size');
+            $isPo    = $request->boolean('is_po');
+
             $validated['unit']     = $request->input('unit', 'Pcs');
             $validated['has_size'] = $hasSize;
             $validated['price_s']  = $hasSize ? $request->price_s : null;
             $validated['price_m']  = $hasSize ? $request->price_m : null;
             $validated['price_l']  = $hasSize ? $request->price_l : null;
             $validated['price_xl'] = $hasSize ? $request->price_xl : null;
+            $validated['is_po']    = $isPo;
+            $validated['po_days']  = $isPo ? $request->po_days : null;
 
             if ($request->hasFile('image')) {
-                // Hapus foto lama jika ada
                 if ($product->image) {
                     Storage::disk('public')->delete($product->image);
                 }
-                $file = $request->file('image');
-                $filename = time() . '_' . $file->getClientOriginalName();
-
+                $file      = $request->file('image');
+                $filename  = time() . '_' . $file->getClientOriginalName();
                 $imagePath = $file->storeAs('products', $filename, 'public');
                 $validated['image'] = $imagePath;
             }

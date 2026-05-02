@@ -25,6 +25,8 @@ class Product extends Model
         'price_m',
         'price_l',
         'price_xl',
+        'is_po',
+        'po_days',
     ];
 
     protected $casts = [

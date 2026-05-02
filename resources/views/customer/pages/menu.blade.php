@@ -135,12 +135,9 @@
     }
 
     .product-image-wrapper {
-        position: relative;
-        height: 180px;
-        background-color: #f9f9f9;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+    position: relative;
+    height: 180px;
+    overflow: hidden;
     }
 
     .discount-badge {
@@ -216,13 +213,14 @@
     }
 
     .product-name {
-        font-size: 11px;
-        font-weight: 600;
-        color: #333;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: 70%;
+    font-size: 11px;
+    font-weight: 600;
+    color: #333;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    max-width: 100%;
     }
 
     .product-actions {
@@ -448,10 +446,9 @@
                 <div class="product-card {{ $isDark ? 'dark-card' : '' }}" onclick="window.location.href='{{ route('customer.product.show', $product->id) }}'" style="cursor: pointer;">
                     <a href="{{ route('customer.product.show', $product->id) }}" style="text-decoration:none; color:inherit; display:block;" onclick="event.preventDefault();">
                         <div class="product-image-wrapper">
-                            @if($isDark)
-                            <span class="discount-badge">Get it on 10% Off Today Only</span>
+                            @if($product->is_po)
+                            <span class="po-badge">PO {{ $product->po_days }} Hari</span>
                             @endif
-                            <span class="po-badge">PO 5 Hari</span>
                            @php
                                 $imgRaw = $product->image;
                                 if ($imgRaw && str_starts_with($imgRaw, 'images/')) {
@@ -481,7 +478,6 @@
                         </div>
                         <div class="product-price-row">
                             <span class="price-current">Rp {{ number_format($product->price, 0, ',', '.') }}</span>
-                            <span class="price-old">Rp {{ number_format($product->price + 11000, 0, ',', '.') }}</span>
                         </div>
                         <div class="product-meta-row">
                             <div class="meta-left">
