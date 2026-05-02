@@ -34,7 +34,7 @@ class NotificationService
             'pesanan',
             'Pesanan Berhasil Dibuat! 🎉',
             "Pesanan #{$orderNumber} kamu sudah kami terima dan sedang menunggu konfirmasi.",
-            route('customer.pesanan.index')
+            route('customer.pesanan')
         );
     }
 
@@ -45,7 +45,7 @@ class NotificationService
             'pesanan',
             'Pesanan Sedang Dikemas 📦',
             "Pesanan #{$orderNumber} kamu sedang kami siapkan. Tunggu sebentar ya!",
-            route('customer.pesanan.index')
+            route('customer.pesanan')
         );
     }
 
@@ -59,7 +59,7 @@ class NotificationService
             $isPickup
                 ? "Pesanan #{$orderNumber} sudah siap. Silakan datang ke toko untuk mengambil pesananmu."
                 : "Pesanan #{$orderNumber} sedang dalam perjalanan menuju alamatmu.",
-            route('customer.pesanan.index')
+            route('customer.pesanan')
         );
     }
 
@@ -70,7 +70,7 @@ class NotificationService
             'pesanan',
             'Pesanan Selesai ✅',
             "Pesanan #{$orderNumber} telah selesai. Terima kasih sudah berbelanja di Kuesaena! Jangan lupa kasih ulasan ya 😊",
-            route('customer.pesanan.index')
+            route('customer.pesanan')
         );
     }
 
@@ -81,7 +81,7 @@ class NotificationService
             'pesanan',
             'Pesanan Dibatalkan ❌',
             "Pesanan #{$orderNumber} telah dibatalkan. Hubungi kami jika ada pertanyaan.",
-            route('customer.pesanan.index')
+            route('customer.pesanan')
         );
     }
 

@@ -88,6 +88,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profil', [ProfilController::class, 'index'])->name('customer.profil');
     Route::post('/profil', [ProfilController::class, 'updateProfil'])->name('customer.profil.update');
     Route::post('/profil/photo', [ProfilController::class, 'updatePhoto'])->name('customer.profil.update.photo');
+    Route::delete('/profil/photo', [ProfilController::class, 'deletePhoto'])->name('customer.profil.delete.photo');
     Route::get('/profil/alamat', [ProfilController::class, 'alamat'])->name('customer.profil.alamat');
     Route::post('/profil/alamat', [ProfilController::class, 'alamatStore'])->name('customer.profil.alamat.store');
     Route::put('/profil/alamat/{id}', [ProfilController::class, 'alamatUpdate'])->name('customer.profil.alamat.update');
@@ -102,6 +103,7 @@ Route::middleware(['auth'])->group(function () {
     // PESANAN CUSTOMER
     Route::get('/pesanan-saya', [CustomerPesananController::class, 'index'])->name('customer.pesanan');
     Route::get('/pesanan-saya/{id}', [CustomerPesananController::class, 'show'])->name('customer.pesanan.show');
+    Route::post('/pesanan-saya/{id}/cancel', [CustomerPesananController::class, 'cancel'])->name('customer.pesanan.cancel');
 
     // REWARD CUSTOMER
     Route::get('/reward-saya', [CustomerRewardController::class, 'index'])->name('customer.reward');

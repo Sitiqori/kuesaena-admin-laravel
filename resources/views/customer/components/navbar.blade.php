@@ -192,20 +192,10 @@
 
             <!-- SEARCH -->
             <div class="navbar-search">
-                <form action="{{ route('customer.menu') }}" method="GET" id="navbar-search-form">
-                    <div class="search-input-wrap">
-                        <i class="fas fa-search" style="cursor:pointer;" onclick="document.getElementById('navbar-search-form').submit()"></i>
-                        <input
-                            type="text"
-                            id="search-input"
-                            name="search"
-                            placeholder="Cari kue, kategori..."
-                            value="{{ request('search') }}"
-                            autocomplete="off"
-                        >
-                        <i class="fas fa-times search-clear-btn" id="search-clear" style="cursor:pointer; display:none; color:#bbb; font-size:12px;"></i>
-                    </div>
-                </form>
+                <div class="search-input-wrap">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search...">
+                </div>
             </div>
 
             <!-- ICON -->
@@ -272,12 +262,9 @@
                             {{ Auth::user()->name }}
                         </div>
                         <a href="{{ route('customer.profil') }}" style="display:block; padding:10px 16px; color:#3B1A08; font-size:14px;">Profil Saya</a>
-                        <form action="{{ route('logout') }}" method="POST">
-                            @csrf
-                            <button type="submit" style="width:100%; text-align:left; padding:10px 16px; background:none; border:none; color:#e74c3c; font-size:14px; cursor:pointer; font-family:inherit;">
-                                Logout
-                            </button>
-                        </form>
+                        <button type="button" onclick="document.getElementById('dropdown-profil').style.display='none'; openModal(document.getElementById('modal-logout') ? 'modal-logout' : 'modal-logout-navbar');" style="width:100%; text-align:left; padding:10px 16px; background:none; border:none; color:#e74c3c; font-size:14px; cursor:pointer; font-family:inherit;">
+                            Logout
+                        </button>
                     </div>
                 </div>
             @else
@@ -293,28 +280,18 @@
 
 <script>
     // ===== SEARCH CLEAR =====
-    document.addEventListener('DOMContentLoaded', function() {
-        const searchInput = document.getElementById('search-input');
-        const searchClear = document.getElementById('search-clear');
-        if (searchInput && searchClear) {
-            // Tampilkan X kalau sudah ada value (misal balik dari halaman menu)
-            if (searchInput.value.length > 0) {
-                searchClear.style.display = 'block';
-            }
-            searchInput.addEventListener('input', () => {
-                searchClear.style.display = searchInput.value.length > 0 ? 'block' : 'none';
-            });
-            searchClear.addEventListener('click', () => {
-                searchInput.value = '';
-                searchClear.style.display = 'none';
-                searchInput.focus();
-                // Kalau lagi di halaman menu, langsung reset hasil
-                if (window.location.pathname.includes('/menu')) {
-                    document.getElementById('navbar-search-form').submit();
-                }
-            });
-        }
-    });
+    const searchInput = document.getElementById('search-input');
+    const searchClear = document.getElementById('search-clear');
+    if (searchInput && searchClear) {
+        searchInput.addEventListener('input', () => {
+            searchClear.classList.toggle('show', searchInput.value.length > 0);
+        });
+        searchClear.addEventListener('click', () => {
+            searchInput.value = '';
+            searchClear.classList.remove('show');
+            searchInput.focus();
+        });
+    }
 
     // ===== PROFIL DROPDOWN =====
     function toggleDropdownProfil(e) {
@@ -379,7 +356,7 @@
                         <div style="width:8px; height:8px; border-radius:50%; background:${n.is_read ? 'transparent' : '#5C2D0E'}; margin-top:5px; flex-shrink:0;"></div>
                         <div style="flex:1;">
                             <div style="font-size:13px; font-weight:${n.is_read ? '400' : '600'}; color:#1A0A00; margin-bottom:3px;">${escapeHtml(n.title || 'Notifikasi')}</div>
-                            <div style="font-size:12px; color:#6b7280; margin-bottom:4px;">${escapeHtml(n.message || '')}</div>
+                            <div style="font-size:12px; color:#6b7280; margin-bottom:4px;">${escapeHtml(n.body || '')}</div>
                             <div style="font-size:11px; color:#a0855b;">${timeAgo(n.created_at)}</div>
                         </div>
                     </div>
@@ -456,7 +433,8 @@
         const notif = document.getElementById('notif-popup');
         const btnNotif = document.getElementById('btn-notif');
 
-        if (profil && !e.target.closest('[onclick="toggleDropdownProfil(event)"]')) {
+        // Jangan tutup dropdown kalau klik tombol di dalamnya
+        if (profil && !e.target.closest('#dropdown-profil') && !e.target.closest('[onclick="toggleDropdownProfil(event)"]')) {
             profil.style.display = 'none';
         }
         if (notif && e.target !== btnNotif && !btnNotif?.contains(e.target) && !notif.contains(e.target)) {
@@ -473,4 +451,32 @@
             setInterval(refreshNotifBadge, 30000);
         }
     });
+
+    // ===== MODAL HELPERS =====
+    function openModal(id) {
+        const m = document.getElementById(id);
+        if (m) { m.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+    }
+    function closeModal(id) {
+        const m = document.getElementById(id);
+        if (m) { m.style.display = 'none'; document.body.style.overflow = ''; }
+    }
 </script>
+
+{{-- MODAL LOGOUT --}}
+<div id="modal-logout-navbar" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:9999; align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:20px; padding:36px 32px; max-width:380px; width:90%; text-align:center; box-shadow:0 8px 40px rgba(0,0,0,0.15);">
+        <div style="width:64px; height:64px; background:#fff5f5; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 18px;">
+            <i class="fas fa-sign-out-alt" style="font-size:26px; color:#e74c3c;"></i>
+        </div>
+        <div style="font-size:18px; font-weight:700; color:#1A0A00; margin-bottom:8px;">Keluar dari Akun?</div>
+        <div style="font-size:14px; color:#6b7280; margin-bottom:28px;">Kamu yakin ingin keluar dari akun Kuesaena?</div>
+        <div style="display:flex; gap:12px;">
+            <button onclick="closeModal('modal-logout-navbar')" style="flex:1; padding:12px; border-radius:12px; border:1.5px solid #ddd; background:#fff; color:#444; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit;">Batal</button>
+            <form action="{{ route('logout') }}" method="POST" style="flex:1;" data-no-loader>
+                @csrf
+                <button type="submit" style="width:100%; padding:12px; border-radius:12px; border:none; background:#e74c3c; color:#fff; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit;">Ya, Keluar</button>
+            </form>
+        </div>
+    </div>
+</div>

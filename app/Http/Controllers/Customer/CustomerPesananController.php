@@ -14,13 +14,14 @@ class CustomerPesananController extends Controller
     {
         $status = $request->query('status', 'all');
 
-        $query = Order::with(['orderItems.product'])
+        $query = Order::with(['orderItems.product', 'review'])
             ->where('user_id', Auth::id())
             ->latest();
 
         if ($status !== 'all') {
             $statusMap = [
                 'pending'        => 'pending',
+                'belum-bayar'    => 'pending',
                 'sedang-dikemas' => 'processing',
                 'siap-diambil'   => 'ready',
                 'selesai'        => 'completed',

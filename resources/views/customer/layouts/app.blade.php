@@ -534,5 +534,124 @@ window.toggleLike = function(productId, btn) {
 };
 </script>
 
+{{-- ===== TOAST NOTIFICATION SYSTEM ===== --}}
+<style>
+#toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+}
+.toast {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: #fff;
+    border-radius: 14px;
+    padding: 14px 18px;
+    min-width: 300px;
+    max-width: 360px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.13);
+    pointer-events: all;
+    transform: translateX(120%);
+    opacity: 0;
+    transition: transform 0.35s cubic-bezier(.34,1.56,.64,1), opacity 0.3s ease;
+    border-left: 4px solid #5C2D0E;
+}
+.toast.toast-show {
+    transform: translateX(0);
+    opacity: 1;
+}
+.toast.toast-hide {
+    transform: translateX(120%);
+    opacity: 0;
+}
+.toast-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #fdf5ee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 16px;
+    color: #5C2D0E;
+}
+.toast-icon.toast-success { background: #f0fdf4; color: #16a34a; }
+.toast-icon.toast-error   { background: #fff5f5; color: #e74c3c; }
+.toast-icon.toast-info    { background: #fdf5ee; color: #5C2D0E; }
+.toast-body { flex: 1; }
+.toast-title { font-size: 14px; font-weight: 700; color: #1A0A00; margin-bottom: 2px; }
+.toast-msg   { font-size: 12px; color: #6b7280; line-height: 1.4; }
+.toast-close {
+    background: none; border: none; cursor: pointer;
+    color: #aaa; font-size: 16px; padding: 0; line-height: 1;
+    flex-shrink: 0; align-self: flex-start;
+}
+.toast-close:hover { color: #555; }
+</style>
+
+<div id="toast-container"></div>
+
+<script>
+function showToast(title, message, type = 'info', duration = 4000) {
+    const container = document.getElementById('toast-container');
+
+    const iconMap = {
+        success: '<i class="fas fa-check"></i>',
+        error:   '<i class="fas fa-times"></i>',
+        info:    '<i class="fas fa-bell"></i>',
+    };
+    const borderMap = {
+        success: '#16a34a',
+        error:   '#e74c3c',
+        info:    '#5C2D0E',
+    };
+
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.style.borderLeftColor = borderMap[type] || borderMap.info;
+    toast.innerHTML = `
+        <div class="toast-icon toast-${type}">${iconMap[type] || iconMap.info}</div>
+        <div class="toast-body">
+            <div class="toast-title">${title}</div>
+            ${message ? `<div class="toast-msg">${message}</div>` : ''}
+        </div>
+        <button class="toast-close" onclick="dismissToast(this.closest('.toast'))">&times;</button>
+    `;
+
+    container.appendChild(toast);
+    requestAnimationFrame(() => { requestAnimationFrame(() => toast.classList.add('toast-show')); });
+
+    setTimeout(() => dismissToast(toast), duration);
+}
+
+function dismissToast(toast) {
+    if (!toast || toast.classList.contains('toast-hide')) return;
+    toast.classList.remove('toast-show');
+    toast.classList.add('toast-hide');
+    setTimeout(() => toast.remove(), 400);
+}
+
+// ===== TAMPILKAN FLASH MESSAGE DARI LARAVEL =====
+@if(session('success'))
+    document.addEventListener('DOMContentLoaded', () =>
+        showToast('Berhasil', @json(session('success')), 'success'));
+@endif
+@if(session('error'))
+    document.addEventListener('DOMContentLoaded', () =>
+        showToast('Gagal', @json(session('error')), 'error'));
+@endif
+@if(session('info'))
+    document.addEventListener('DOMContentLoaded', () =>
+        showToast('Info', @json(session('info')), 'info'));
+@endif
+</script>
+
 </body>
 </html>

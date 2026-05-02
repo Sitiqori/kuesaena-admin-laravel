@@ -35,6 +35,18 @@ class ProfilController extends Controller
         return back()->with('success', 'Foto profil berhasil diperbarui.');
     }
 
+
+    /* ─── DELETE PHOTO ─── */
+    public function deletePhoto()
+    {
+        $user = Auth::user();
+        if ($user->photo && Storage::disk('public')->exists($user->photo)) {
+            Storage::disk('public')->delete($user->photo);
+        }
+        $user->update(['photo' => null]);
+        return redirect()->back()->with('success', 'Foto profil berhasil dihapus.');
+    }
+
     /* ─── PROFIL ─── */
     public function index()
     {

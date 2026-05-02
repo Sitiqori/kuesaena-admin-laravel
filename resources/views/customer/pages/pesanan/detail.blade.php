@@ -1,5 +1,14 @@
 @extends('customer.pages.profil.layout')
 
+@push('styles')
+<style>
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+</style>
+@endpush
+
 @section('profil-content')
 
 <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid #ede0d0;">
@@ -173,7 +182,7 @@
     <div style="display:flex; align-items:center; gap:14px; padding:14px 20px; border-bottom:{{ !$loop->last ? '1px solid #f0e8df' : 'none' }};">
         <div style="width:56px; height:56px; border-radius:8px; overflow:hidden; background:#f5ead8; flex-shrink:0;">
             @if($item->product && $item->product->image)
-                <img src="{{ asset('storage/' . $item->product->image) }}" style="width:100%;height:100%;object-fit:cover;">
+                <img src="{{ asset('images/products/' . $item->product->image) }}" style="width:100%;height:100%;object-fit:cover;">
             @else
                 <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;">
                     <i class="fas fa-birthday-cake" style="color:#C68B5A;"></i>
@@ -225,10 +234,16 @@
             class="btn-brown" style="border:none; cursor:pointer;">
         Lihat Tagihan
     </button>
-    <a href="https://wa.me/6281234567890?text=Halo, saya ingin bertanya terkait pesanan {{ $order->order_number }}"
+    <a href="https://wa.me/6285186860109?text=Halo, saya ingin bertanya terkait pesanan {{ $order->order_number }}"
        target="_blank" class="btn-brown" style="text-decoration:none;">
         <i class="fab fa-whatsapp" style="margin-right:6px;"></i> Hubungi Penjual
     </a>
+    @if($isCompleted && !$isReviewed)
+    <button onclick="document.getElementById('modal-ulasan').style.display='flex'"
+            class="btn-brown" style="border:none; cursor:pointer; background:#f5ece0; color:#5C2D0E;">
+        <i class="fas fa-star" style="margin-right:6px;"></i> Tulis Ulasan
+    </button>
+    @endif
 </div>
 
 {{-- Modal Struk --}}
@@ -239,10 +254,10 @@
 
         {{-- Header --}}
         <div style="text-align:center; margin-bottom:16px;">
-            <p style="font-weight:700; font-size:16px; letter-spacing:1px;">KUESAENA</p>
+            <img src="{{ asset('images/logo.png') }}" alt="Kuesaena" style="height:56px; width:auto; margin-bottom:6px; display:block; margin-left:auto; margin-right:auto;">
             <p style="font-size:11px; color:#555; line-height:1.6;">
-                Jl. Manis No. 123, Jakarta<br>
-                No. Telp +62 812-3456-7890
+                Jl. Raya Rajapolah - Tasikmalaya No.96-86, Rajapolah, Kec. Rajapolah, Kabupaten Tasikmalaya, Jawa Barat 46155, Indonesia<br>
+                No. Telp +62 851-8686-0109
             </p>
         </div>
 

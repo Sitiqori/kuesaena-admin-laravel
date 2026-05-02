@@ -295,7 +295,7 @@
                 </div>
                 <div class="footer-contact-item">
                     <i class="fas fa-phone"></i>
-                    <span>+62 812-3456-7890</span>
+                    <span>+62 851-8686-0109</span>
                 </div>
                 <div class="footer-contact-item">
                     <i class="fas fa-clock"></i>

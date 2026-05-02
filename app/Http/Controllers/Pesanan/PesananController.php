@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Services\NotificationService;
 use Illuminate\Support\Facades\Log;
 
 class PesananController extends Controller
@@ -45,6 +46,17 @@ class PesananController extends Controller
 
             $user = Auth::user();
             Log::info("Order {$order->order_number} status changed from {$oldStatus} to {$request->status} by {$user->name}");
+
+            // Kirim notifikasi ke customer berdasarkan status baru
+            if ($order->user_id && $oldStatus !== $request->status) {
+                match($request->status) {
+                    'processing' => NotificationService::pesananDiproses($order->user_id, $order->order_number),
+                    'ready'      => NotificationService::pesananSiap($order->user_id, $order->order_number, $order->delivery_method ?? 'pickup'),
+                    'completed'  => NotificationService::pesananSelesai($order->user_id, $order->order_number),
+                    'cancelled'  => NotificationService::pesananDibatalkan($order->user_id, $order->order_number),
+                    default      => null,
+                };
+            }
 
             return response()->json([
                 'success' => true,

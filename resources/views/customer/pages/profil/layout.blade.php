@@ -590,13 +590,6 @@
 
             {{-- ===== MAIN CONTENT ===== --}}
             <div class="profil-main">
-                @if(session('success'))
-                    <div class="alert-success">
-                        <i class="fas fa-check-circle"></i>
-                        {{ session('success') }}
-                    </div>
-                @endif
-
                 @yield('profil-content')
             </div>
 
@@ -651,9 +644,25 @@
         <form action="{{ route('customer.profil.update.photo') }}" method="POST" enctype="multipart/form-data" id="form-foto">
             @csrf
             <input type="file" name="photo" id="foto-input" accept="image/jpeg,image/png,image/jpg" style="display:none;" onchange="previewFoto(event)">
-            <div class="modal-footer" style="justify-content:center;">
-                <button type="button" class="btn-ghost" onclick="closeModal('modal-foto-profil')">Batal</button>
-                <button type="submit" class="btn-brown" id="btn-simpan-foto" disabled style="opacity:0.5;">Simpan Foto</button>
+            <div class="modal-footer" style="justify-content:space-between; align-items:center;">
+                {{-- Hapus foto hanya muncul jika user sudah punya foto --}}
+                <div>
+                    @if(Auth::user()->photo)
+                    <form action="{{ route('customer.profil.delete.photo') }}" method="POST"
+                          onsubmit="return confirm('Hapus foto profil?')">
+                        @csrf @method('DELETE')
+                        <button type="submit" style="background:none; border:1.5px solid #c0392b; color:#c0392b; padding:9px 16px; border-radius:20px; font-size:13px; cursor:pointer; font-family:inherit; display:flex; align-items:center; gap:6px; transition:all 0.2s;"
+                            onmouseover="this.style.background='#c0392b'; this.style.color='#fff'"
+                            onmouseout="this.style.background='none'; this.style.color='#c0392b'">
+                            <i class="fas fa-trash-alt"></i> Hapus Foto
+                        </button>
+                    </form>
+                    @endif
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <button type="button" class="btn-ghost" onclick="closeModal('modal-foto-profil')">Batal</button>
+                    <button type="submit" class="btn-brown" id="btn-simpan-foto" disabled style="opacity:0.5;">Simpan Foto</button>
+                </div>
             </div>
         </form>
     </div>
