@@ -611,9 +611,9 @@
         image: {{ json_encode($product->image ? asset('storage/' . $product->image) : asset('images/no-image.jpg')) }}
     })">
                             {{-- ← PASTIKAN ADA > DI SINI --}}
-                            <img src="{{ $product->image ? (str_starts_with($product->image, 'images/') ? asset($product->image) : asset('storage/' . $product->image)) : asset('images/no-image.jpg') }}"
+                            <img src="{{ $product->image ? (str_starts_with($product->image, 'images/') ? asset($product->image) : asset('storage/' . $product->image)) : 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&q=80' }}"
                                 alt="{{ $product->name }}" class="product-image"
-                                onerror="this.src='{{ asset('images/no-image.jpg') }}'">
+                                onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&q=80'">
                             <span class="product-badge">{{ $product->category->name }}</span>
                             <div class="product-info">
                                 <div class="product-name">{{ $product->name }}</div>

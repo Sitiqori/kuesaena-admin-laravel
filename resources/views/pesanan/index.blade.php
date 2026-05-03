@@ -6,12 +6,11 @@
 @push('styles')
 <style>
     .stats-cards {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 20px;
-        margin-bottom: 30px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 30px;
     }
-
     .stat-card {
         background: white;
         padding: 20px;
@@ -91,8 +90,9 @@
     }
 
     .orders-grid {
-        display: grid;
-        gap: 15px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
     }
 
     .order-card {
@@ -446,6 +446,7 @@
     </div>
 </div>
 
+
 @if(session('success'))
 <div class="alert alert-success" style="background: #d4edda; color: #155724; padding: 12px 16px; border-radius: 6px; margin-bottom: 20px;">
     ✓ {{ session('success') }}
@@ -465,25 +466,25 @@
 
     <!-- Tab Content: Pesanan Baru -->
     <div class="tab-content active" id="tab-new">
-        <div class="orders-grid">
+        <div class="orders-grid" style="display:grid; grid-template-columns:1fr; gap:15px;">
             @forelse($newOrders as $order)
             <div class="order-card">
                 <div class="order-checkbox">
                     <input type="checkbox" id="order-{{ $order->id }}">
                 </div>
 
-                @php $img = $order->orderItems->first()->product->image; @endphp
-                <img src="{{ $img ? (str_starts_with($img, 'images/') ? asset($img) : asset('storage/'.$img)) : asset('images/no-image.jpg') }}"
-                     alt="{{ $order->orderItems->first()->product->name }}"
+                @php $img = $order->orderItems->first()?->product?->image; @endphp
+                <img src="{{ $img ? (str_starts_with($img, 'images/') ? asset($img) : asset('storage/'.$img)) : 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&q=80' }}"
+                    alt="{{ $order->orderItems->first()?->product?->name ?? 'Produk tidak tersedia' }}"
                      class="order-image">
 
                 <div class="order-info">
                     <div class="order-header">
                         <div>
-                            <div class="order-title">{{ $order->orderItems->first()->product->name }}</div>
-                            <div class="order-size">Size: {{ $order->orderItems->first()->product->code }}</div>
+                           <div class="order-title">{{ $order->orderItems->first()?->product?->name ?? 'Produk tidak tersedia' }}</div>
+                            <div class="order-size">Size: {{ $order->orderItems->first()?->product?->code ?? '-' }}</div>
                             <div class="order-note">
-                                Note: {{ $order->orderItems->first()->product->description ?? 'ditambahkan kata - kata "Birthday ira 18"' }}
+                                Note: {{ $order->orderItems->first()?->product?->description ?? '-' }}
                             </div>
                             <div class="order-address">
                                 Alamat: {{ $order->customer->address ?? 'Jalan Nanjak No.17 Kota Tasikmalaya' }}
@@ -493,13 +494,13 @@
 
                     <div class="order-actions">
                         <button class="btn-action btn-process" onclick="updateStatus({{ $order->id }}, 'processing')">
-                            ⏳ Proses
+                            <i class="fas fa-hourglass-half"></i> Proses
                         </button>
                         <button class="btn-action btn-detail" onclick="showOrderDetail({{ $order->id }})">
                             👁️ Detail
                         </button>
                         <button class="btn-action btn-cancel" onclick="updateStatus({{ $order->id }}, 'cancelled')">
-                            ✕ Batalkan
+                            <i class="fas fa-times"></i> Batalkan
                         </button>
                     </div>
                 </div>
@@ -513,7 +514,7 @@
             </div>
             @empty
             <div class="empty-state">
-                <div class="empty-icon">📦</div>
+                <div class="empty-icon"><i class="fas fa-box"></i></div>
                 <div class="empty-text">Tidak ada pesanan baru</div>
             </div>
             @endforelse
@@ -522,24 +523,25 @@
 
     <!-- Tab Content: Pesanan Diproses -->
     <div class="tab-content" id="tab-processing">
-        <div class="orders-grid">
+        <div class="orders-grid" style="display:grid; grid-template-columns:1fr; gap:15px;">
             @forelse($processingOrders as $order)
             <div class="order-card">
                 <div class="order-checkbox">
                     <input type="checkbox" id="order-{{ $order->id }}">
                 </div>
 
-                <img src="{{ $order->orderItems->first()->product->image ? asset('storage/'.$order->orderItems->first()->product->image) : asset('images/no-image.jpg') }}"
-                     alt="{{ $order->orderItems->first()->product->name }}"
-                     class="order-image">
+                @php $img2 = $order->orderItems->first()?->product?->image; @endphp
+                <img src="{{ $img2 ? (str_starts_with($img2, 'images/') ? asset($img2) : asset('storage/'.$img2)) : 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&q=80' }}"
+                    alt="{{ $order->orderItems->first()?->product?->name ?? 'Produk tidak tersedia' }}"
+                    class="order-image">
 
                 <div class="order-info">
                     <div class="order-header">
                         <div>
-                            <div class="order-title">{{ $order->orderItems->first()->product->name }}</div>
-                            <div class="order-size">Size: {{ $order->orderItems->first()->product->code }}</div>
+                            <div class="order-title">{{ $order->orderItems->first()?->product?->name ?? 'Produk tidak tersedia' }}</div>
+                            <div class="order-size">Size: {{ $order->orderItems->first()?->product?->code ?? '-' }}</div>
                             <div class="order-note">
-                                Note: {{ $order->orderItems->first()->product->description ?? 'ditambahkan kata - kata "Birthday ira 18"' }}
+                                Note: {{ $order->orderItems->first()?->product?->description ?? '-' }}
                             </div>
                             <div class="order-address">
                                 Alamat: {{ $order->customer->address ?? 'Jalan Nanjak No.17 Kota Tasikmalaya' }}
@@ -555,7 +557,7 @@
                             👁️ Detail
                         </button>
                         <button class="btn-action btn-cancel" onclick="updateStatus({{ $order->id }}, 'cancelled')">
-                            ✕ Batalkan
+                            <i class="fas fa-times"></i> Batalkan
                         </button>
                     </div>
                 </div>
@@ -569,7 +571,7 @@
             </div>
             @empty
             <div class="empty-state">
-                <div class="empty-icon">⏳</div>
+                <div class="empty-icon"><i class="fas fa-hourglass-half"></i></div>
                 <div class="empty-text">Tidak ada pesanan yang sedang diproses</div>
             </div>
             @endforelse
