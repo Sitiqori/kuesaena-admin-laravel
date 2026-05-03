@@ -309,12 +309,12 @@
         </div>
         <div class="order-icon">🍰</div>
         <div class="order-info">
-            <div class="order-name">{{ $order->orderItems->first()->product->name }}</div>
-            <div class="order-details">
-                Size: {{ $order->orderItems->first()->product->code }}<br>
-                Note: {{ $order->orderItems->first()->product->description ?? 'ditambahkan kata - kata "Birthday ira 18"' }}<br>
-                Alamat: {{ $order->customer->address ?? 'Jalan Nanjak No.17 Kota Tasikmalaya' }}
-            </div>
+            <div class="order-name">{{ $order->orderItems->first()?->product?->name ?? 'Produk tidak tersedia' }}</div>
+                <div class="order-details">
+                    Size: {{ $order->orderItems->first()?->product?->code ?? '-' }}<br>
+                    Note: {{ $order->orderItems->first()?->product?->description ?? '-' }}<br>
+                    Alamat: {{ $order->customer?->address ?? '-' }}
+                </div>
         </div>
         <div class="order-actions">
             <button class="edit-btn" onclick="window.location.href='{{ route('pesanan.index') }}'">✏️</button>

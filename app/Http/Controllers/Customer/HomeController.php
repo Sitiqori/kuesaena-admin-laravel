@@ -18,7 +18,7 @@ class HomeController extends Controller
             ->get();
 
         // ✅ Kategori
-        $categories = Category::orderBy('name')->get();
+        $categories = Category::orderBy('name')->get()->unique('name')->values();
 
         // ✅ Testimoni
         $testimonials = [
