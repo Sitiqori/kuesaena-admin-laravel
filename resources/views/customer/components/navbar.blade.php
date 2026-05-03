@@ -192,10 +192,12 @@
 
             <!-- SEARCH -->
             <div class="navbar-search">
-                <div class="search-input-wrap">
-                    <i class="fas fa-search"></i>
-                    <input type="text" placeholder="Search...">
-                </div>
+                <form action="{{ route('customer.menu') }}" method="GET">
+                    <div class="search-input-wrap">
+                        <i class="fas fa-search"></i>
+                        <input type="text" name="search" placeholder="Search..." value="{{ request('search') }}">
+                    </div>
+                </form>
             </div>
 
             <!-- ICON -->
