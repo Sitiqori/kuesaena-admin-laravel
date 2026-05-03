@@ -795,7 +795,10 @@
                 <a href="{{ route('customer.product.show', $product->id) }}" class="product-card">
                     <div class="product-card__img-wrap">
                         @if($product->image)
-                            <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}">
+                            @php $img = $product->image; @endphp
+                            <img src="{{ $img ? (str_starts_with($img, 'images/') ? asset($img) : asset('storage/' . $img)) : '' }}"
+                                alt="{{ $product->name }}"
+                                onerror="this.style.display='none'">
                         @else
                             <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#f0e8df;">
                                 <i class="fas fa-birthday-cake" style="font-size:48px;color:#d4bfa0;"></i>
