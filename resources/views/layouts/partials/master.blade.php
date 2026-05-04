@@ -182,16 +182,16 @@
         }
 
         /* Icon placeholders - gunakan icon library seperti Font Awesome atau Boxicons */
-        .icon-home::before { content: "🏠"; }
-        .icon-cash::before { content: "💰"; }
-        .icon-box::before { content: "📦"; }
-        .icon-cart::before { content: "🛒"; }
-        .icon-history::before { content: "📜"; }
-        .icon-chart::before { content: "📊"; }
-        .icon-wallet::before { content: "💳"; }
-        .icon-users::before { content: "👥"; }
-        .icon-tag::before { content: "🏷️"; }
-        .icon-admin::before { content: "👤"; }
+        .icon-home::before { content: ""; }
+        .icon-cash::before { content: ""; }
+        .icon-box::before { content: ""; }
+        .icon-cart::before { content: ""; }
+        .icon-history::before { content: ""; }
+        .icon-chart::before { content: ""; }
+        .icon-wallet::before { content: ""; }
+        .icon-users::before { content: ""; }
+        .icon-tag::before { content: ""; }
+        .icon-admin::before { content: ""; }
         .icon-search::before { content: "🔍"; }
         .icon-settings::before { content: "⚙️"; }
         .icon-bell::before { content: "🔔"; }

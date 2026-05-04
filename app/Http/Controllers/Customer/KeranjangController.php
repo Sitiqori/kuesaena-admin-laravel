@@ -38,7 +38,6 @@ class KeranjangController extends Controller
             'note'       => 'nullable|string|max:255',
         ]);
 
-        // Cek apakah produk sudah ada di keranjang
         $existing = Cart::where('user_id', Auth::id())
             ->where('product_id', $request->product_id)
             ->where('flavor', $request->flavor)
@@ -55,18 +54,6 @@ class KeranjangController extends Controller
                 'flavor'     => $request->flavor,
                 'size'       => $request->size,
                 'note'       => $request->note,
-            ]);
-        }
-
-        if ($request->wantsJson() || $request->ajax()) {
-            $totalQty = Cart::where('user_id', Auth::id())
-                ->where('product_id', $request->product_id)
-                ->sum('quantity');
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Produk berhasil ditambahkan ke keranjang!',
-                'total_qty' => $totalQty
             ]);
         }
 
@@ -108,5 +95,43 @@ class KeranjangController extends Controller
         Cart::where('user_id', Auth::id())->delete();
 
         return redirect()->back()->with('success', 'Keranjang berhasil dikosongkan.');
+    }
+
+    // Toggle keranjang (untuk icon border/penuh seperti like & wishlist)
+    public function toggle(Request $request)
+    {
+        $request->validate([
+            'product_id' => 'required|exists:products,id'
+        ]);
+
+        $user = Auth::user();
+        $productId = $request->product_id;
+
+        $cart = Cart::where('user_id', $user->id)
+            ->where('product_id', $productId)
+            ->first();
+
+        if ($cart) {
+            $cart->delete();
+            $isInCart = false;
+        } else {
+            Cart::create([
+                'user_id' => $user->id,
+                'product_id' => $productId,
+                'quantity' => 1,
+                'flavor' => null,
+                'size' => null,
+                'note' => null,
+            ]);
+            $isInCart = true;
+        }
+
+        $cartCount = Cart::where('user_id', $user->id)->sum('quantity');
+
+        return response()->json([
+            'success' => true,
+            'is_in_cart' => $isInCart,
+            'cart_count' => $cartCount
+        ]);
     }
 }

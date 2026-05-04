@@ -75,6 +75,10 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/keranjang/update/{id}', [KeranjangController::class, 'update'])->name('keranjang.update');
     Route::delete('/keranjang/hapus/{id}', [KeranjangController::class, 'hapus'])->name('keranjang.hapus');
     Route::delete('/keranjang/hapus-semua', [KeranjangController::class, 'hapusSemua'])->name('keranjang.hapusSemua');
+    
+    // Toggle Keranjang (untuk icon border/penuh seperti like & wishlist)
+    Route::post('/keranjang/toggle', [KeranjangController::class, 'toggle'])->name('keranjang.toggle');
+    // END KERANJANG
 
     Route::post('/pesanan-saya/{id}/ulasan', [CustomerPesananController::class, 'storeReview'])->name('customer.pesanan.ulasan');
 

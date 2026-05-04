@@ -6,25 +6,13 @@
 <style>
 .page-content { padding-top: 76px; }
 
-body {
-    background-color: #ffffff !important;
-    background-image: none !important;
-}
-
-.page-content {
-    padding-top: 76px;
-    background: #f9f5f0 !important;
-}
-
+/* =====================
+   KERANJANG SECTION
+===================== */
 .keranjang-wrapper {
     padding: 40px 0 60px;
-    background: #f9f5f0 !important;
+    background: #f9f5f0;
     min-height: calc(100vh - 76px);
-}
-
-.rekomendasi-section {
-    padding: 80px 0 48px;
-    background: #f9f5f0 !important;
 }
 
 .keranjang-table {
@@ -35,6 +23,7 @@ body {
     margin-bottom: 16px;
 }
 
+/* Header tabel */
 .keranjang-header {
     display: grid;
     grid-template-columns: 40px 1fr 220px 130px 160px 100px;
@@ -47,6 +36,7 @@ body {
     gap: 12px;
 }
 
+/* Row item */
 .keranjang-item {
     display: grid;
     grid-template-columns: 40px 1fr 220px 130px 160px 100px;
@@ -60,6 +50,7 @@ body {
 .keranjang-item:hover { background: #fdf8f3; }
 .keranjang-item:last-child { border-bottom: none; }
 
+/* Produk info */
 .item-produk {
     display: flex;
     align-items: center;
@@ -75,6 +66,7 @@ body {
 .item-produk-info .nama { font-weight: 600; color: #1A0A00; font-size: 14px; }
 .item-produk-info .harga { color: #7B3F18; font-size: 13px; margin-top: 2px; }
 
+/* Detail rasa/ukuran */
 .item-detail {
     background: #f9f5f0;
     border-radius: 6px;
@@ -85,6 +77,7 @@ body {
 }
 .item-detail span { color: #7B3F18; }
 
+/* Kuantitas */
 .qty-control {
     display: flex;
     align-items: center;
@@ -117,12 +110,14 @@ body {
     color: #1A0A00;
 }
 
+/* Total harga per item */
 .item-total {
     font-weight: 700;
     color: #1A0A00;
     font-size: 15px;
 }
 
+/* Tombol hapus */
 .btn-hapus {
     background: #e74c3c;
     color: #fff;
@@ -136,6 +131,7 @@ body {
 }
 .btn-hapus:hover { background: #c0392b; }
 
+/* Footer keranjang */
 .keranjang-footer {
     display: flex;
     align-items: center;
@@ -144,7 +140,6 @@ body {
     color: #fff;
     padding: 16px 20px;
     border-radius: 0 0 8px 8px;
-    margin-bottom: 60px;
 }
 .keranjang-footer .total-text { font-size: 15px; }
 .keranjang-footer .total-text strong { font-size: 18px; margin-left: 8px; }
@@ -172,6 +167,7 @@ body {
 }
 .btn-hapus-semua:hover { background: #c0392b; }
 
+/* Keranjang kosong */
 .keranjang-kosong {
     text-align: center;
     padding: 80px 20px;
@@ -193,6 +189,9 @@ body {
 }
 .btn-belanja:hover { background: #5C2D0E; }
 
+/* =====================
+   REKOMENDASI SECTION
+===================== */
 .rekomendasi-section { padding: 48px 0; }
 
 .rekomendasi-header {
@@ -221,7 +220,6 @@ body {
     transition: all 0.3s;
     text-decoration: none;
     color: inherit;
-    display: block;
 }
 .produk-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
 .produk-card img {
@@ -247,6 +245,7 @@ body {
 }
 .btn-lihat-lainnya:hover { background: #5C2D0E; }
 
+/* Alert */
 .alert-success {
     background: #d4edda;
     color: #155724;
@@ -256,12 +255,12 @@ body {
     border: 1px solid #c3e6cb;
 }
 
-/* total count label */
-#total-count-label { transition: all 0.2s; }
-
 @media (max-width: 768px) {
     .keranjang-header { display: none; }
-    .keranjang-item { grid-template-columns: 1fr; gap: 8px; }
+    .keranjang-item {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
     .rekomendasi-grid { grid-template-columns: repeat(2, 1fr); }
 }
 </style>
@@ -272,22 +271,16 @@ body {
 <div class="keranjang-wrapper">
 <div class="container">
 
+    {{-- Alert success --}}
     @if(session('success'))
         <div class="alert-success">{{ session('success') }}</div>
     @endif
 
+    {{-- ===== TABEL KERANJANG ===== --}}
     @if($cartItems->count() > 0)
 
-        {{-- Data harga tiap item untuk JS --}}
-        <script>
-            const itemPrices = {
-                @foreach($cartItems as $item)
-                {{ $item->id }}: {{ $item->product->price }},
-                @endforeach
-            };
-        </script>
-
         <div class="keranjang-table">
+            {{-- Header --}}
             <div class="keranjang-header">
                 <div>
                     <input type="checkbox" id="pilih-semua" onchange="pilihSemua(this)">
@@ -299,16 +292,15 @@ body {
                 <div>Aksi</div>
             </div>
 
+            {{-- Item --}}
             @foreach($cartItems as $item)
             <div class="keranjang-item" id="item-{{ $item->id }}">
+                {{-- Checkbox --}}
                 <div>
-                    <input type="checkbox" class="item-checkbox"
-                           value="{{ $item->id }}"
-                           data-price="{{ $item->product->price }}"
-                           data-qty="{{ $item->quantity }}"
-                           onchange="hitungTotal()">
+                    <input type="checkbox" class="item-checkbox" value="{{ $item->id }}">
                 </div>
 
+                {{-- Produk info --}}
                 <div class="item-produk">
                     <img src="{{ $item->product->image ? asset('storage/' . $item->product->image) : asset('images/no-image.png') }}"
                          alt="{{ $item->product->name }}">
@@ -318,12 +310,14 @@ body {
                     </div>
                 </div>
 
+                {{-- Detail rasa/ukuran --}}
                 <div class="item-detail">
                     <div>Rasa &nbsp;&nbsp;: <span>{{ $item->flavor ?? '-' }}</span></div>
                     <div>Ukuran : <span>{{ $item->size ?? '-' }}</span></div>
                     <div>Catatan : <span>{{ $item->note ?? '-' }}</span></div>
                 </div>
 
+                {{-- Kuantitas --}}
                 <div class="qty-control">
                     <button class="qty-btn" onclick="updateQty({{ $item->id }}, -1)">−</button>
                     <input type="number" class="qty-input" id="qty-{{ $item->id }}"
@@ -332,10 +326,12 @@ body {
                     <button class="qty-btn" onclick="updateQty({{ $item->id }}, 1)">+</button>
                 </div>
 
+                {{-- Total harga --}}
                 <div class="item-total" id="subtotal-{{ $item->id }}">
                     Rp. {{ number_format($item->product->price * $item->quantity, 0, ',', '.') }}
                 </div>
 
+                {{-- Hapus --}}
                 <div>
                     <form action="{{ route('keranjang.hapus', $item->id) }}" method="POST"
                           onsubmit="return confirm('Hapus produk ini dari keranjang?')">
@@ -348,7 +344,8 @@ body {
             @endforeach
         </div>
 
-        <div class="keranjang-footer">
+        {{-- Footer keranjang --}}
+        <div class="keranjang-footer" style="border-radius: 8px; margin-top: 0;">
             <form action="{{ route('keranjang.hapusSemua') }}" method="POST"
                   onsubmit="return confirm('Hapus semua item dari keranjang?')">
                 @csrf
@@ -357,17 +354,15 @@ body {
             </form>
 
             <div class="total-text">
-                Total (<span id="total-count-label">0 Produk</span>) :
-                <strong id="grand-total">Rp. 0</strong>
+                Total ({{ $cartItems->count() }} Produk) :
+                <strong id="grand-total">Rp.{{ number_format($total, 0, ',', '.') }}</strong>
             </div>
 
-            <button type="button" class="btn-checkout" onclick="doCheckout()">Checkout</button>
-            <form id="checkout-form" action="{{ route('checkout') }}" method="GET" style="display:none;">
-                <div id="checkout-inputs"></div>
-</form>
+            <a href="{{ route('checkout') }}" class="btn-checkout">Checkout</a>
         </div>
 
     @else
+        {{-- Keranjang kosong --}}
         <div class="keranjang-kosong">
             <i class="fas fa-shopping-cart"></i>
             <h3>Keranjang Masih Kosong</h3>
@@ -376,12 +371,12 @@ body {
         </div>
     @endif
 
-    {{-- REKOMENDASI --}}
+    {{-- ===== REKOMENDASI ===== --}}
     <div class="rekomendasi-section">
         <div class="rekomendasi-header">Rekomendasi</div>
         <div class="rekomendasi-grid">
             @foreach($rekomendasi as $produk)
-            <a href="{{ route('customer.product.show', $produk->id) }}" class="produk-card">
+            <a href="#" class="produk-card">
                 <img src="{{ $produk->image ? asset('storage/' . $produk->image) : asset('images/no-image.png') }}"
                      alt="{{ $produk->name }}">
                 <div class="produk-card-info">
@@ -401,41 +396,12 @@ body {
 
 @push('scripts')
 <script>
-// Pilih semua
+// Pilih semua checkbox
 function pilihSemua(el) {
     document.querySelectorAll('.item-checkbox').forEach(cb => cb.checked = el.checked);
-    hitungTotal();
 }
 
-// Hitung total berdasarkan yang dicentang
-function hitungTotal() {
-    let total = 0;
-    let count = 0;
-
-    document.querySelectorAll('.item-checkbox:checked').forEach(cb => {
-        const id  = cb.value;
-        const qty = parseInt(document.getElementById('qty-' + id).value) || 1;
-        const price = parseFloat(cb.dataset.price);
-        total += price * qty;
-        count++;
-    });
-
-    document.getElementById('grand-total').textContent =
-        'Rp. ' + total.toLocaleString('id-ID');
-    document.getElementById('total-count-label').textContent =
-        count + ' Produk';
-
-    // Sync "pilih semua" checkbox
-    const allCbs = document.querySelectorAll('.item-checkbox');
-    const checkedCbs = document.querySelectorAll('.item-checkbox:checked');
-    const pilisSemua = document.getElementById('pilih-semua');
-    if (pilisSemua) {
-        pilisSemua.indeterminate = checkedCbs.length > 0 && checkedCbs.length < allCbs.length;
-        pilisSemua.checked = checkedCbs.length === allCbs.length && allCbs.length > 0;
-    }
-}
-
-// Update kuantitas via tombol
+// Update kuantitas via tombol + / -
 function updateQty(id, delta) {
     const input = document.getElementById('qty-' + id);
     let val = parseInt(input.value) + delta;
@@ -444,13 +410,13 @@ function updateQty(id, delta) {
     kirimUpdateQty(id, val);
 }
 
-// Update kuantitas dari input langsung
+// Update kuantitas langsung dari input
 function updateQtyDirect(id, val) {
     if (val < 1) val = 1;
     kirimUpdateQty(id, val);
 }
 
-// AJAX update qty
+// Kirim AJAX update kuantitas
 function kirimUpdateQty(id, qty) {
     fetch(`/keranjang/update/${id}`, {
         method: 'PUT',
@@ -464,32 +430,15 @@ function kirimUpdateQty(id, qty) {
     .then(data => {
         if (data.success) {
             document.getElementById('subtotal-' + id).textContent = 'Rp. ' + data.subtotal;
-            // Update data-qty di checkbox
-            const cb = document.querySelector(`.item-checkbox[value="${id}"]`);
-            if (cb) cb.dataset.qty = qty;
             hitungTotal();
         }
     });
 }
 
-function doCheckout() {
-    const checked = document.querySelectorAll('.item-checkbox:checked');
-    if (checked.length === 0) {
-        alert('Pilih minimal 1 produk untuk checkout.');
-        return;
-    }
-
-    const container = document.getElementById('checkout-inputs');
-    container.innerHTML = '';
-    checked.forEach(cb => {
-        const input = document.createElement('input');
-        input.type  = 'hidden';
-        input.name  = 'items[]';
-        input.value = cb.value;
-        container.appendChild(input);
-    });
-
-    document.getElementById('checkout-form').submit();
+// Hitung ulang grand total (opsional, bisa reload juga)
+function hitungTotal() {
+    // Untuk kesederhanaan, reload halaman setelah update
+    // Bisa diganti dengan kalkulasi di frontend jika perlu
 }
 </script>
 @endpush

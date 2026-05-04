@@ -235,6 +235,50 @@
         transition: color 0.2s;
     }
 
+    /* Tombol Keranjang - HANYA IKON BORDER (SAMA PERSIS DENGAN LIKE & WISHLIST) */
+.cart-toggle-btn {
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cart-toggle-btn i {
+    font-size: 12px;
+    transition: color 0.2s;
+}
+
+/* State aktif (sudah di keranjang) - HANYA UBAH WARNA & JADI SOLID */
+.cart-toggle-btn.active {
+    color: #e67e22;  /* Warna oranye/coklat sesuai tema */
+}
+
+.cart-toggle-btn.active i {
+    font-weight: 900;  /* fas = solid */
+}
+
+/* State belum aktif (border) */
+.cart-toggle-btn i {
+    font-weight: 400;  /* far = border */
+    color: #888;
+}
+
+/* Efek klik pada tombol */
+.cart-clicked {
+    transform: scale(1.2);
+    transition: transform 0.2s ease;
+}
+
+/* Efek pada gambar produk saat klik */
+.product-image-clicked {
+    transform: scale(0.95);
+    transition: transform 0.2s ease;
+}
+
     .product-price-row {
         display: flex;
         align-items: center;
@@ -344,6 +388,46 @@
             grid-template-columns: repeat(2, 1fr);
         }
     }
+
+/* Tombol Keranjang - Lingkaran hanya muncul saat aktif */
+.cart-toggle-btn {
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    height: auto;
+    transition: all 0.3s ease;
+}
+
+.cart-toggle-btn i {
+    font-size: 12px;
+    transition: all 0.3s ease;
+}
+
+/* State belum aktif: hanya icon (tanpa lingkaran) */
+.cart-toggle-btn i {
+    font-weight: 400;
+    color: #888;
+}
+
+/* State aktif: icon + lingkaran luar */
+.cart-toggle-btn.active {
+    border: 1.5px solid #e67e22;
+    border-radius: 50%;
+    padding: 4px;
+    width: 28px;
+    height: 28px;
+}
+
+.cart-toggle-btn.active i {
+    font-weight: 900;
+    color: #e67e22;
+}
 </style>
 @endpush
 
@@ -470,26 +554,28 @@
                                 <div class="product-name">{{ $product->name }}</div>
                             </a>
                             
-                             <div class="product-actions">
-                    @php
-                        $isWishlisted = Auth::check() && Auth::user()->wishlists()->where('product_id', $product->id)->exists();
-                        $isLiked = Auth::check() && Auth::user()->productLikes()->where('product_id', $product->id)->exists();
-                    @endphp
-                    
-                    <i class="{{ $isWishlisted ? 'fas' : 'far' }} fa-heart" 
-                       style="cursor:pointer; color: {{ $isWishlisted ? '#e74c3c' : '#888' }};" 
-                       onclick="event.stopPropagation(); toggleWishlist({{ $product->id }}, this)"></i>
-                    
-                    <i class="{{ $isLiked ? 'fas' : 'far' }} fa-thumbs-up" 
-                       style="cursor:pointer; color: {{ $isLiked ? '#27ae60' : '#888' }};" 
-                       onclick="event.stopPropagation(); toggleLike({{ $product->id }}, this)"></i>
-                    
-                    <span class="like-count-{{ $product->id }}" style="font-size:9px; margin-left:2px;">{{ $product->likes()->count() }}</span>
-                    
-                    <i class="fas fa-shopping-cart" style="cursor:pointer;" onclick="event.stopPropagation(); tambahKeKeranjang({{ $product->id }})"></i>
-                </div>
-                <!-- ⬆️ SAMPAI SINI ⬆️ -->   
-
+                         <div class="product-actions">
+    @php
+        $isWishlisted = Auth::check() && Auth::user()->wishlists()->where('product_id', $product->id)->exists();
+        $isLiked = Auth::check() && Auth::user()->productLikes()->where('product_id', $product->id)->exists();
+        $isInCart = Auth::check() && Auth::user()->carts()->where('product_id', $product->id)->exists();
+    @endphp
+    
+    <i class="{{ $isWishlisted ? 'fas' : 'far' }} fa-heart" 
+       style="cursor:pointer; color: {{ $isWishlisted ? '#e74c3c' : '#888' }};" 
+       onclick="event.stopPropagation(); toggleWishlist({{ $product->id }}, this)"></i>
+    
+    <i class="{{ $isLiked ? 'fas' : 'far' }} fa-thumbs-up" 
+       style="cursor:pointer; color: {{ $isLiked ? '#27ae60' : '#888' }};" 
+       onclick="event.stopPropagation(); toggleLike({{ $product->id }}, this)"></i>
+    
+    <span class="like-count-{{ $product->id }}" style="font-size:9px; margin-left:2px;">{{ $product->likes()->count() }}</span>
+    
+    <button class="cart-toggle-btn {{ $isInCart ? 'active' : '' }}" 
+        onclick="toggleCart(this, {{ $product->id }})">
+    <i class="{{ $isInCart ? 'fas' : 'far' }} fa-shopping-cart"></i>
+</button>
+</div>
 
                         </div>
                         <div class="product-price-row">
@@ -634,5 +720,117 @@
             }
         });
     };
+
+    window.toggleCart = function(button, productId) {
+    event.stopPropagation();
+    
+    if (!{{ Auth::check() ? 'true' : 'false' }}) {
+        window.location.href = '/login';
+        return;
+    }
+    
+    // Ambil data produk (termasuk gambar)
+    let productCard = button.closest('.product-card, .pop-card');
+    let productImage = productCard?.querySelector('img')?.src;
+    let productName = productCard?.querySelector('.product-name, .pop-card__name')?.innerText;
+    let productPrice = productCard?.querySelector('.price-current, .pop-price-current')?.innerText;
+    
+    // Animasi klik
+    button.classList.add('cart-clicked');
+    setTimeout(() => button.classList.remove('cart-clicked'), 200);
+    
+    // Animasi gambar
+    let img = productCard?.querySelector('img');
+    if (img) {
+        img.classList.add('product-image-clicked');
+        setTimeout(() => img.classList.remove('product-image-clicked'), 200);
+    }
+    
+    let icon = button.querySelector('i');
+    let wasInCart = button.classList.contains('active');
+    
+    // Optimistic update tampilan
+    if (wasInCart) {
+        button.classList.remove('active');
+        icon.classList.remove('fas');
+        icon.classList.add('far');
+        if (button.querySelector('.cart-text')) {
+            button.querySelector('.cart-text').textContent = 'Tambah ke Keranjang';
+        }
+    } else {
+        button.classList.add('active');
+        icon.classList.remove('far');
+        icon.classList.add('fas');
+        if (button.querySelector('.cart-text')) {
+            button.querySelector('.cart-text').textContent = 'Hapus dari Keranjang';
+        }
+    }
+    
+    // Kirim ke server (toggle di database)
+    fetch('{{ route("keranjang.toggle") }}', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': csrfToken,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+            product_id: productId,
+            image: productImage || '',
+            name: productName || '',
+            price: productPrice || ''
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (!data.success) {
+            // Revert jika gagal
+            if (wasInCart) {
+                button.classList.add('active');
+                icon.classList.remove('far');
+                icon.classList.add('fas');
+                if (button.querySelector('.cart-text')) {
+                    button.querySelector('.cart-text').textContent = 'Hapus dari Keranjang';
+                }
+            } else {
+                button.classList.remove('active');
+                icon.classList.remove('fas');
+                icon.classList.add('far');
+                if (button.querySelector('.cart-text')) {
+                    button.querySelector('.cart-text').textContent = 'Tambah ke Keranjang';
+                }
+            }
+        } else {
+            // Update badge navbar
+            let cartBadge = document.querySelector('.action-badge');
+            if (cartBadge) {
+                cartBadge.textContent = data.cart_count > 99 ? '99+' : data.cart_count;
+                cartBadge.style.display = data.cart_count > 0 ? 'flex' : 'none';
+            }
+            
+            // Optional: Toast notifikasi
+            if (typeof showToast === 'function') {
+                showToast(data.is_in_cart ? '✓ Ditambahkan ke keranjang' : '✗ Dihapus dari keranjang');
+            }
+        }
+    })
+    .catch(err => {
+        console.error('Error:', err);
+        if (wasInCart) {
+            button.classList.add('active');
+            icon.classList.remove('far');
+            icon.classList.add('fas');
+            if (button.querySelector('.cart-text')) {
+                button.querySelector('.cart-text').textContent = 'Hapus dari Keranjang';
+            }
+        } else {
+            button.classList.remove('active');
+            icon.classList.remove('fas');
+            icon.classList.add('far');
+            if (button.querySelector('.cart-text')) {
+                button.querySelector('.cart-text').textContent = 'Tambah ke Keranjang';
+            }
+        }
+    });
+};
 </script>
 @endpush

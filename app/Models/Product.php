@@ -9,37 +9,7 @@ class Product extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'category_id',
-        'name',
-        'code',
-        'unit',
-        'stock',
-        'min_stock',
-        'price',
-        'hpp',
-        'image',
-        'description',
-        'has_size',
-        'price_s',
-        'price_m',
-        'price_l',
-        'price_xl',
-        'is_po',
-        'po_days',
-    ];
-
-    protected $casts = [
-        'price'    => 'decimal:2',
-        'hpp'      => 'decimal:2',
-        'price_s'  => 'decimal:2',
-        'price_m'  => 'decimal:2',
-        'price_l'  => 'decimal:2',
-        'price_xl' => 'decimal:2',
-        'stock'    => 'integer',
-        'min_stock'=> 'integer',
-        'has_size' => 'boolean',
-    ];
+    // ... fillable, casts, dll ...
 
     public function category()
     {
@@ -50,7 +20,7 @@ class Product extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
-    // Wishlist & Like relations
+
     public function wishlists()
     {
         return $this->hasMany(Wishlist::class);
@@ -75,4 +45,12 @@ class Product extends Model
     {
         return $this->wishlists()->where('user_id', $userId)->exists();
     }
+
+    // 👇 TAMBAHKAN INI 👇
+    public function isInCart()
+    {
+        if (!auth()->check()) return false;
+        return auth()->user()->carts()->where('product_id', $this->id)->exists();
+    }
+    // 👆 SAMPAI SINI 👆
 }
