@@ -58,6 +58,18 @@ class KeranjangController extends Controller
             ]);
         }
 
+        if ($request->wantsJson() || $request->ajax()) {
+            $totalQty = Cart::where('user_id', Auth::id())
+                ->where('product_id', $request->product_id)
+                ->sum('quantity');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Produk berhasil ditambahkan ke keranjang!',
+                'total_qty' => $totalQty
+            ]);
+        }
+
         return redirect()->back()->with('success', 'Produk berhasil ditambahkan ke keranjang!');
     }
 

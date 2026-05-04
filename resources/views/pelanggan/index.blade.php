@@ -579,7 +579,7 @@ function filterCustomers() {
 
 // Show Customer History
 function showCustomerHistory(customerId) {
-    fetch(`/pelanggan/${customerId}`)
+    fetch('{{ url('/pelanggan') }}/' + customerId)
         .then(response => response.json())
         .then(data => {
             const customer = data.customer;
@@ -649,7 +649,7 @@ function closeHistoryModal() {
 
 // Edit Customer
 function editCustomer(customerId) {
-    fetch(`/pelanggan/${customerId}/edit`)
+    fetch('{{ url('/pelanggan') }}/' + customerId + '/edit')
         .then(response => response.json())
         .then(data => {
             document.getElementById('editName').value = data.name;

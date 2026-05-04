@@ -371,7 +371,7 @@
     }
 
     function markReadPopup(id, el) {
-        fetch(`/notifikasi/${id}/read`, {
+        fetch('{{ url('/notifikasi') }}/' + id + '/read', {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,

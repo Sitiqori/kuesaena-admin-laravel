@@ -386,7 +386,7 @@ document.getElementById('category_id').addEventListener('change', function() {
     const categoryId = this.value;
     if (!categoryId) return;
 
-    fetch(`/barang/next-code?category_id=${categoryId}`)
+    fetch('{{ url('/barang/next-code') }}?category_id=' + categoryId)
         .then(res => res.json())
         .then(data => {
             document.getElementById('code').value = data.code;
@@ -438,7 +438,7 @@ function openAddModal() {
 
 function openEditModal(id) {
     currentEditId = id;
-    fetch(`/barang/${id}/edit`)
+    fetch('{{ url('/barang') }}/' + id + '/edit')
         .then(response => response.json())
         .then(data => {
             document.getElementById('modalTitle').textContent = 'Edit Barang';
@@ -467,7 +467,7 @@ function openEditModal(id) {
             document.getElementById('po_days').value = data.po_days || '';
 
             if (data.image) {
-                document.getElementById('imagePreview').innerHTML = `<img src="/storage/${data.image}" alt="${data.name}">`;
+                document.getElementById('imagePreview').innerHTML = `<img src="{{ asset('storage') }}/${data.image}" alt="${data.name}">`;
             } else {
                 document.getElementById('imagePreview').innerHTML = `
                     <div class="image-preview-placeholder">
@@ -506,7 +506,7 @@ document.getElementById('productForm').addEventListener('submit', function(e) {
     const formData = new FormData(this);
     let url, method;
     if (currentEditId) {
-        url = `/barang/${currentEditId}`;
+        url = '{{ url('/barang') }}/' + currentEditId;
         formData.append('_method', 'PUT');
         method = 'POST';
     } else {
@@ -544,14 +544,14 @@ function deleteProduct(id) {
     if (confirm('Yakin ingin menghapus produk ini?')) {
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = `/barang/${id}`;
+        form.action = '{{ url('/barang') }}/' + id;
         form.innerHTML = `@csrf @method('DELETE')`;
         document.body.appendChild(form);
         form.submit();
     }
 }
 
-function exportPDF() { window.open('/barang/export-pdf', '_blank'); }
+function exportPDF() { window.open('{{ url('/barang/export-pdf') }}', '_blank'); }
 
 window.onclick = function(event) {
     const modal = document.getElementById('productModal');

@@ -611,7 +611,7 @@ function filterTransactions() {
 function showDetail(orderId) {
     currentOrderId = orderId;
 
-    fetch(`/transaksi/${orderId}`)
+    fetch('{{ url('/transaksi') }}/' + orderId)
         .then(response => response.json())
         .then(data => {
             const order = data.order;
@@ -713,7 +713,7 @@ function closeDetailModal() {
 
 // Print Receipt
 function printReceipt(orderId) {
-    fetch(`/transaksi/${orderId}`)
+    fetch('{{ url('/transaksi') }}/' + orderId)
         .then(response => response.json())
         .then(data => {
             generateReceipt(data.order);

@@ -561,7 +561,7 @@ function openAddModal() {
 
 // Edit Expense
 function editExpense(id) {
-    fetch(`/pengeluaran/${id}/edit`)
+    fetch('{{ url('/pengeluaran') }}/' + id + '/edit')
         .then(response => response.json())
         .then(data => {
             document.getElementById('modalTitle').textContent = 'Edit Pengeluaran';

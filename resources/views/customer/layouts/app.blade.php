@@ -482,11 +482,13 @@ window.updateCartBadge = function(delta) {
 
 // Wishlist Toggle
 window.toggleWishlist = function(productId, btn) {
-    fetch(`/wishlist/toggle/${productId}`, {
+    fetch('{{ url('/wishlist/toggle') }}/' + productId, {
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': csrfToken,
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
         }
     })
     .then(res => res.json())
@@ -507,11 +509,13 @@ window.toggleWishlist = function(productId, btn) {
 
 // Like Toggle
 window.toggleLike = function(productId, btn) {
-    fetch(`/product/like/${productId}`, {
+    fetch('{{ url('/product/like') }}/' + productId, {
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': csrfToken,
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
         }
     })
     .then(res => res.json())

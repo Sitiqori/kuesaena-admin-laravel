@@ -469,12 +469,19 @@
                             <a href="{{ route('customer.product.show', $product->id) }}" style="text-decoration:none; color:inherit; max-width: 70%;" onclick="event.preventDefault();">
                                 <div class="product-name">{{ $product->name }}</div>
                             </a>
-                            <div class="product-actions">
-                                    <i   class="far fa-heart" style="cursor:pointer;" onclick="event.stopPropagation(); toggleWishlist({{ $product->id }}, this)"></i>
-                                    <i   class="far fa-thumbs-up" style="cursor:pointer;" onclick="event.stopPropagation(); toggleLike({{ $product->id }}, this)"></i>
-                                 <span  pan class="like-count-{{ $product->id }}" style="font-size:9px; margin-left:2px;">{{ $product->likes()->count() }}</span>
-                                    <i   class="fas fa-shopping-cart" style="cursor:pointer;" onclick="event.stopPropagation(); tambahKeKeranjang({{ $product->id }})"></i>
-                                </div>  
+                        <div class="product-actions">
+                            <i class="{{ in_array($product->id, $wishlistIds ?? []) ? 'fas' : 'far' }} fa-heart" 
+                               style="cursor:pointer; {{ in_array($product->id, $wishlistIds ?? []) ? 'color:#e67e22;' : '' }}" 
+                               onclick="event.stopPropagation(); toggleWishlist({{ $product->id }}, this)"></i>
+                               
+                            <i class="{{ $product->likes()->where('user_id', Auth::id())->exists() ? 'fas' : 'far' }} fa-thumbs-up" 
+                               style="cursor:pointer; {{ $product->likes()->where('user_id', Auth::id())->exists() ? 'color:#27ae60;' : '' }}" 
+                               onclick="event.stopPropagation(); toggleLike({{ $product->id }}, this)"></i>
+                            <span class="like-count-{{ $product->id }}" style="font-size:9px; margin-left:2px; margin-right:4px;">{{ $product->likes()->count() }}</span>
+                            
+                            <i class="fas fa-shopping-cart" style="cursor:pointer;" onclick="event.stopPropagation(); tambahKeKeranjang({{ $product->id }})"></i>
+                            <span class="cart-count-{{ $product->id }}" style="font-size:9px; margin-left:2px;">{{ $cartQuantities[$product->id] ?? 0 }}</span>
+                        </div>  
                         </div>
                         <div class="product-price-row">
                             <span class="price-current">Rp {{ number_format($product->price, 0, ',', '.') }}</span>
@@ -531,39 +538,61 @@
 <script>
     function tambahKeKeranjang(productId) {
         if (!{{ Auth::check() ? 'true' : 'false' }}) {
-            window.location.href = '/login';
+            window.location.href = '{{ route('login') }}';
             return;
         }
 
-        fetch('/keranjang/tambah', {
+        fetch('{{ url('/keranjang/tambah') }}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}'
             },
             body: JSON.stringify({ product_id: productId, quantity: 1 })
         })
-        .then(res => {
-            if (res.ok || res.redirected) {
-                // Update badge keranjang di navbar langsung tanpa reload
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                // Update badge keranjang di navbar
                 if (typeof updateCartBadge === 'function') {
                     updateCartBadge(1);
                 }
+                
+                // Update specific product cart count
+                const countSpan = document.querySelector(`.cart-count-${productId}`);
+                if (countSpan) {
+                    countSpan.innerText = data.total_qty;
+                }
 
-                // Flash notif kecil di pojok kanan bawah
-                showToast('🛒 Ditambahkan ke keranjang!');
+                // Global showToast if available
+                if (typeof showToast === 'function') {
+                    showToast('🛒 ' + data.message, 'success');
+                }
+            } else {
+                if (typeof showToast === 'function') {
+                    showToast(data.message ?? 'Gagal menambahkan ke keranjang.', 'error');
+                }
             }
         })
-        .catch(() => showToast('Gagal menambahkan ke keranjang.', true));
+        .catch(error => {
+            console.error(error);
+            if (typeof showToast === 'function') {
+                showToast('Gagal menambahkan ke keranjang.', 'error');
+            }
+        });
     }
 
     // Wishlist Toggle
     window.toggleWishlist = function(productId, element) {
-        fetch(`/wishlist/toggle/${productId}`, {
+        fetch('{{ url('/wishlist/toggle') }}/' + productId, {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
             }
         })
         .then(res => res.json())
@@ -572,12 +601,12 @@
                 element.classList.remove('far');
                 element.classList.add('fas');
                 element.style.color = '#e67e22';
-                showToast('❤️ Ditambahkan ke wishlist!');
+                if (typeof showToast === 'function') showToast('❤️ Ditambahkan ke wishlist!', 'success');
             } else {
                 element.classList.remove('fas');
                 element.classList.add('far');
                 element.style.color = '';
-                showToast('Dihapus dari wishlist');
+                if (typeof showToast === 'function') showToast('Dihapus dari wishlist', 'info');
             }
         })
         .catch(() => console.error('Wishlist error'));
@@ -585,11 +614,13 @@
 
     // Like Toggle
     window.toggleLike = function(productId, element) {
-        fetch(`/product/like/${productId}`, {
+        fetch('{{ url('/product/like') }}/' + productId, {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
             }
         })
         .then(res => res.json())
@@ -601,42 +632,17 @@
                 element.classList.remove('far');
                 element.classList.add('fas');
                 element.style.color = '#27ae60';
-                showToast('👍 Berhasil disukai!');
+                if (typeof showToast === 'function') showToast('👍 Berhasil disukai!', 'success');
             } else {
                 element.classList.remove('fas');
                 element.classList.add('far');
                 element.style.color = '';
-                showToast('Batal menyukai');
+                if (typeof showToast === 'function') showToast('Batal menyukai', 'info');
             }
         })
         .catch(() => console.error('Like error'));
     };
 
-    // Toast notif kecil (muncul di pojok kanan bawah, hilang otomatis)
-    function showToast(message, isError = false) {
-        let toast = document.getElementById('menu-toast');
-        if (!toast) {
-            toast = document.createElement('div');
-            toast.id = 'menu-toast';
-            toast.style.cssText = `
-                position: fixed; bottom: 24px; right: 24px;
-                background: #3B1A08; color: #fff;
-                padding: 12px 20px; border-radius: 10px;
-                font-size: 13px; font-weight: 500;
-                box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-                z-index: 99999; opacity: 0;
-                transition: opacity 0.3s ease;
-                pointer-events: none;
-            `;
-            document.body.appendChild(toast);
-        }
-        if (isError) toast.style.background = '#c0392b';
-        else toast.style.background = '#3B1A08';
-
-        toast.innerText = message;
-        toast.style.opacity = '1';
-        clearTimeout(toast._timeout);
-        toast._timeout = setTimeout(() => { toast.style.opacity = '0'; }, 2500);
-    }
+    // Local showToast override logic removed to let app.blade.php's global showToast handle it.
 </script>
 @endpush

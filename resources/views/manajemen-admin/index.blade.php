@@ -549,7 +549,7 @@ let currentUserId = null;
 function showUserDetail(userId) {
     currentUserId = userId;
 
-    fetch(`/manajemen-admin/${userId}`)
+    fetch('{{ url('/manajemen-admin') }}/' + userId)
         .then(response => response.json())
         .then(data => {
             const user = data.user;
@@ -656,7 +656,7 @@ function toggleUserStatus(userId, activate) {
         'Yakin ingin menonaktifkan user ini?';
 
     if (confirm(message)) {
-        fetch(`/manajemen-admin/${userId}/toggle-status`, {
+        fetch('{{ url('/manajemen-admin') }}/' + userId + '/toggle-status', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

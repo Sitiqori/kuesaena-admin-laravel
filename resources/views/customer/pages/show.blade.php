@@ -350,6 +350,8 @@ document.getElementById('add-cart-btn').addEventListener('click', () => {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
             'X-CSRF-TOKEN': '{{ csrf_token() }}'
         },
         body: JSON.stringify({
@@ -369,11 +371,19 @@ document.getElementById('add-cart-btn').addEventListener('click', () => {
             btn.style.borderColor = '#5C2D0E';
             btn.style.transform   = 'scale(1.15)';
             setTimeout(() => { btn.style.transform = ''; }, 200);
+            
+            if (typeof updateCartBadge === 'function') {
+                updateCartBadge(1);
+            }
+            showToast('🛒 ' + data.message);
         } else {
-            alert(data.message ?? 'Gagal menambah ke keranjang.');
+            showToast(data.message ?? 'Gagal menambah ke keranjang.', 'error');
         }
     })
-    .catch(() => alert('Gagal menambah ke keranjang.'));
+    .catch(error => {
+        console.error('Cart Error:', error);
+        showToast('Gagal menambah ke keranjang.', 'error');
+    });
 });
 </script>
 @endpush

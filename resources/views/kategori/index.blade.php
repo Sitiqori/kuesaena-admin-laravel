@@ -89,7 +89,7 @@ function saveKategori() {
 
     if (!name) { alert('Nama kategori harus diisi'); return; }
 
-    const url = editId ? `/kategori/${editId}` : '/kategori';
+    const url = editId ? '{{ url('/kategori') }}/' + editId : '{{ url('/kategori') }}';
     const body = new URLSearchParams({ name, description: desc, _token: '{{ csrf_token() }}' });
     if (editId) body.append('_method', 'PUT');
 
@@ -103,7 +103,7 @@ function saveKategori() {
 
 function deleteKategori(id) {
     if (!confirm('Yakin hapus kategori ini?')) return;
-    fetch(`/kategori/${id}`, {
+    fetch('{{ url('/kategori') }}/' + id, {
         method: 'POST',
         body: new URLSearchParams({ _method: 'DELETE', _token: '{{ csrf_token() }}' })
     }).then(r => r.json()).then(data => {

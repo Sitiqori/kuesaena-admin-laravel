@@ -66,6 +66,18 @@ class MenuController extends Controller
 
         $products = $query->paginate(12)->withQueryString();
 
-        return view('customer.pages.menu', compact('categories', 'products', 'search'));
+        $wishlistIds = [];
+        $cartQuantities = [];
+        if (auth()->check()) {
+            $user = auth()->user();
+            $wishlistIds = $user->wishlists()->pluck('product_id')->toArray();
+            $cartQuantities = \App\Models\Cart::where('user_id', $user->id)
+                ->selectRaw('product_id, SUM(quantity) as total_qty')
+                ->groupBy('product_id')
+                ->pluck('total_qty', 'product_id')
+                ->toArray();
+        }
+
+        return view('customer.pages.menu', compact('categories', 'products', 'search', 'wishlistIds', 'cartQuantities'));
     }
 }

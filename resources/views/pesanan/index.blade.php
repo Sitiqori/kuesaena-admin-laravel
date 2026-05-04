@@ -616,7 +616,7 @@ function updateStatus(orderId, status) {
     };
 
     if (confirm(messages[status])) {
-        fetch(`/pesanan/${orderId}/update-status`, {
+        fetch('{{ url('/pesanan') }}/' + orderId + '/update-status', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -641,7 +641,7 @@ function updateStatus(orderId, status) {
 
 // Show Order Detail
 function showOrderDetail(orderId) {
-    fetch(`/pesanan/${orderId}`)
+    fetch('{{ url('/pesanan') }}/' + orderId)
         .then(response => response.json())
         .then(data => {
             const order = data.order;
