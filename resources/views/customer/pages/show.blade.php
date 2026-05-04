@@ -200,47 +200,70 @@
 
         <div class="action-bar">
             <div class="container">
-                <div class="action-bar-inner">
+                
 
-                    <button class="fav-btn" id="fav-btn" type="button">
-                        <i class="far fa-heart"></i> Favorite
-                    </button>
+            <div class="action-bar-inner">
 
-                    <div class="action-sep"></div>
+    {{-- WISHLIST BUTTON --}}
+    @php
+        $isWishlisted = Auth::check() && Auth::user()->wishlists()->where('product_id', $product->id)->exists();
+    @endphp
+    <button class="fav-btn" type="button" onclick="toggleWishlist({{ $product->id }}, this.querySelector('i'))">
+        <i class="{{ $isWishlisted ? 'fas' : 'far' }} fa-heart" 
+           style="color: {{ $isWishlisted ? '#e74c3c' : '#888' }};"></i> 
+        Wishlist
+    </button>
 
-                    {{-- Size selector — hanya muncul kalau has_size = true --}}
-                    @if($product->has_size)
-                    <div class="size-group" id="size-group">
-                        @if($product->price_s)
-                        <button class="size-btn" data-size="S" data-price="{{ $product->price_s }}" type="button">S</button>
-                        @endif
-                        @if($product->price_m)
-                        <button class="size-btn" data-size="M" data-price="{{ $product->price_m }}" type="button">M</button>
-                        @endif
-                        @if($product->price_l)
-                        <button class="size-btn" data-size="L" data-price="{{ $product->price_l }}" type="button">L</button>
-                        @endif
-                        @if($product->price_xl)
-                        <button class="size-btn" data-size="XL" data-price="{{ $product->price_xl }}" type="button">XL</button>
-                        @endif
-                    </div>
-                    <div class="action-sep"></div>
-                    @endif
+    <div class="action-sep"></div>
 
-                    <span class="detail-price" id="detail-price">
-                        @php
-                            $defaultPrice = $product->has_size
-                                ? ($product->price_s ?? $product->price_m ?? $product->price_l ?? $product->price_xl ?? $product->price)
-                                : $product->price;
-                        @endphp
-                        Rp {{ number_format($defaultPrice, 0, ',', '.') }}
-                    </span>
+    {{-- LIKE BUTTON --}}
+    @php
+        $isLiked = Auth::check() && Auth::user()->productLikes()->where('product_id', $product->id)->exists();
+    @endphp
+    <button class="fav-btn" type="button" onclick="toggleLike({{ $product->id }}, this.querySelector('i'))" style="gap: 4px;">
+        <i class="{{ $isLiked ? 'fas' : 'far' }} fa-thumbs-up" 
+           style="color: {{ $isLiked ? '#27ae60' : '#888' }};"></i> 
+        Like
+        <span class="like-count-{{ $product->id }}" style="font-size: 13px; margin-left: 2px;">({{ $product->likes()->count() }})</span>
+    </button>
 
-                    <button class="cart-action-btn" id="add-cart-btn" type="button" title="Tambah ke Keranjang">
-                        <i class="fas fa-shopping-cart"></i>
-                    </button>
+    <div class="action-sep"></div>
 
-                </div>
+    {{-- Size selector — hanya muncul kalau has_size = true --}}
+    @if($product->has_size)
+    <div class="size-group" id="size-group">
+        @if($product->price_s)
+        <button class="size-btn" data-size="S" data-price="{{ $product->price_s }}" type="button">S</button>
+        @endif
+        @if($product->price_m)
+        <button class="size-btn" data-size="M" data-price="{{ $product->price_m }}" type="button">M</button>
+        @endif
+        @if($product->price_l)
+        <button class="size-btn" data-size="L" data-price="{{ $product->price_l }}" type="button">L</button>
+        @endif
+        @if($product->price_xl)
+        <button class="size-btn" data-size="XL" data-price="{{ $product->price_xl }}" type="button">XL</button>
+        @endif
+    </div>
+    <div class="action-sep"></div>
+    @endif
+
+    <span class="detail-price" id="detail-price">
+        @php
+            $defaultPrice = $product->has_size
+                ? ($product->price_s ?? $product->price_m ?? $product->price_l ?? $product->price_xl ?? $product->price)
+                : $product->price;
+        @endphp
+        Rp {{ number_format($defaultPrice, 0, ',', '.') }}
+    </span>
+
+    <button class="cart-action-btn" id="add-cart-btn" type="button" title="Tambah ke Keranjang">
+        <i class="fas fa-shopping-cart"></i>
+    </button>
+
+</div>
+
+
             </div>
         </div>
     </section>
@@ -252,41 +275,64 @@
                 <h2 class="popular-title">Popular Products</h2>
             </div>
 
+            
             <div class="popular-grid">
-                @forelse($popularProducts as $pop)
-                    @php
-                        $popImg   = $pop->image ? asset('storage/' . $pop->image) : 'https://images.unsplash.com/photo-1621303837174-89787a7d4729?w=400&q=80';
-                        $popPrice = $pop->price ?? 0;
-                        $popName  = $pop->name ?? 'Produk';
-                    @endphp
-                    <a href="{{ route('customer.product.show', $pop->id) }}"
-                       class="pop-card" style="text-decoration:none;color:inherit;">
-                        <div class="pop-card__img-wrap">
-                            <div class="pop-badge"><i class="fas fa-tag"></i> Get up to 10% off Today Only!</div>
-                            <img src="{{ $popImg }}" alt="{{ $popName }}"
-                                 onerror="this.src='https://images.unsplash.com/photo-1621303837174-89787a7d4729?w=400&q=80'">
+    @forelse($popularProducts as $pop)
+        @php
+            $popImg   = $pop->image ? asset('storage/' . $pop->image) : 'https://images.unsplash.com/photo-1621303837174-89787a7d4729?w=400&q=80';
+            $popPrice = $pop->price ?? 0;
+            $popName  = $pop->name ?? 'Produk';
+            $isWishlistedPop = Auth::check() && Auth::user()->wishlists()->where('product_id', $pop->id)->exists();
+            $isLikedPop = Auth::check() && Auth::user()->productLikes()->where('product_id', $pop->id)->exists();
+        @endphp
+        <div class="pop-card" style="text-decoration:none;color:inherit; cursor: pointer;">
+            <a href="{{ route('customer.product.show', $pop->id) }}" style="text-decoration:none;color:inherit;">
+                <div class="pop-card__img-wrap">
+                    <div class="pop-badge"><i class="fas fa-tag"></i> Get up to 10% off Today Only!</div>
+                    <img src="{{ $popImg }}" alt="{{ $popName }}"
+                         onerror="this.src='https://images.unsplash.com/photo-1621303837174-89787a7d4729?w=400&q=80'">
+                </div>
+                <div class="pop-card__body">
+                    <div class="pop-card__top">
+                        <span class="pop-card__name">{{ $popName }}</span>
+                        <div class="pop-card__actions">
+                            <!-- Wishlist Button -->
+                            <button class="pop-action-btn" type="button" 
+                                    onclick="event.stopPropagation(); toggleWishlistPop({{ $pop->id }}, this.querySelector('i'))">
+                                <i class="{{ $isWishlistedPop ? 'fas' : 'far' }} fa-heart" 
+                                   style="color: {{ $isWishlistedPop ? '#e74c3c' : '#888' }}; font-size: 12px;"></i>
+                            </button>
+                            
+                            <!-- Like Button -->
+                            <button class="pop-action-btn" type="button" 
+                                    onclick="event.stopPropagation(); toggleLikePop({{ $pop->id }}, this)">
+                                <i class="{{ $isLikedPop ? 'fas' : 'far' }} fa-thumbs-up" 
+                                   style="color: {{ $isLikedPop ? '#27ae60' : '#888' }}; font-size: 12px;"></i>
+                                <span class="pop-like-count-{{ $pop->id }}" style="font-size: 9px; margin-left: 2px;">({{ $pop->likes()->count() }})</span>
+                            </button>
+                            
+                            <!-- Cart Button -->
+                            <button class="pop-action-btn" type="button" 
+                                    onclick="event.stopPropagation(); tambahKeKeranjangPop({{ $pop->id }})">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
                         </div>
-                        <div class="pop-card__body">
-                            <div class="pop-card__top">
-                                <span class="pop-card__name">{{ $popName }}</span>
-                                <div class="pop-card__actions">
-                                    <button class="pop-action-btn" type="button" onclick="event.preventDefault()"><i class="far fa-heart"></i></button>
-                                    <button class="pop-action-btn" type="button" onclick="event.preventDefault()"><i class="fas fa-shopping-cart"></i></button>
-                                </div>
-                            </div>
-                            <div class="pop-price-row">
-                                <span class="pop-price-current">Rp {{ number_format($popPrice, 0, ',', '.') }}</span>
-                            </div>
-                            <p class="pop-po">PO 5 hari</p>
-                            <div class="pop-footer">
-                                <div class="pop-stars">@for($s=0;$s<5;$s++)<i class="fas fa-star"></i>@endfor</div>
-                            </div>
-                        </div>
-                    </a>
-                @empty
-                    <p style="color:#999; grid-column:1/-1; text-align:center;">Belum ada produk lain.</p>
-                @endforelse
-            </div>
+                    </div>
+                    <div class="pop-price-row">
+                        <span class="pop-price-current">Rp {{ number_format($popPrice, 0, ',', '.') }}</span>
+                    </div>
+                    <p class="pop-po">PO 5 hari</p>
+                    <div class="pop-footer">
+                        <div class="pop-stars">@for($s=0;$s<5;$s++)<i class="fas fa-star"></i>@endfor</div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    @empty
+        <p style="color:#999; grid-column:1/-1; text-align:center;">Belum ada produk lain.</p>
+    @endforelse
+</div>
+
 
             <div class="pop-view-all">
                 <a href="{{ route('customer.menu') }}">VIEW ALL <i class="fas fa-long-arrow-alt-right"></i></a>
@@ -299,56 +345,219 @@
 
 @push('scripts')
 <script>
-const productId   = {{ $product->id }};
-const hasSize     = {{ $product->has_size ? 'true' : 'false' }};
-const basePrice   = {{ $defaultPrice }};
+    // CSRF Token
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}';
 
-let selectedSize  = null;
-let selectedPrice = basePrice;
+    const productId   = {{ $product->id }};
+    const hasSize     = {{ $product->has_size ? 'true' : 'false' }};
+    const basePrice   = {{ $defaultPrice }};
 
-// Set default ke size pertama yang tersedia
-if (hasSize) {
-    const firstBtn = document.querySelector('.size-btn');
-    if (firstBtn) {
-        firstBtn.classList.add('active');
-        selectedSize  = firstBtn.dataset.size;
-        selectedPrice = parseFloat(firstBtn.dataset.price);
+    let selectedSize  = null;
+    let selectedPrice = basePrice;
+
+    // Set default ke size pertama yang tersedia
+    if (hasSize) {
+        const firstBtn = document.querySelector('.size-btn');
+        if (firstBtn) {
+            firstBtn.classList.add('active');
+            selectedSize  = firstBtn.dataset.size;
+            selectedPrice = parseFloat(firstBtn.dataset.price);
+        }
     }
-}
 
-// Klik size
-document.querySelectorAll('.size-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        selectedSize  = btn.dataset.size;
-        selectedPrice = parseFloat(btn.dataset.price);
-        document.getElementById('detail-price').textContent =
-            'Rp ' + selectedPrice.toLocaleString('id-ID');
+    // Klik size
+    document.querySelectorAll('.size-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            selectedSize  = btn.dataset.size;
+            selectedPrice = parseFloat(btn.dataset.price);
+            document.getElementById('detail-price').textContent =
+                'Rp ' + selectedPrice.toLocaleString('id-ID');
+        });
     });
-});
 
-// Favorite
-const favBtn = document.getElementById('fav-btn');
-if (favBtn) {
-    favBtn.addEventListener('click', () => {
-        favBtn.classList.toggle('active');
-        const icon = favBtn.querySelector('i');
-        icon.classList.toggle('far');
-        icon.classList.toggle('fas');
+    // ✅ WISHLIST - LANGSUNG BERUBAH TANPA REFRESH
+    window.toggleWishlist = function(productId, element) {
+        event.stopPropagation();
+        
+        if (!{{ Auth::check() ? 'true' : 'false' }}) {
+            window.location.href = '/login';
+            return;
+        }
+        
+        // Langsung ubah warna
+        if (element.classList.contains('fas')) {
+            element.classList.remove('fas');
+            element.classList.add('far');
+            element.style.color = '#888';
+        } else {
+            element.classList.remove('far');
+            element.classList.add('fas');
+            element.style.color = '#e74c3c';
+        }
+        
+        // Kirim ke server (background)
+        fetch(`/wishlist/toggle/${productId}`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'Content-Type': 'application/json',
+            }
+        })
+        .catch(err => console.error('Wishlist error:', err));
+    };
+
+    // ✅ LIKE - LANGSUNG BERUBAH WARNA & COUNT TANPA REFRESH
+    window.toggleLike = function(productId, element) {
+        event.stopPropagation();
+        
+        if (!{{ Auth::check() ? 'true' : 'false' }}) {
+            window.location.href = '/login';
+            return;
+        }
+        
+        // Ambil elemen count
+        let countSpan = document.querySelector(`.like-count-${productId}`);
+        let currentCount = parseInt(countSpan?.innerText?.replace(/[()]/g, '') || 0);
+        
+        // Langsung ubah warna & count
+        if (element.classList.contains('fas')) {
+            // Sudah like → jadi unlike
+            element.classList.remove('fas');
+            element.classList.add('far');
+            element.style.color = '#888';
+            if (countSpan) countSpan.innerText = `(${currentCount - 1})`;
+        } else {
+            // Belum like → jadi like
+            element.classList.remove('far');
+            element.classList.add('fas');
+            element.style.color = '#27ae60';
+            if (countSpan) countSpan.innerText = `(${currentCount + 1})`;
+        }
+        
+        // Kirim ke server (background)
+        fetch(`/product/like/${productId}`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'Content-Type': 'application/json',
+            }
+        })
+        .catch(err => {
+            console.error('Like error:', err);
+            // Revert jika gagal
+            if (element.classList.contains('fas')) {
+                element.classList.remove('fas');
+                element.classList.add('far');
+                element.style.color = '#888';
+                if (countSpan) countSpan.innerText = `(${currentCount})`;
+            } else {
+                element.classList.remove('far');
+                element.classList.add('fas');
+                element.style.color = '#27ae60';
+                if (countSpan) countSpan.innerText = `(${currentCount})`;
+            }
+        });
+    };
+
+    // Add to cart
+    document.getElementById('add-cart-btn').addEventListener('click', () => {
+        if (hasSize && !selectedSize) {
+            alert('Pilih ukuran terlebih dahulu.');
+            return;
+        }
+
+        fetch('{{ route("keranjang.tambah") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+                product_id: productId,
+                quantity: 1,
+                size: selectedSize ?? '',
+                flavor: '',
+                note: ''
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                const btn = document.getElementById('add-cart-btn');
+                btn.style.background  = '#5C2D0E';
+                btn.style.color       = '#fff';
+                btn.style.borderColor = '#5C2D0E';
+                btn.style.transform   = 'scale(1.15)';
+                setTimeout(() => { btn.style.transform = ''; }, 200);
+                
+                // Update badge keranjang di navbar
+                if (typeof updateCartBadge === 'function') {
+                    updateCartBadge(1);
+                }
+                showToast('🛒 ' + data.message);
+            } else {
+                showToast(data.message ?? 'Gagal menambah ke keranjang.', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Cart Error:', error);
+            showToast('Gagal menambah ke keranjang.', 'error');
+        });
     });
-}
+    
+    // Toast notifikasi (opsional)
+    function showToast(message) {
+        let toast = document.getElementById('detail-toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'detail-toast';
+            toast.style.cssText = `
+                position: fixed; bottom: 24px; right: 24px;
+                background: #5C2D0E; color: #fff;
+                padding: 12px 20px; border-radius: 10px;
+                font-size: 13px; font-weight: 500;
+                box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+                z-index: 99999; opacity: 0;
+                transition: opacity 0.3s ease;
+                pointer-events: none;
+            `;
+            document.body.appendChild(toast);
+        }
+        toast.innerText = message;
+        toast.style.opacity = '1';
+        clearTimeout(toast._timeout);
+        toast._timeout = setTimeout(() => { toast.style.opacity = '0'; }, 2000);
+    }
 
-// Add to cart
-document.getElementById('add-cart-btn').addEventListener('click', () => {
-    if (hasSize && !selectedSize) {
-        alert('Pilih ukuran terlebih dahulu.');
+    // ✅ WISHLIST UNTUK POPULAR PRODUCTS
+window.toggleWishlistPop = function(productId, element) {
+    event.stopPropagation();
+    
+    if (!{{ Auth::check() ? 'true' : 'false' }}) {
+        window.location.href = '/login';
         return;
     }
-
-    fetch('{{ route("keranjang.tambah") }}', {
+    
+    // Langsung ubah warna
+    if (element.classList.contains('fas')) {
+        element.classList.remove('fas');
+        element.classList.add('far');
+        element.style.color = '#888';
+    } else {
+        element.classList.remove('far');
+        element.classList.add('fas');
+        element.style.color = '#e74c3c';
+    }
+    
+    // Kirim ke server
+    fetch(`/wishlist/toggle/${productId}`, {
         method: 'POST',
         headers: {
+            'X-CSRF-TOKEN': csrfToken,
             'Content-Type': 'application/json',
             'Accept': 'application/json',
             'X-Requested-With': 'XMLHttpRequest',
@@ -362,15 +571,99 @@ document.getElementById('add-cart-btn').addEventListener('click', () => {
             note: ''
         })
     })
-    .then(res => res.json())
-    .then(data => {
+    .catch(err => console.error('Wishlist error:', err));
+};
+
+// ✅ LIKE UNTUK POPULAR PRODUCTS
+window.toggleLikePop = function(productId, element) {
+    event.stopPropagation();
+    
+    if (!{{ Auth::check() ? 'true' : 'false' }}) {
+        window.location.href = '/login';
+        return;
+    }
+    
+    // Ambil ikon dan count
+    const icon = element.querySelector('i');
+    const countSpan = document.querySelector(`.pop-like-count-${productId}`);
+    let currentCount = parseInt(countSpan?.innerText?.replace(/[()]/g, '') || 0);
+    
+    // Langsung ubah warna & count
+    if (icon.classList.contains('fas')) {
+        icon.classList.remove('fas');
+        icon.classList.add('far');
+        icon.style.color = '#888';
+        if (countSpan) countSpan.innerText = `(${currentCount - 1})`;
+    } else {
+        icon.classList.remove('far');
+        icon.classList.add('fas');
+        icon.style.color = '#27ae60';
+        if (countSpan) countSpan.innerText = `(${currentCount + 1})`;
+    }
+    
+    // Kirim ke server
+    fetch(`/product/like/${productId}`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': csrfToken,
+            'Content-Type': 'application/json',
+        }
+    })
+    .catch(err => {
+        console.error('Like error:', err);
+        // Revert jika gagal
+        if (icon.classList.contains('fas')) {
+            icon.classList.remove('fas');
+            icon.classList.add('far');
+            icon.style.color = '#888';
+            if (countSpan) countSpan.innerText = `(${currentCount})`;
+        } else {
+            icon.classList.remove('far');
+            icon.classList.add('fas');
+            icon.style.color = '#27ae60';
+            if (countSpan) countSpan.innerText = `(${currentCount})`;
+        }
+    });
+};
+
+// ✅ TAMBAH KE KERANJANG UNTUK POPULAR PRODUCTS
+window.tambahKeKeranjangPop = async function(productId) {
+    event.stopPropagation();
+    
+    if (!{{ Auth::check() ? 'true' : 'false' }}) {
+        window.location.href = '/login';
+        return;
+    }
+    
+    try {
+        const response = await fetch('{{ route("keranjang.tambah") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+                product_id: productId,
+                quantity: 1,
+                size: '',
+                flavor: '',
+                note: ''
+            })
+        });
+        
+        const data = await response.json();
+        
         if (data.success) {
-            const btn = document.getElementById('add-cart-btn');
-            btn.style.background  = '#5C2D0E';
-            btn.style.color       = '#fff';
-            btn.style.borderColor = '#5C2D0E';
-            btn.style.transform   = 'scale(1.15)';
-            setTimeout(() => { btn.style.transform = ''; }, 200);
+            const btn = element;
+            if (btn) {
+                btn.style.background  = '#5C2D0E';
+                btn.style.color       = '#fff';
+                btn.style.borderColor = '#5C2D0E';
+                btn.style.transform   = 'scale(1.15)';
+                setTimeout(() => { btn.style.transform = ''; }, 200);
+            }
             
             if (typeof updateCartBadge === 'function') {
                 updateCartBadge(1);
@@ -379,11 +672,10 @@ document.getElementById('add-cart-btn').addEventListener('click', () => {
         } else {
             showToast(data.message ?? 'Gagal menambah ke keranjang.', 'error');
         }
-    })
-    .catch(error => {
-        console.error('Cart Error:', error);
+    } catch (err) {
+        console.error('Cart error:', err);
         showToast('Gagal menambah ke keranjang.', 'error');
-    });
-});
+    }
+};
 </script>
 @endpush

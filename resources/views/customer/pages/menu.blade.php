@@ -371,7 +371,7 @@
             </div>
 
             <!-- Tema (Disabled - No DB Columns) -->
-            <!--
+            <!-- h 
             <div class="filter-group">
                 <div class="filter-group-title">Tema</div>
                 <label class="filter-item">Ulang Tahun <input type="checkbox"></label>
@@ -534,9 +534,17 @@
 </div>
 @endsection
 
+
 @push('scripts')
 <script>
-    function tambahKeKeranjang(productId) {
+    // CSRF Token
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}';
+
+    // ✅ WISHLIST - LANGSUNG BERUBAH WARNA TANPA REFRESH
+    window.toggleWishlist = function(productId, element) {
+        event.stopPropagation();
+        
+        // Cek login
         if (!{{ Auth::check() ? 'true' : 'false' }}) {
             window.location.href = '{{ route('login') }}';
             return;
@@ -612,7 +620,7 @@
         .catch(() => console.error('Wishlist error'));
     };
 
-    // Like Toggle
+    // ✅ LIKE - LANGSUNG BERUBAH WARNA & COUNT TANPA KEDIP
     window.toggleLike = function(productId, element) {
         fetch('{{ url('/product/like') }}/' + productId, {
             method: 'POST',
@@ -623,12 +631,15 @@
                 'X-Requested-With': 'XMLHttpRequest'
             }
         })
-        .then(res => res.json())
-        .then(data => {
-            const countSpan = document.querySelector(`.like-count-${productId}`);
-            if (countSpan) countSpan.innerText = data.total_likes;
-
-            if (data.liked) {
+        .catch(err => {
+            console.error('Error:', err);
+            // Jika gagal, revert perubahan (opsional)
+            if (element.classList.contains('fas')) {
+                element.classList.remove('fas');
+                element.classList.add('far');
+                element.style.color = '#888';
+                if (countSpan) countSpan.innerText = currentCount;
+            } else {
                 element.classList.remove('far');
                 element.classList.add('fas');
                 element.style.color = '#27ae60';
@@ -639,8 +650,7 @@
                 element.style.color = '';
                 if (typeof showToast === 'function') showToast('Batal menyukai', 'info');
             }
-        })
-        .catch(() => console.error('Like error'));
+        });
     };
 
     // Local showToast override logic removed to let app.blade.php's global showToast handle it.
