@@ -469,19 +469,28 @@
                             <a href="{{ route('customer.product.show', $product->id) }}" style="text-decoration:none; color:inherit; max-width: 70%;" onclick="event.preventDefault();">
                                 <div class="product-name">{{ $product->name }}</div>
                             </a>
-                        <div class="product-actions">
-                            <i class="{{ in_array($product->id, $wishlistIds ?? []) ? 'fas' : 'far' }} fa-heart" 
-                               style="cursor:pointer; {{ in_array($product->id, $wishlistIds ?? []) ? 'color:#e67e22;' : '' }}" 
-                               onclick="event.stopPropagation(); toggleWishlist({{ $product->id }}, this)"></i>
-                               
-                            <i class="{{ $product->likes()->where('user_id', Auth::id())->exists() ? 'fas' : 'far' }} fa-thumbs-up" 
-                               style="cursor:pointer; {{ $product->likes()->where('user_id', Auth::id())->exists() ? 'color:#27ae60;' : '' }}" 
-                               onclick="event.stopPropagation(); toggleLike({{ $product->id }}, this)"></i>
-                            <span class="like-count-{{ $product->id }}" style="font-size:9px; margin-left:2px; margin-right:4px;">{{ $product->likes()->count() }}</span>
                             
-                            <i class="fas fa-shopping-cart" style="cursor:pointer;" onclick="event.stopPropagation(); tambahKeKeranjang({{ $product->id }})"></i>
-                            <span class="cart-count-{{ $product->id }}" style="font-size:9px; margin-left:2px;">{{ $cartQuantities[$product->id] ?? 0 }}</span>
-                        </div>  
+                             <div class="product-actions">
+                    @php
+                        $isWishlisted = Auth::check() && Auth::user()->wishlists()->where('product_id', $product->id)->exists();
+                        $isLiked = Auth::check() && Auth::user()->productLikes()->where('product_id', $product->id)->exists();
+                    @endphp
+                    
+                    <i class="{{ $isWishlisted ? 'fas' : 'far' }} fa-heart" 
+                       style="cursor:pointer; color: {{ $isWishlisted ? '#e74c3c' : '#888' }};" 
+                       onclick="event.stopPropagation(); toggleWishlist({{ $product->id }}, this)"></i>
+                    
+                    <i class="{{ $isLiked ? 'fas' : 'far' }} fa-thumbs-up" 
+                       style="cursor:pointer; color: {{ $isLiked ? '#27ae60' : '#888' }};" 
+                       onclick="event.stopPropagation(); toggleLike({{ $product->id }}, this)"></i>
+                    
+                    <span class="like-count-{{ $product->id }}" style="font-size:9px; margin-left:2px;">{{ $product->likes()->count() }}</span>
+                    
+                    <i class="fas fa-shopping-cart" style="cursor:pointer;" onclick="event.stopPropagation(); tambahKeKeranjang({{ $product->id }})"></i>
+                </div>
+                <!-- ⬆️ SAMPAI SINI ⬆️ -->   
+
+
                         </div>
                         <div class="product-price-row">
                             <span class="price-current">Rp {{ number_format($product->price, 0, ',', '.') }}</span>
@@ -546,89 +555,67 @@
         
         // Cek login
         if (!{{ Auth::check() ? 'true' : 'false' }}) {
-            window.location.href = '{{ route('login') }}';
+            window.location.href = '/login';
             return;
         }
-
-        fetch('{{ url('/keranjang/tambah') }}', {
+        
+        // 🔥 LANGSUNG UBAH WARNA (TANPA NUNGGU SERVER)
+        if (element.classList.contains('fas')) {
+            element.classList.remove('fas');
+            element.classList.add('far');
+            element.style.color = '#888';
+        } else {
+            element.classList.remove('far');
+            element.classList.add('fas');
+            element.style.color = '#e74c3c';
+        }
+        
+        // Kirim ke server (background) - TANPA update ulang
+        fetch(`/wishlist/toggle/${productId}`, {
             method: 'POST',
             headers: {
+                'X-CSRF-TOKEN': csrfToken,
                 'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({ product_id: productId, quantity: 1 })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                // Update badge keranjang di navbar
-                if (typeof updateCartBadge === 'function') {
-                    updateCartBadge(1);
-                }
-                
-                // Update specific product cart count
-                const countSpan = document.querySelector(`.cart-count-${productId}`);
-                if (countSpan) {
-                    countSpan.innerText = data.total_qty;
-                }
-
-                // Global showToast if available
-                if (typeof showToast === 'function') {
-                    showToast('🛒 ' + data.message, 'success');
-                }
-            } else {
-                if (typeof showToast === 'function') {
-                    showToast(data.message ?? 'Gagal menambahkan ke keranjang.', 'error');
-                }
             }
         })
-        .catch(error => {
-            console.error(error);
-            if (typeof showToast === 'function') {
-                showToast('Gagal menambahkan ke keranjang.', 'error');
-            }
-        });
-    }
-
-    // Wishlist Toggle
-    window.toggleWishlist = function(productId, element) {
-        fetch('{{ url('/wishlist/toggle') }}/' + productId, {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.status === 'added') {
-                element.classList.remove('far');
-                element.classList.add('fas');
-                element.style.color = '#e67e22';
-                if (typeof showToast === 'function') showToast('❤️ Ditambahkan ke wishlist!', 'success');
-            } else {
-                element.classList.remove('fas');
-                element.classList.add('far');
-                element.style.color = '';
-                if (typeof showToast === 'function') showToast('Dihapus dari wishlist', 'info');
-            }
-        })
-        .catch(() => console.error('Wishlist error'));
+        .catch(err => console.error('Error:', err));
     };
 
     // ✅ LIKE - LANGSUNG BERUBAH WARNA & COUNT TANPA KEDIP
     window.toggleLike = function(productId, element) {
-        fetch('{{ url('/product/like') }}/' + productId, {
+        event.stopPropagation();
+        
+        // Cek login
+        if (!{{ Auth::check() ? 'true' : 'false' }}) {
+            window.location.href = '/login';
+            return;
+        }
+        
+        // Ambil elemen count
+        let countSpan = document.querySelector(`.like-count-${productId}`);
+        let currentCount = parseInt(countSpan?.innerText || 0);
+        
+        // 🔥 LANGSUNG UBAH WARNA & COUNT
+        if (element.classList.contains('fas')) {
+            // Sudah like → jadi unlike
+            element.classList.remove('fas');
+            element.classList.add('far');
+            element.style.color = '#888';
+            if (countSpan) countSpan.innerText = currentCount - 1;
+        } else {
+            // Belum like → jadi like
+            element.classList.remove('far');
+            element.classList.add('fas');
+            element.style.color = '#27ae60';
+            if (countSpan) countSpan.innerText = currentCount + 1;
+        }
+        
+        // Kirim ke server (background) - JANGAN update ulang biar gak kedip
+        fetch(`/product/like/${productId}`, {
             method: 'POST',
             headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'X-CSRF-TOKEN': csrfToken,
                 'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
             }
         })
         .catch(err => {
@@ -643,16 +630,9 @@
                 element.classList.remove('far');
                 element.classList.add('fas');
                 element.style.color = '#27ae60';
-                if (typeof showToast === 'function') showToast('👍 Berhasil disukai!', 'success');
-            } else {
-                element.classList.remove('fas');
-                element.classList.add('far');
-                element.style.color = '';
-                if (typeof showToast === 'function') showToast('Batal menyukai', 'info');
+                if (countSpan) countSpan.innerText = currentCount;
             }
         });
     };
-
-    // Local showToast override logic removed to let app.blade.php's global showToast handle it.
 </script>
 @endpush

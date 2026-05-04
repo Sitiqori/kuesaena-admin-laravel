@@ -472,8 +472,6 @@
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest',
                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
             },
             body: JSON.stringify({
@@ -494,19 +492,13 @@
                 btn.style.transform   = 'scale(1.15)';
                 setTimeout(() => { btn.style.transform = ''; }, 200);
                 
-                // Update badge keranjang di navbar
-                if (typeof updateCartBadge === 'function') {
-                    updateCartBadge(1);
-                }
-                showToast('🛒 ' + data.message);
+                // Optional: tampilkan notifikasi
+                showToast('Produk ditambahkan ke keranjang!');
             } else {
-                showToast(data.message ?? 'Gagal menambah ke keranjang.', 'error');
+                alert(data.message ?? 'Gagal menambah ke keranjang.');
             }
         })
-        .catch(error => {
-            console.error('Cart Error:', error);
-            showToast('Gagal menambah ke keranjang.', 'error');
-        });
+        .catch(() => alert('Gagal menambah ke keranjang.'));
     });
     
     // Toast notifikasi (opsional)
@@ -559,17 +551,7 @@ window.toggleWishlistPop = function(productId, element) {
         headers: {
             'X-CSRF-TOKEN': csrfToken,
             'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        },
-        body: JSON.stringify({
-            product_id: productId,
-            quantity: 1,
-            size: selectedSize ?? '',
-            flavor: '',
-            note: ''
-        })
+        }
     })
     .catch(err => console.error('Wishlist error:', err));
 };
@@ -640,8 +622,6 @@ window.tambahKeKeranjangPop = async function(productId) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest',
                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
             },
             body: JSON.stringify({
@@ -656,25 +636,13 @@ window.tambahKeKeranjangPop = async function(productId) {
         const data = await response.json();
         
         if (data.success) {
-            const btn = element;
-            if (btn) {
-                btn.style.background  = '#5C2D0E';
-                btn.style.color       = '#fff';
-                btn.style.borderColor = '#5C2D0E';
-                btn.style.transform   = 'scale(1.15)';
-                setTimeout(() => { btn.style.transform = ''; }, 200);
-            }
-            
-            if (typeof updateCartBadge === 'function') {
-                updateCartBadge(1);
-            }
-            showToast('🛒 ' + data.message);
+            showToast('🛒 Ditambahkan ke keranjang!');
         } else {
-            showToast(data.message ?? 'Gagal menambah ke keranjang.', 'error');
+            alert(data.message ?? 'Gagal menambah ke keranjang.');
         }
-    } catch (err) {
-        console.error('Cart error:', err);
-        showToast('Gagal menambah ke keranjang.', 'error');
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Gagal menambah ke keranjang.');
     }
 };
 </script>
