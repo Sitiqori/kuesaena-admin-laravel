@@ -725,7 +725,22 @@
         <div class="categories-scroll">
             @forelse($categories as $cat)
                 @php
-                    $catImg = $cat->image ? asset('storage/' . $cat->image) : asset('images/products/' . ($loop->iteration % 10 + 1) . '.jpg');
+                    $firstProduct = $cat->products->first();
+                    $prodImg = $firstProduct?->image;
+                    $catFallbacks = [
+                        'Cake'      => 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&q=80',
+                        'Birthday'  => 'https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?w=400&q=80',
+                        'CupCake'   => 'https://images.unsplash.com/photo-1486427944299-d1955d23e34d?w=400&q=80',
+                        'Milkshake' => 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=400&q=80',
+                        'Roti'      => 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&q=80',
+                        'Minuman'   => 'https://images.unsplash.com/photo-1523677011781-c91d1bbe2f9e?q=80&w=693&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+                    ];
+                    $defaultFallback = $catFallbacks[$cat->name] ?? 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&q=80';
+                    $catImg = $cat->image 
+                        ? asset('storage/' . $cat->image) 
+                        : ($prodImg 
+                            ? (str_starts_with($prodImg, 'images/') ? asset($prodImg) : asset('storage/' . $prodImg))
+                            : $defaultFallback);
                 @endphp
                 <div class="category-card">
                     <img class="category-card__img"

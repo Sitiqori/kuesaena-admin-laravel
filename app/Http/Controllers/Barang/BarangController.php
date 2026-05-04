@@ -12,6 +12,36 @@ use Illuminate\Support\Facades\Storage;
 
 class BarangController extends Controller
 {
+    public function getNextCode(Request $request)
+    {
+    $prefixMap = [
+        'Cake'     => 'CK',
+        'CupCake'  => 'CC',
+        'Minuman'  => 'ML',
+        'Bento'    => 'BN',
+        'Birthday' => 'BD',
+        'Milkshake'=> 'MS',
+        'Roti'     => 'RT',
+    ];
+
+    $category = Category::find($request->category_id);
+    $prefix = $prefixMap[$category->name ?? ''] ?? 'PRD';
+
+    $last = Product::where('code', 'like', $prefix . '-%')
+        ->orderBy('code', 'desc')
+        ->first();
+
+    $nextNum = 1;
+    if ($last) {
+        $parts = explode('-', $last->code);
+        $nextNum = (int) end($parts) + 1;
+    }
+
+    $code = $prefix . '-' . str_pad($nextNum, 3, '0', STR_PAD_LEFT);
+
+    return response()->json(['code' => $code]);
+    }
+
     public function index()
     {
         $products = Product::with('category')->orderBy('code')->get();

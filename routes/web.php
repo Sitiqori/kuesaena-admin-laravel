@@ -143,6 +143,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/kasir', [KasirController::class, 'index'])->name('kasir.index');
     Route::post('/kasir/process', [KasirController::class, 'process'])->name('kasir.process');
     Route::get('/barang/export-pdf', [BarangController::class, 'exportPdf'])->name('barang.export-pdf');
+    Route::get('/barang/next-code', [BarangController::class, 'getNextCode'])->name('barang.next-code');
     Route::resource('barang', BarangController::class);
     Route::get('/pelanggan/{id}/edit', [PelangganController::class, 'edit'])->name('pelanggan.edit');
     Route::resource('pelanggan', PelangganController::class)->except(['edit']);

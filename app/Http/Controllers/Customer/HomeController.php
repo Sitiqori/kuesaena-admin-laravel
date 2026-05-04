@@ -18,7 +18,9 @@ class HomeController extends Controller
             ->get();
 
         // ✅ Kategori
-        $categories = Category::orderBy('name')->get()->unique('name')->values();
+        $categories = Category::with(['products' => function($q) {
+            $q->where('stock', '>', 0)->orderBy('id')->limit(1);
+        }])->orderBy('name')->get()->unique('name')->values();
 
         // ✅ Testimoni
         $testimonials = [

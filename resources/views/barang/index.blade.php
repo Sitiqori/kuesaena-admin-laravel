@@ -380,6 +380,19 @@
 <script>
 let currentEditId = null;
 
+// Auto-generate kode barang saat kategori dipilih (hanya untuk tambah, bukan edit)
+document.getElementById('category_id').addEventListener('change', function() {
+    if (currentEditId) return; // skip kalau lagi edit
+    const categoryId = this.value;
+    if (!categoryId) return;
+
+    fetch(`/barang/next-code?category_id=${categoryId}`)
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('code').value = data.code;
+        });
+});
+
 function toggleSizeFields(show) {
     document.getElementById('size-price-fields').style.display = show ? 'block' : 'none';
 }
