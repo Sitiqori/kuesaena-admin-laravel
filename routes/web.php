@@ -128,6 +128,7 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['is.admin'])->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         Route::get('/dashboard/export-pdf', [DashboardController::class, 'exportPdf'])->name('dashboard.export-pdf');
+        Route::resource('kategori', KategoriController::class);
         Route::get('/pengeluaran/export-pdf', [PengeluaranController::class, 'exportPdf'])->name('pengeluaran.export-pdf');
         Route::get('/pengeluaran/{id}/edit', [PengeluaranController::class, 'edit'])->name('pengeluaran.edit');
         Route::resource('pengeluaran', PengeluaranController::class)->except(['edit']);
@@ -139,7 +140,6 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // ADMIN & KASIR
-    Route::resource('kategori', KategoriController::class);
     Route::get('/kasir', [KasirController::class, 'index'])->name('kasir.index');
     Route::post('/kasir/process', [KasirController::class, 'process'])->name('kasir.process');
     Route::get('/barang/export-pdf', [BarangController::class, 'exportPdf'])->name('barang.export-pdf');

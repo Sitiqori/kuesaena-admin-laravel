@@ -371,7 +371,7 @@
             </div>
 
             <!-- Tema (Disabled - No DB Columns) -->
-            <!--
+            <!-- h 
             <div class="filter-group">
                 <div class="filter-group-title">Tema</div>
                 <label class="filter-item">Ulang Tahun <input type="checkbox"></label>
@@ -469,12 +469,28 @@
                             <a href="{{ route('customer.product.show', $product->id) }}" style="text-decoration:none; color:inherit; max-width: 70%;" onclick="event.preventDefault();">
                                 <div class="product-name">{{ $product->name }}</div>
                             </a>
-                            <div class="product-actions">
-                                    <i   class="far fa-heart" style="cursor:pointer;" onclick="event.stopPropagation(); toggleWishlist({{ $product->id }}, this)"></i>
-                                    <i   class="far fa-thumbs-up" style="cursor:pointer;" onclick="event.stopPropagation(); toggleLike({{ $product->id }}, this)"></i>
-                                 <span  pan class="like-count-{{ $product->id }}" style="font-size:9px; margin-left:2px;">{{ $product->likes()->count() }}</span>
-                                    <i   class="fas fa-shopping-cart" style="cursor:pointer;" onclick="event.stopPropagation(); tambahKeKeranjang({{ $product->id }})"></i>
-                                </div>  
+                            
+                             <div class="product-actions">
+                    @php
+                        $isWishlisted = Auth::check() && Auth::user()->wishlists()->where('product_id', $product->id)->exists();
+                        $isLiked = Auth::check() && Auth::user()->productLikes()->where('product_id', $product->id)->exists();
+                    @endphp
+                    
+                    <i class="{{ $isWishlisted ? 'fas' : 'far' }} fa-heart" 
+                       style="cursor:pointer; color: {{ $isWishlisted ? '#e74c3c' : '#888' }};" 
+                       onclick="event.stopPropagation(); toggleWishlist({{ $product->id }}, this)"></i>
+                    
+                    <i class="{{ $isLiked ? 'fas' : 'far' }} fa-thumbs-up" 
+                       style="cursor:pointer; color: {{ $isLiked ? '#27ae60' : '#888' }};" 
+                       onclick="event.stopPropagation(); toggleLike({{ $product->id }}, this)"></i>
+                    
+                    <span class="like-count-{{ $product->id }}" style="font-size:9px; margin-left:2px;">{{ $product->likes()->count() }}</span>
+                    
+                    <i class="fas fa-shopping-cart" style="cursor:pointer;" onclick="event.stopPropagation(); tambahKeKeranjang({{ $product->id }})"></i>
+                </div>
+                <!-- ⬆️ SAMPAI SINI ⬆️ -->   
+
+
                         </div>
                         <div class="product-price-row">
                             <span class="price-current">Rp {{ number_format($product->price, 0, ',', '.') }}</span>
@@ -527,116 +543,96 @@
 </div>
 @endsection
 
+
 @push('scripts')
 <script>
-    function tambahKeKeranjang(productId) {
+    // CSRF Token
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}';
+
+    // ✅ WISHLIST - LANGSUNG BERUBAH WARNA TANPA REFRESH
+    window.toggleWishlist = function(productId, element) {
+        event.stopPropagation();
+        
+        // Cek login
         if (!{{ Auth::check() ? 'true' : 'false' }}) {
             window.location.href = '/login';
             return;
         }
-
-        fetch('/keranjang/tambah', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({ product_id: productId, quantity: 1 })
-        })
-        .then(res => {
-            if (res.ok || res.redirected) {
-                // Update badge keranjang di navbar langsung tanpa reload
-                if (typeof updateCartBadge === 'function') {
-                    updateCartBadge(1);
-                }
-
-                // Flash notif kecil di pojok kanan bawah
-                showToast('🛒 Ditambahkan ke keranjang!');
-            }
-        })
-        .catch(() => showToast('Gagal menambahkan ke keranjang.', true));
-    }
-
-    // Wishlist Toggle
-    window.toggleWishlist = function(productId, element) {
+        
+        // 🔥 LANGSUNG UBAH WARNA (TANPA NUNGGU SERVER)
+        if (element.classList.contains('fas')) {
+            element.classList.remove('fas');
+            element.classList.add('far');
+            element.style.color = '#888';
+        } else {
+            element.classList.remove('far');
+            element.classList.add('fas');
+            element.style.color = '#e74c3c';
+        }
+        
+        // Kirim ke server (background) - TANPA update ulang
         fetch(`/wishlist/toggle/${productId}`, {
             method: 'POST',
             headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Content-Type': 'application/json'
+                'X-CSRF-TOKEN': csrfToken,
+                'Content-Type': 'application/json',
             }
         })
-        .then(res => res.json())
-        .then(data => {
-            if (data.status === 'added') {
-                element.classList.remove('far');
-                element.classList.add('fas');
-                element.style.color = '#e67e22';
-                showToast('❤️ Ditambahkan ke wishlist!');
-            } else {
-                element.classList.remove('fas');
-                element.classList.add('far');
-                element.style.color = '';
-                showToast('Dihapus dari wishlist');
-            }
-        })
-        .catch(() => console.error('Wishlist error'));
+        .catch(err => console.error('Error:', err));
     };
 
-    // Like Toggle
+    // ✅ LIKE - LANGSUNG BERUBAH WARNA & COUNT TANPA KEDIP
     window.toggleLike = function(productId, element) {
+        event.stopPropagation();
+        
+        // Cek login
+        if (!{{ Auth::check() ? 'true' : 'false' }}) {
+            window.location.href = '/login';
+            return;
+        }
+        
+        // Ambil elemen count
+        let countSpan = document.querySelector(`.like-count-${productId}`);
+        let currentCount = parseInt(countSpan?.innerText || 0);
+        
+        // 🔥 LANGSUNG UBAH WARNA & COUNT
+        if (element.classList.contains('fas')) {
+            // Sudah like → jadi unlike
+            element.classList.remove('fas');
+            element.classList.add('far');
+            element.style.color = '#888';
+            if (countSpan) countSpan.innerText = currentCount - 1;
+        } else {
+            // Belum like → jadi like
+            element.classList.remove('far');
+            element.classList.add('fas');
+            element.style.color = '#27ae60';
+            if (countSpan) countSpan.innerText = currentCount + 1;
+        }
+        
+        // Kirim ke server (background) - JANGAN update ulang biar gak kedip
         fetch(`/product/like/${productId}`, {
             method: 'POST',
             headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Content-Type': 'application/json'
+                'X-CSRF-TOKEN': csrfToken,
+                'Content-Type': 'application/json',
             }
         })
-        .then(res => res.json())
-        .then(data => {
-            const countSpan = document.querySelector(`.like-count-${productId}`);
-            if (countSpan) countSpan.innerText = data.total_likes;
-
-            if (data.liked) {
+        .catch(err => {
+            console.error('Error:', err);
+            // Jika gagal, revert perubahan (opsional)
+            if (element.classList.contains('fas')) {
+                element.classList.remove('fas');
+                element.classList.add('far');
+                element.style.color = '#888';
+                if (countSpan) countSpan.innerText = currentCount;
+            } else {
                 element.classList.remove('far');
                 element.classList.add('fas');
                 element.style.color = '#27ae60';
-                showToast('👍 Berhasil disukai!');
-            } else {
-                element.classList.remove('fas');
-                element.classList.add('far');
-                element.style.color = '';
-                showToast('Batal menyukai');
+                if (countSpan) countSpan.innerText = currentCount;
             }
-        })
-        .catch(() => console.error('Like error'));
+        });
     };
-
-    // Toast notif kecil (muncul di pojok kanan bawah, hilang otomatis)
-    function showToast(message, isError = false) {
-        let toast = document.getElementById('menu-toast');
-        if (!toast) {
-            toast = document.createElement('div');
-            toast.id = 'menu-toast';
-            toast.style.cssText = `
-                position: fixed; bottom: 24px; right: 24px;
-                background: #3B1A08; color: #fff;
-                padding: 12px 20px; border-radius: 10px;
-                font-size: 13px; font-weight: 500;
-                box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-                z-index: 99999; opacity: 0;
-                transition: opacity 0.3s ease;
-                pointer-events: none;
-            `;
-            document.body.appendChild(toast);
-        }
-        if (isError) toast.style.background = '#c0392b';
-        else toast.style.background = '#3B1A08';
-
-        toast.innerText = message;
-        toast.style.opacity = '1';
-        clearTimeout(toast._timeout);
-        toast._timeout = setTimeout(() => { toast.style.opacity = '0'; }, 2500);
-    }
 </script>
 @endpush
