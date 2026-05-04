@@ -358,7 +358,7 @@
                 <strong id="grand-total">Rp.{{ number_format($total, 0, ',', '.') }}</strong>
             </div>
 
-            <a href="{{ route('pembayaran.index') }}" class="btn-checkout">Checkout</a>
+            <a href="{{ route('checkout') }}" class="btn-checkout">Checkout</a>
         </div>
 
     @else

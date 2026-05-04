@@ -54,74 +54,76 @@ class User extends Authenticatable
         return $this->hasMany(UserRewardRedemption::class);
     }
 
-
-// app/Models/User.php
-
-// Wishlist & Like relations
-public function wishlists()
-{
-    return $this->hasMany(Wishlist::class);
-}
-
-public function productLikes()
-{
-    return $this->hasMany(ProductLike::class);
-}
-
-// Cek apakah user sudah like product tertentu
-public function hasLiked($productId)
-{
-    return $this->productLikes()->where('product_id', $productId)->exists();
-}
-
-// Cek apakah user sudah wishlist product tertentu  
-public function hasWishlisted($productId)
-{
-    return $this->wishlists()->where('product_id', $productId)->exists();
-}
-
-// Toggle like (simpan ke database)
-public function toggleLike($productId)
-{
-    $like = $this->productLikes()->where('product_id', $productId);
-    
-    if ($like->exists()) {
-        $like->delete();
-        return false; // Sudah unlike
-    } else {
-        $this->productLikes()->create([
-            'product_id' => $productId
-        ]);
-        return true; // Sudah like
+    // Wishlist & Like relations
+    public function wishlists()
+    {
+        return $this->hasMany(Wishlist::class);
     }
-}
 
-// Toggle wishlist (simpan ke database)
-public function toggleWishlist($productId)
-{
-    $wishlist = $this->wishlists()->where('product_id', $productId);
-    
-    if ($wishlist->exists()) {
-        $wishlist->delete();
-        return false; // Sudah dihapus dari wishlist
-    } else {
-        $this->wishlists()->create([
-            'product_id' => $productId
-        ]);
-        return true; // Sudah ditambahkan ke wishlist
+    public function productLikes()
+    {
+        return $this->hasMany(ProductLike::class);
     }
-}
 
-// Helpers
-public function getMaskedPhoneAttribute(): string
-{
-    if (!$this->phone) return '-';
-    $p = $this->phone;
-    if (strlen($p) > 6) {
-        return substr($p, 0, 4) . str_repeat('*', strlen($p) - 6) . substr($p, -2);
+    // 👇 TAMBAHKAN INI 👇
+    public function carts()
+    {
+        return $this->hasMany(Cart::class);
     }
-    return $p;
-}
+    // 👆 SAMPAI SINI 👆
 
+    // Cek apakah user sudah like product tertentu
+    public function hasLiked($productId)
+    {
+        return $this->productLikes()->where('product_id', $productId)->exists();
+    }
 
+    // Cek apakah user sudah wishlist product tertentu  
+    public function hasWishlisted($productId)
+    {
+        return $this->wishlists()->where('product_id', $productId)->exists();
+    }
+
+    // Toggle like (simpan ke database)
+    public function toggleLike($productId)
+    {
+        $like = $this->productLikes()->where('product_id', $productId);
+        
+        if ($like->exists()) {
+            $like->delete();
+            return false;
+        } else {
+            $this->productLikes()->create([
+                'product_id' => $productId
+            ]);
+            return true;
+        }
+    }
+
+    // Toggle wishlist (simpan ke database)
+    public function toggleWishlist($productId)
+    {
+        $wishlist = $this->wishlists()->where('product_id', $productId);
+        
+        if ($wishlist->exists()) {
+            $wishlist->delete();
+            return false;
+        } else {
+            $this->wishlists()->create([
+                'product_id' => $productId
+            ]);
+            return true;
+        }
+    }
+
+    // Helpers
+    public function getMaskedPhoneAttribute(): string
+    {
+        if (!$this->phone) return '-';
+        $p = $this->phone;
+        if (strlen($p) > 6) {
+            return substr($p, 0, 4) . str_repeat('*', strlen($p) - 6) . substr($p, -2);
+        }
+        return $p;
+    }
 }

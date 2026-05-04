@@ -415,6 +415,39 @@
             }
         });
     }
+    
+    // ===== UPDATE CART BADGE DI NAVBAR =====
+function updateCartBadge(count) {
+    // Cari tombol keranjang di navbar (yang memiliki icon fa-shopping-cart)
+    let cartBtn = document.querySelector('.action-btn i.fa-shopping-cart')?.closest('.action-btn');
+    let badge = cartBtn?.querySelector('.action-badge');
+    
+    if (badge) {
+        if (count > 0) {
+            badge.textContent = count > 99 ? '99+' : count;
+            badge.style.display = 'flex';
+        } else {
+            badge.style.display = 'none';
+        }
+    } else {
+        // Fallback: cari semua .action-badge yang berada di dalam .action-btn yang mengandung icon cart
+        let allBtns = document.querySelectorAll('.action-btn');
+        for (let btn of allBtns) {
+            if (btn.innerHTML.includes('fa-shopping-cart')) {
+                let b = btn.querySelector('.action-badge');
+                if (b) {
+                    if (count > 0) {
+                        b.textContent = count > 99 ? '99+' : count;
+                        b.style.display = 'flex';
+                    } else {
+                        b.style.display = 'none';
+                    }
+                }
+                break;
+            }
+        }
+    }
+}
 
     function escapeHtml(str) {
         if (!str) return '';
