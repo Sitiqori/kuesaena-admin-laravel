@@ -2,7 +2,6 @@
     $lowStockCount = \App\Models\Product::where('stock', '>', 0)
         ->whereColumn('stock', '<', 'min_stock')->count();
     $outOfStockCount = \App\Models\Product::where('stock', '<=', 0)->count();
-    $totalAlertCount = $lowStockCount + $outOfStockCount;
 @endphp
 
 <aside class="sidebar">
@@ -32,6 +31,12 @@
             @if($lowStockCount > 0)
                 <span style="background:#e67e22; color:white; border-radius:50%; padding:1px 6px; font-size:11px; font-weight:700; margin-left:4px;">{{ $lowStockCount }}</span>
             @endif
+        </a>
+
+        <a href="{{ route('kategori.index') }}" class="{{ request()->routeIs('kategori.*') ? 'active' : '' }}">
+            <i class="icon-tag"></i>
+            <span>Kategori</span>
+        </a>
 
         <a href="{{ route('pesanan.index') }}" class="{{ request()->routeIs('pesanan.*') ? 'active' : '' }}">
             <i class="icon-cart"></i>
