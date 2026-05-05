@@ -247,6 +247,16 @@
     justify-content: center;
 }
 
+.cart-toggle-btn i {
+    font-size: 12px;
+    font-weight: 900 !important;
+    color: #fff !important;
+    transition: color 0.2s;
+}
+.cart-toggle-btn.active i {
+    color: #e67e22 !important;
+}
+
 /* State aktif (sudah di keranjang) - HANYA UBAH WARNA & JADI SOLID */
 .cart-toggle-btn.active {
     color: #e67e22;  /* Warna oranye/coklat sesuai tema */
@@ -551,7 +561,7 @@
     
     <button class="cart-toggle-btn {{ $isInCart ? 'active' : '' }}" 
         onclick="toggleCart(this, {{ $product->id }})">
-    <i class="{{ $isInCart ? 'fas' : 'far' }} fa-shopping-cart"></i>
+    <i class="fas fa-shopping-cart"></i>
 </button>
 </div>
 
