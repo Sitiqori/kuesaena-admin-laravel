@@ -8,24 +8,6 @@
 
 <div style="max-width: 600px;">
 
-    {{-- WhatsApp --}}
-    <div class="notif-card">
-        <div>
-            <p class="notif-card-title">Notifikasi WhatsApp</p>
-            <p class="notif-card-desc">Notifikasi melalui WhatsApp API</p>
-        </div>
-        <form action="{{ route('customer.profil.notifikasi.update') }}" method="POST">
-            @csrf
-            <input type="hidden" name="field" value="notif_whatsapp">
-            <label class="toggle-wrap">
-                <input type="checkbox" name="notif_whatsapp" value="1"
-                    {{ $user->notif_whatsapp ? 'checked' : '' }}
-                    onchange="this.form.submit()">
-                <span class="toggle-slider"></span>
-            </label>
-        </form>
-    </div>
-
     {{-- Pesanan --}}
     <div class="notif-card">
         <div>

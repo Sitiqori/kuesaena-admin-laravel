@@ -3,14 +3,27 @@
 namespace App\Services;
 
 use App\Models\Notification;
+use App\Models\User;
 
 class NotificationService
 {
     /**
      * Kirim notifikasi ke user tertentu.
+     * Cek pengaturan notifikasi user sebelum membuat notifikasi.
      */
     public static function send(int $userId, string $type, string $title, string $body, ?string $actionUrl = null): void
     {
+        // Cek pengaturan notifikasi user
+        $user = User::find($userId);
+        if ($user) {
+            // Kalau notif_pesanan dimatikan, skip semua tipe pesanan
+            if ($type === 'pesanan' && !$user->notif_pesanan) return;
+            // Kalau notif_promo dimatikan, skip tipe promo
+            if ($type === 'promo' && !$user->notif_promo) return;
+            // Kalau notif_whatsapp dimatikan, skip tipe whatsapp
+            if ($type === 'whatsapp' && !$user->notif_whatsapp) return;
+        }
+
         $defaults = Notification::defaults($type);
 
         Notification::create([

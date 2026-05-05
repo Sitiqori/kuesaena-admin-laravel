@@ -17,6 +17,13 @@ class NotificationController extends Controller
         // Filter berdasarkan pengaturan notifikasi user
         $query = Notification::where('user_id', $user->id)->latest();
 
+        $allowed = [];
+        if ($user->notif_pesanan)  $allowed[] = 'pesanan';
+        if ($user->notif_promo)    $allowed[] = 'promo';
+        if ($user->notif_whatsapp) $allowed[] = 'whatsapp';
+        $allowed[] = 'sistem';
+        $query->whereIn('type', $allowed);
+
         $notifications = $query->get();
 
         // Mark all as read
@@ -31,14 +38,22 @@ class NotificationController extends Controller
     public function popup()
     {
         $user = Auth::user();
-        $notifications = Notification::where('user_id', $user->id)
-            ->latest()
-            ->take(5)
-            ->get();
 
-        $unread = Notification::where('user_id', $user->id)
-            ->where('is_read', false)
-            ->count();
+        // Filter berdasarkan pengaturan notifikasi user
+        $query = Notification::where('user_id', $user->id)->latest();
+
+        $allowed = [];
+        if ($user->notif_pesanan)  $allowed[] = 'pesanan';
+        if ($user->notif_promo)    $allowed[] = 'promo';
+        if ($user->notif_whatsapp) $allowed[] = 'whatsapp';
+        // Selalu tampilkan tipe 'sistem'
+        $allowed[] = 'sistem';
+
+        $query->whereIn('type', $allowed);
+
+        $notifications = $query->take(5)->get();
+
+        $unread = (clone $query)->where('is_read', false)->count();
 
         return response()->json([
             'notifications' => $notifications,

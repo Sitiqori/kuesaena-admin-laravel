@@ -204,8 +204,9 @@
             <div class="navbar-actions">
                 @auth
                 <div style="position:relative;">
-                    <button type="button" class="action-btn" onclick="toggleNotifPopup(event)" id="btn-notif">
-                        <i class="fas fa-bell"></i>
+                    <button type="button" class="action-btn" onclick="toggleNotifPopup(event)" id="btn-notif"
+                        data-notif-enabled="{{ Auth::check() && (Auth::user()->notif_pesanan || Auth::user()->notif_promo) ? '1' : '0' }}">
+<i class="fas fa-bell"></i>
                         <span class="action-badge" id="notif-badge" style="display:none;">0</span>
                     </button>
 

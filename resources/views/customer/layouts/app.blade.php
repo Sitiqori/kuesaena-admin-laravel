@@ -436,11 +436,15 @@
 
         // Also show loader on form submit (checkout, logout, dll)
         document.addEventListener('submit', function (e) {
-            // Skip AJAX forms (those with data-no-loader attribute)
+            // Skip AJAX forms
             if (e.target.dataset.noLoader) return;
-            // Skip DELETE method forms (hapus notifikasi, dll) — terlalu cepat
+            // Skip DELETE/PATCH method forms
             const method = e.target.querySelector('input[name="_method"]');
             if (method && (method.value === 'DELETE' || method.value === 'PATCH')) return;
+            // Skip cancel pesanan forms
+            if (e.target.action && e.target.action.includes('/cancel')) return;
+            // Skip batalkan forms (data-skip-loader)
+            if (e.target.dataset.skipLoader) return;
 
             const loader = document.getElementById('page-loader');
             if (!loader) return;
@@ -642,19 +646,7 @@ function dismissToast(toast) {
     setTimeout(() => toast.remove(), 400);
 }
 
-// ===== TAMPILKAN FLASH MESSAGE DARI LARAVEL =====
-@if(session('success'))
-    document.addEventListener('DOMContentLoaded', () =>
-        showToast('Berhasil', @json(session('success')), 'success'));
-@endif
-@if(session('error'))
-    document.addEventListener('DOMContentLoaded', () =>
-        showToast('Gagal', @json(session('error')), 'error'));
-@endif
-@if(session('info'))
-    document.addEventListener('DOMContentLoaded', () =>
-        showToast('Info', @json(session('info')), 'info'));
-@endif
+// Flash messages disabled
 </script>
 
 </body>

@@ -130,16 +130,13 @@
                 </button>
                 @endif
                 @if($order->status === 'pending')
-                <form action="{{ route('customer.pesanan.cancel', $order->id) }}" method="POST"
-                      onsubmit="return confirm('Batalkan pesanan {{ $order->order_number }}?')">
-                    @csrf
-                    <button type="submit"
-                        style="display:block; width:100%; padding:9px 16px; background:#fff; color:#c0392b; border:1.5px solid #c0392b; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; text-align:center; white-space:nowrap; transition:all 0.2s; font-family:inherit;"
-                        onmouseover="this.style.background='#c0392b'; this.style.color='#fff'"
-                        onmouseout="this.style.background='#fff'; this.style.color='#c0392b'">
-                        Batalkan Pesanan
-                    </button>
-                </form>
+                <button type="button"
+                    onclick="openCancelModal('{{ $order->id }}', '{{ $order->order_number }}')"
+                    style="display:block; width:100%; padding:9px 16px; background:#fff; color:#c0392b; border:1.5px solid #c0392b; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; text-align:center; white-space:nowrap; transition:all 0.2s; font-family:inherit;"
+                    onmouseover="this.style.background='#c0392b'; this.style.color='#fff'"
+                    onmouseout="this.style.background='#fff'; this.style.color='#c0392b'">
+                    Batalkan Pesanan
+                </button>
                 @endif
             </div>
         </div>
@@ -220,6 +217,56 @@ function setRating(val) {
 document.getElementById('modal-ulasan-global').addEventListener('click', function(e) {
     if (e.target === this) closeModalUlasan();
 });
+</script>
+@endpush
+
+
+{{-- ===== MODAL BATALKAN PESANAN ===== --}}
+<div id="modal-cancel-order" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); backdrop-filter:blur(3px); z-index:99999; align-items:center; justify-content:center;"
+     onclick="if(event.target===this) this.style.display='none'">
+    <div style="background:#fff; border-radius:20px; padding:36px 32px; width:400px; max-width:92vw; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+        <div style="width:68px; height:68px; background:#fff3f3; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 18px;">
+            <i class="fas fa-times-circle" style="font-size:30px; color:#c0392b;"></i>
+        </div>
+        <h3 style="font-size:18px; font-weight:700; color:#1A0A00; margin-bottom:8px;">Batalkan Pesanan?</h3>
+        <p style="font-size:14px; color:#8B6050; margin-bottom:6px; line-height:1.6;">
+            Kamu akan membatalkan pesanan
+        </p>
+        <p id="cancel-order-number" style="font-size:15px; font-weight:700; color:#3B1A08; margin-bottom:24px;"></p>
+        <div style="background:#fff3f3; border-radius:10px; padding:12px 16px; margin-bottom:24px; text-align:left;">
+            <p style="font-size:12px; color:#c0392b; line-height:1.7; margin:0;">
+                <i class="fas fa-exclamation-triangle" style="margin-right:6px;"></i>
+                Pesanan yang dibatalkan tidak dapat dikembalikan.
+            </p>
+        </div>
+        <div style="display:flex; gap:12px; justify-content:center;">
+            <button type="button"
+                onclick="document.getElementById('modal-cancel-order').style.display='none'"
+                style="min-width:130px; padding:11px 24px; border-radius:24px; border:1.5px solid #ddd; background:#fff; font-size:14px; cursor:pointer; font-family:inherit; color:#555; transition:all 0.2s;"
+                onmouseover="this.style.borderColor='#7B3F18'; this.style.color='#3B1A08'"
+                onmouseout="this.style.borderColor='#ddd'; this.style.color='#555'">
+                Kembali
+            </button>
+            <form id="form-cancel-order" method="POST" style="display:inline;" data-skip-loader="1">
+                @csrf
+                <button type="submit"
+                    style="min-width:130px; padding:11px 24px; border-radius:24px; background:#c0392b; color:#fff; border:none; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; transition:background 0.2s;"
+                    onmouseover="this.style.background='#a93226'"
+                    onmouseout="this.style.background='#c0392b'">
+                    Ya, Batalkan
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+function openCancelModal(orderId, orderNumber) {
+    document.getElementById('cancel-order-number').textContent = orderNumber;
+    document.getElementById('form-cancel-order').action = '/pesanan-saya/' + orderId + '/cancel';
+    document.getElementById('modal-cancel-order').style.display = 'flex';
+}
 </script>
 @endpush
 

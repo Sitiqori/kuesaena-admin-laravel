@@ -46,6 +46,19 @@ class CustomerPesananController extends Controller
         return view('customer.pages.pesanan.detail', compact('order'));
     }
 
+    public function cancel($id)
+    {
+        $order = Order::where('user_id', Auth::id())
+            ->where('status', 'pending')
+            ->findOrFail($id);
+
+        $order->update(['status' => 'cancelled']);
+
+        NotificationService::pesananDibatalkan(Auth::id(), $order->order_number);
+
+        return redirect()->route('customer.pesanan')->with('success', 'Pesanan ' . $order->order_number . ' berhasil dibatalkan.');
+    }
+
     public function storeReview(Request $request, $id)
     {
         $request->validate([
