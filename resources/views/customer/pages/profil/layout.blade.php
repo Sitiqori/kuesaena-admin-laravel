@@ -566,7 +566,7 @@
                         <span class="sidebar-group-title">Pesanan Saya</span>
                     </div>
                     <a href="{{ route('customer.pesanan') }}" class="sidebar-link {{ request()->routeIs('customer.pesanan') && request()->query('status','all')=='all' ? 'active' : '' }}">Semua</a>
-                    <a href="{{ route('customer.pesanan', ['status'=>'belum-bayar']) }}" class="sidebar-link {{ request()->query('status')=='belum-bayar' ? 'active' : '' }}">Belum Bayar</a>
+                    <a href="{{ route('customer.pesanan', ['status'=>'belum-bayar']) }}" class="sidebar-link {{ request()->query('status')=='belum-bayar' ? 'active' : '' }}">Belum Diproses</a>
                     <a href="{{ route('customer.pesanan', ['status'=>'sedang-dikemas']) }}" class="sidebar-link {{ request()->query('status')=='sedang-dikemas' ? 'active' : '' }}">Sedang Dikemas</a>
                     <a href="{{ route('customer.pesanan', ['status'=>'selesai']) }}" class="sidebar-link {{ request()->query('status')=='selesai' ? 'active' : '' }}">Selesai</a>
                     <a href="{{ route('customer.pesanan', ['status'=>'dibatalkan']) }}" class="sidebar-link {{ request()->query('status')=='dibatalkan' ? 'active' : '' }}">Dibatalkan</a>

@@ -14,7 +14,7 @@
 @php
     $tabs = [
         'all'            => 'Semua',
-        'belum-bayar'    => 'Belum Bayar',
+        'belum-bayar'    => 'Belum Diproses',
         'sedang-dikemas' => 'Sedang Dikemas',
         'selesai'        => 'Selesai',
         'dibatalkan'     => 'Dibatalkan',
