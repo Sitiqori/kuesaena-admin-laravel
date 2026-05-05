@@ -247,11 +247,6 @@
     justify-content: center;
 }
 
-.cart-toggle-btn i {
-    font-size: 12px;
-    transition: color 0.2s;
-}
-
 /* State aktif (sudah di keranjang) - HANYA UBAH WARNA & JADI SOLID */
 .cart-toggle-btn.active {
     color: #e67e22;  /* Warna oranye/coklat sesuai tema */
@@ -259,12 +254,6 @@
 
 .cart-toggle-btn.active i {
     font-weight: 900;  /* fas = solid */
-}
-
-/* State belum aktif (border) */
-.cart-toggle-btn i {
-    font-weight: 400;  /* far = border */
-    color: #888;
 }
 
 /* Efek klik pada tombol */
@@ -402,17 +391,6 @@
     width: auto;
     height: auto;
     transition: all 0.3s ease;
-}
-
-.cart-toggle-btn i {
-    font-size: 12px;
-    transition: all 0.3s ease;
-}
-
-/* State belum aktif: hanya icon (tanpa lingkaran) */
-.cart-toggle-btn i {
-    font-weight: 400;
-    color: #888;
 }
 
 /* State aktif: icon + lingkaran luar */
