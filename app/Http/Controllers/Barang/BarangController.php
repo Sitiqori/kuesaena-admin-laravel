@@ -20,7 +20,6 @@ class BarangController extends Controller
         'Minuman'  => 'ML',
         'Bento'    => 'BN',
         'Birthday' => 'BD',
-        'Milkshake'=> 'MS',
         'Roti'     => 'RT',
     ];
 

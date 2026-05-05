@@ -14,7 +14,6 @@ class DemoProductSeeder extends Seeder
         $cake = Category::create(['name' => 'Cake', 'description' => 'Kue Ulang Tahun']);
         $cupcake = Category::create(['name' => 'CupCake', 'description' => 'Cupcake']);
         $bento = Category::create(['name' => 'Bento', 'description' => 'Bento Cake']);
-        $milkshake = Category::create(['name' => 'Milkshake', 'description' => 'Milkshake']);
         $minuman = Category::create(['name' => 'Minuman', 'description' => 'Minuman']);
 
         // Products (gabungan)
