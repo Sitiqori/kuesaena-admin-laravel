@@ -436,15 +436,11 @@
 
         // Also show loader on form submit (checkout, logout, dll)
         document.addEventListener('submit', function (e) {
-            // Skip AJAX forms
+            // Skip AJAX forms (those with data-no-loader attribute)
             if (e.target.dataset.noLoader) return;
-            // Skip DELETE/PATCH method forms
+            // Skip DELETE method forms (hapus notifikasi, dll) — terlalu cepat
             const method = e.target.querySelector('input[name="_method"]');
             if (method && (method.value === 'DELETE' || method.value === 'PATCH')) return;
-            // Skip cancel pesanan forms
-            if (e.target.action && e.target.action.includes('/cancel')) return;
-            // Skip batalkan forms (data-skip-loader)
-            if (e.target.dataset.skipLoader) return;
 
             const loader = document.getElementById('page-loader');
             if (!loader) return;
@@ -486,13 +482,11 @@ window.updateCartBadge = function(delta) {
 
 // Wishlist Toggle
 window.toggleWishlist = function(productId, btn) {
-    fetch('{{ url('/wishlist/toggle') }}/' + productId, {
+    fetch(`/wishlist/toggle/${productId}`, {
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': csrfToken,
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
+            'Content-Type': 'application/json'
         }
     })
     .then(res => res.json())
@@ -513,13 +507,11 @@ window.toggleWishlist = function(productId, btn) {
 
 // Like Toggle
 window.toggleLike = function(productId, btn) {
-    fetch('{{ url('/product/like') }}/' + productId, {
+    fetch(`/product/like/${productId}`, {
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': csrfToken,
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
+            'Content-Type': 'application/json'
         }
     })
     .then(res => res.json())
@@ -551,55 +543,41 @@ window.toggleLike = function(productId, btn) {
     z-index: 99999;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
     pointer-events: none;
 }
 .toast {
     display: flex;
-    align-items: flex-start;
-    gap: 12px;
+    align-items: center;
+    gap: 10px;
     background: #fff;
-    border-radius: 14px;
-    padding: 14px 18px;
-    min-width: 300px;
-    max-width: 360px;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.13);
+    border-radius: 50px;
+    padding: 10px 16px 10px 10px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
     pointer-events: all;
     transform: translateX(120%);
     opacity: 0;
     transition: transform 0.35s cubic-bezier(.34,1.56,.64,1), opacity 0.3s ease;
-    border-left: 4px solid #5C2D0E;
+    max-width: 320px;
+    width: fit-content;
 }
-.toast.toast-show {
-    transform: translateX(0);
-    opacity: 1;
-}
-.toast.toast-hide {
-    transform: translateX(120%);
-    opacity: 0;
-}
+.toast.toast-show { transform: translateX(0); opacity: 1; }
+.toast.toast-hide { transform: translateX(120%); opacity: 0; }
 .toast-icon {
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    background: #fdf5ee;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    font-size: 16px;
-    color: #5C2D0E;
+    width: 32px; height: 32px; border-radius: 50%;
+    background: #fdf5ee; display: flex; align-items: center;
+    justify-content: center; flex-shrink: 0; font-size: 14px; color: #5C2D0E;
 }
 .toast-icon.toast-success { background: #f0fdf4; color: #16a34a; }
 .toast-icon.toast-error   { background: #fff5f5; color: #e74c3c; }
+.toast-icon.toast-warning { background: #fffbeb; color: #d97706; }
 .toast-icon.toast-info    { background: #fdf5ee; color: #5C2D0E; }
 .toast-body { flex: 1; }
-.toast-title { font-size: 14px; font-weight: 700; color: #1A0A00; margin-bottom: 2px; }
-.toast-msg   { font-size: 12px; color: #6b7280; line-height: 1.4; }
+.toast-title { font-size: 13px; font-weight: 500; color: #1A0A00; line-height: 1.3; }
+.toast-msg   { font-size: 12px; color: #6b7280; margin-top: 1px; }
 .toast-close {
     background: none; border: none; cursor: pointer;
-    color: #aaa; font-size: 16px; padding: 0; line-height: 1;
-    flex-shrink: 0; align-self: flex-start;
+    color: #aaa; font-size: 14px; padding: 0 0 0 6px; line-height: 1; flex-shrink: 0;
 }
 .toast-close:hover { color: #555; }
 </style>
@@ -646,7 +624,19 @@ function dismissToast(toast) {
     setTimeout(() => toast.remove(), 400);
 }
 
-// Flash messages disabled
+// ===== TAMPILKAN FLASH MESSAGE DARI LARAVEL =====
+@if(session('success'))
+    document.addEventListener('DOMContentLoaded', () =>
+        showToast(@json(session('success')), '', 'success'));
+@endif
+@if(session('error'))
+    document.addEventListener('DOMContentLoaded', () =>
+        showToast(@json(session('error')), '', 'error'));
+@endif
+@if(session('info'))
+    document.addEventListener('DOMContentLoaded', () =>
+        showToast(@json(session('info')), '', 'info'));
+@endif
 </script>
 
 </body>

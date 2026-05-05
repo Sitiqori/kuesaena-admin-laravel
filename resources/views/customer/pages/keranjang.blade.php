@@ -334,10 +334,11 @@
                 {{-- Hapus --}}
                 <div>
                     <form action="{{ route('keranjang.hapus', $item->id) }}" method="POST"
-                          onsubmit="return confirm('Hapus produk ini dari keranjang?')">
+                          id="form-hapus-{{ $item->id }}">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="btn-hapus">Hapus</button>
+                        <button type="button" class="btn-hapus"
+                            onclick="showConfirmKeranjang('Hapus produk ini dari keranjang?', 'form-hapus-{{ $item->id }}')">Hapus</button>
                     </form>
                 </div>
             </div>
@@ -347,10 +348,11 @@
         {{-- Footer keranjang --}}
         <div class="keranjang-footer" style="border-radius: 8px; margin-top: 0;">
             <form action="{{ route('keranjang.hapusSemua') }}" method="POST"
-                  onsubmit="return confirm('Hapus semua item dari keranjang?')">
+                  id="form-hapus-semua">
                 @csrf
                 @method('DELETE')
-                <button type="submit" class="btn-hapus-semua">Hapus</button>
+                <button type="button" class="btn-hapus-semua"
+                    onclick="showConfirmKeranjang('Hapus semua item dari keranjang?', 'form-hapus-semua', 'Semua produk di keranjang akan dihapus.')">Hapus</button>
             </form>
 
                 <div class="total-text">
@@ -454,7 +456,7 @@ function kirimUpdateQty(id, qty) {
 function checkoutDipilih() {
     const checked = document.querySelectorAll('.item-checkbox:checked');
     if (checked.length === 0) {
-        alert('Pilih produk yang ingin di-checkout terlebih dahulu!');
+        showAlertKeranjang('Pilih Produk Dulu', 'Pilih produk yang ingin di-checkout terlebih dahulu!');
         return;
     }
     const ids = Array.from(checked).map(cb => cb.value);
@@ -462,4 +464,72 @@ function checkoutDipilih() {
 }
 
 </script>
+
+{{-- Modal Konfirmasi Keranjang --}}
+<div id="modal-confirm-keranjang" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:9999; align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:20px; padding:32px 28px; max-width:360px; width:90%; text-align:center; box-shadow:0 8px 40px rgba(0,0,0,0.15);">
+        <div style="width:56px; height:56px; background:#fff8f0; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
+            <i class="fas fa-trash-alt" style="font-size:22px; color:#e74c3c;"></i>
+        </div>
+        <div id="confirm-keranjang-msg" style="font-size:15px; font-weight:700; color:#1A0A00; margin-bottom:6px;"></div>
+        <div id="confirm-keranjang-sub" style="font-size:13px; color:#6b7280; margin-bottom:24px;"></div>
+        <div style="display:flex; gap:12px;">
+            <button onclick="closeConfirmKeranjang()" style="flex:1; padding:11px; border-radius:12px; border:1.5px solid #ddd; background:#fff; color:#444; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit;">Batal</button>
+            <button id="confirm-keranjang-ok" style="flex:1; padding:11px; border-radius:12px; border:none; background:#e74c3c; color:#fff; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit;">Ya, Hapus</button>
+        </div>
+    </div>
+</div>
+
+{{-- Modal Alert Keranjang --}}
+<div id="modal-alert-keranjang" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:9999; align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:20px; padding:32px 28px; max-width:360px; width:90%; text-align:center; box-shadow:0 8px 40px rgba(0,0,0,0.15);">
+        <div style="width:56px; height:56px; background:#fdf5ee; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
+            <i class="fas fa-exclamation-circle" style="font-size:22px; color:#5C2D0E;"></i>
+        </div>
+        <div id="alert-keranjang-title" style="font-size:15px; font-weight:700; color:#1A0A00; margin-bottom:6px;"></div>
+        <div id="alert-keranjang-msg" style="font-size:13px; color:#6b7280; margin-bottom:24px;"></div>
+        <button onclick="document.getElementById('modal-alert-keranjang').style.display='none'; document.body.style.overflow='';"
+            style="width:100%; padding:12px; border-radius:12px; border:none; background:#5C2D0E; color:#fff; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit;">OK</button>
+    </div>
+</div>
+
+<script>
+var _keranjangFormId = null;
+document.addEventListener('DOMContentLoaded', function() {
+function showConfirmKeranjang(msg, formId, sub) {
+    document.getElementById('confirm-keranjang-msg').textContent = msg;
+    document.getElementById('confirm-keranjang-sub').textContent = sub || '';
+    _keranjangFormId = formId;
+    document.getElementById('modal-confirm-keranjang').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+function closeConfirmKeranjang() {
+    document.getElementById('modal-confirm-keranjang').style.display = 'none';
+    document.body.style.overflow = '';
+    _keranjangFormId = null;
+}
+document.getElementById('confirm-keranjang-ok').onclick = function() {
+    var formId = _keranjangFormId;
+    closeConfirmKeranjang();
+    if (formId) document.getElementById(formId).submit();
+};
+document.getElementById('modal-confirm-keranjang').addEventListener('click', function(e) {
+    if (e.target === this) closeConfirmKeranjang();
+});
+function showAlertKeranjang(title, msg) {
+    document.getElementById('alert-keranjang-title').textContent = title;
+    document.getElementById('alert-keranjang-msg').textContent = msg;
+    document.getElementById('modal-alert-keranjang').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+document.getElementById('modal-alert-keranjang').addEventListener('click', function(e) {
+    if (e.target === this) { this.style.display='none'; document.body.style.overflow=''; }
+});
+
+// Expose to global scope
+window.showConfirmKeranjang = showConfirmKeranjang;
+window.showAlertKeranjang = showAlertKeranjang;
+});
+</script>
+
 @endpush
