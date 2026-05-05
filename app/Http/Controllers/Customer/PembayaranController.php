@@ -16,7 +16,7 @@ class PembayaranController extends Controller
 {
     public function checkout(Request $request)
     {
-        $selectedIds = $request->input('items', []);
+        $selectedIds = $request->input('items') ? explode(',', $request->input('items')) : [];
 
         $query = Cart::with('product')->where('user_id', Auth::id());
 

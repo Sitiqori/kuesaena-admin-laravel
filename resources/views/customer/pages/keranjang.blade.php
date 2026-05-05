@@ -297,7 +297,7 @@
             <div class="keranjang-item" id="item-{{ $item->id }}">
                 {{-- Checkbox --}}
                 <div>
-                    <input type="checkbox" class="item-checkbox" value="{{ $item->id }}">
+                   <input type="checkbox" class="item-checkbox" value="{{ $item->id }}" onchange="hitungTotal()">
                 </div>
 
                 {{-- Produk info --}}
@@ -353,12 +353,12 @@
                 <button type="submit" class="btn-hapus-semua">Hapus</button>
             </form>
 
-            <div class="total-text">
-                Total ({{ $cartItems->count() }} Produk) :
-                <strong id="grand-total">Rp.{{ number_format($total, 0, ',', '.') }}</strong>
-            </div>
+                <div class="total-text">
+            Total (<span id="total-count">0</span> Produk) :
+            <strong id="grand-total">Rp.0</strong>
+        </div>
 
-            <a href="{{ route('checkout') }}" class="btn-checkout">Checkout</a>
+        <button onclick="checkoutDipilih()" class="btn-checkout">Checkout</button>
         </div>
 
     @else
@@ -396,12 +396,30 @@
 
 @push('scripts')
 <script>
-// Pilih semua checkbox
+const hargaItem = {
+    @foreach($cartItems as $item)
+    {{ $item->id }}: {{ $item->product->price }},
+    @endforeach
+};
+
 function pilihSemua(el) {
     document.querySelectorAll('.item-checkbox').forEach(cb => cb.checked = el.checked);
+    hitungTotal();
 }
 
-// Update kuantitas via tombol + / -
+function hitungTotal() {
+    let total = 0;
+    let count = 0;
+    document.querySelectorAll('.item-checkbox:checked').forEach(cb => {
+        const id = cb.value;
+        const qty = parseInt(document.getElementById('qty-' + id).value) || 1;
+        total += hargaItem[id] * qty;
+        count++;
+    });
+    document.getElementById('grand-total').textContent = 'Rp.' + total.toLocaleString('id-ID');
+    document.getElementById('total-count').textContent = count;
+}
+
 function updateQty(id, delta) {
     const input = document.getElementById('qty-' + id);
     let val = parseInt(input.value) + delta;
@@ -410,13 +428,11 @@ function updateQty(id, delta) {
     kirimUpdateQty(id, val);
 }
 
-// Update kuantitas langsung dari input
 function updateQtyDirect(id, val) {
     if (val < 1) val = 1;
     kirimUpdateQty(id, val);
 }
 
-// Kirim AJAX update kuantitas
 function kirimUpdateQty(id, qty) {
     fetch(`/keranjang/update/${id}`, {
         method: 'PUT',
@@ -435,10 +451,15 @@ function kirimUpdateQty(id, qty) {
     });
 }
 
-// Hitung ulang grand total (opsional, bisa reload juga)
-function hitungTotal() {
-    // Untuk kesederhanaan, reload halaman setelah update
-    // Bisa diganti dengan kalkulasi di frontend jika perlu
+function checkoutDipilih() {
+    const checked = document.querySelectorAll('.item-checkbox:checked');
+    if (checked.length === 0) {
+        alert('Pilih produk yang ingin di-checkout terlebih dahulu!');
+        return;
+    }
+    const ids = Array.from(checked).map(cb => cb.value);
+    window.location.href = '{{ route("checkout") }}?items=' + ids.join(',');
 }
+
 </script>
 @endpush
