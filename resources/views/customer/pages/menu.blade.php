@@ -438,7 +438,9 @@
             <div class="filter-group">
                 <div class="filter-group-title">Kategori Produk</div>
                 @foreach($categories as $category)
+                @if($category->name !== 'Milkshake')
                 <label class="filter-item">{{ $category->name }} <input type="checkbox" name="categories[]" value="{{ $category->id }}" {{ (is_array(request('categories')) && in_array($category->id, request('categories'))) ? 'checked' : '' }} onchange="document.getElementById('filterForm').submit()"></label>
+                @endif
                 @endforeach
             </div>
 
@@ -504,7 +506,11 @@
                 <label class="filter-item">Terlaris <input type="radio" name="sort_by" value="terlaris" {{ request('sort_by') == 'terlaris' ? 'checked' : '' }} onchange="document.getElementById('filterForm').submit()"></label>
                 <label class="filter-item">Terendah <input type="radio" name="sort_by" value="terendah" {{ request('sort_by') == 'terendah' ? 'checked' : '' }} onchange="document.getElementById('filterForm').submit()"></label>
                 <label class="filter-item">Tertinggi <input type="radio" name="sort_by" value="tertinggi" {{ request('sort_by') == 'tertinggi' ? 'checked' : '' }} onchange="document.getElementById('filterForm').submit()"></label>
+                @if(request('sort_by'))
+            <button type="button" onclick="resetSort()" style="margin-top:8px; font-size:12px; color:#999; background:none; border:none; cursor:pointer; padding:0;">✕ Reset urutan</button>
+            @endif
             </div>
+
 
         </form>
 
@@ -623,6 +629,12 @@
     // CSRF Token
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}';
 
+    function resetSort() {
+    const url = new URL(window.location.href);
+    url.searchParams.delete('sort_by');
+    window.location.href = url.toString();
+    }
+
     // ✅ WISHLIST - LANGSUNG BERUBAH WARNA TANPA REFRESH
     window.toggleWishlist = function(productId, element) {
         event.stopPropagation();
@@ -642,6 +654,10 @@
             element.classList.remove('far');
             element.classList.add('fas');
             element.style.color = '#e74c3c';
+        }
+
+        if (typeof showToast === 'function') {
+            showToast(element.classList.contains('fas') ? '❤️ Ditambahkan ke wishlist' : '🤍 Dihapus dari wishlist');
         }
         
         // Kirim ke server (background) - TANPA update ulang
@@ -684,6 +700,10 @@
             if (countSpan) countSpan.innerText = currentCount + 1;
         }
         
+        if (typeof showToast === 'function') {
+            showToast(element.classList.contains('fas') ? '👍 Produk disukai' : '👎 Batal menyukai');
+        }
+
         // Kirim ke server (background) - JANGAN update ulang biar gak kedip
         fetch(`/product/like/${productId}`, {
             method: 'POST',

@@ -30,9 +30,11 @@ class MenuController extends Controller
 
         // 📂 FILTER CATEGORY
         if ($request->has('categories') && is_array($request->categories)) {
-            $query->whereIn('category_id', $request->categories);
+            $selectedNames = Category::whereIn('id', $request->categories)->pluck('name');
+            $allIds = Category::whereIn('name', $selectedNames)->pluck('id');
+            $query->whereIn('category_id', $allIds);
         }
-
+       
         // 💰 FILTER PRICE
         if ($request->filled('min_price')) {
             $query->where('price', '>=', $request->min_price);

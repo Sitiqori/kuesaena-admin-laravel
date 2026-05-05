@@ -579,10 +579,10 @@
                         <span class="sidebar-group-title">Favorit Saya</span>
                     </div>
                     <a href="{{ route('customer.profil.wishlist') }}" class="sidebar-link {{ request()->routeIs('customer.profil.wishlist') ? 'active' : '' }}">
-                        ❤️ Wishlist
+                        Wishlist
                     </a>
                     <a href="{{ route('customer.profil.like') }}" class="sidebar-link {{ request()->routeIs('customer.profil.like') ? 'active' : '' }}">
-                        👍 Produk yang Disukai
+                        Produk yang Disukai
                     </a>
                 </div>
 

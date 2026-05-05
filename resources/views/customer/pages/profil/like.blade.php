@@ -1,7 +1,7 @@
 @extends('customer.pages.profil.layout')
 
 @section('profil-content')
-<h2 class="profil-section-title">👍 PRODUK YANG DISUKAI</h2>
+<h2 class="profil-section-title">PRODUK YANG DISUKAI</h2>
 
 @if($likedProducts->isEmpty())
     <p style="text-align:center; padding:40px;">Belum ada produk yang disukai</p>
