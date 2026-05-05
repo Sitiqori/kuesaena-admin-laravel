@@ -11,12 +11,12 @@
 ===================== */
 .keranjang-wrapper {
     padding: 40px 0 60px;
-    background: #f9f5f0;
+    background: #f9f5f0
     min-height: calc(100vh - 76px);
 }
 
 .keranjang-table {
-    background: #fff;
+    background: #f9f5f0
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 2px 8px rgba(0,0,0,0.06);
@@ -44,7 +44,7 @@
     padding: 16px 20px;
     border-bottom: 1px solid #f0e8df;
     gap: 12px;
-    background: #fff;
+    background: #f9f5f0
     transition: background 0.2s;
 }
 .keranjang-item:hover { background: #fdf8f3; }
@@ -68,7 +68,7 @@
 
 /* Detail rasa/ukuran */
 .item-detail {
-    background: #f9f5f0;
+    background: #fff;
     border-radius: 6px;
     padding: 8px 12px;
     font-size: 12px;
@@ -171,7 +171,7 @@
 .keranjang-kosong {
     text-align: center;
     padding: 80px 20px;
-    background: #fff;
+    background: #f9f5f0;
     border-radius: 8px;
 }
 .keranjang-kosong i { font-size: 60px; color: #C68B5A; margin-bottom: 16px; }

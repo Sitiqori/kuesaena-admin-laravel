@@ -424,7 +424,7 @@
 
     <!-- Banner Section -->
     <div class="banner-section">
-        <img src="https://images.unsplash.com/photo-1558222218-b7b54eede3f3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Special Banner" class="banner-image">
+        <img src="{{ asset('images/atas menu.png') }}" alt="Special Banner" class="banner-image">
     </div>
 
     <div class="menu-container">
