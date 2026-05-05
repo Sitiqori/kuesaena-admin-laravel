@@ -212,7 +212,7 @@
 }
 
 .produk-card {
-    background: #fff;
+    background: #3B1A08;
     border-radius: 10px;
     overflow: hidden;
     box-shadow: 0 2px 8px rgba(0,0,0,0.06);
@@ -228,8 +228,8 @@
     object-fit: cover;
 }
 .produk-card-info { padding: 12px; }
-.produk-card-info .nama { font-weight: 600; font-size: 14px; color: #1A0A00; }
-.produk-card-info .harga { color: #7B3F18; font-size: 13px; margin-top: 4px; }
+.produk-card-info .nama { font-weight: 600; font-size: 14px; color: #fff; }
+.produk-card-info .harga { color:  #fff; font-size: 13px; margin-top: 4px; }
 
 .btn-lihat-lainnya {
     display: inline-block;
@@ -379,7 +379,7 @@
         <div class="rekomendasi-grid">
             @foreach($rekomendasi as $produk)
             <a href="#" class="produk-card">
-                <img src="{{ $produk->image ? asset('storage/' . $produk->image) : asset('images/no-image.png') }}"
+                <img src="{{ $produk->image ? (str_starts_with($produk->image, 'images/') ? asset($produk->image) : asset('storage/' . $produk->image)) : asset('images/no-image.png') }}"
                      alt="{{ $produk->name }}">
                 <div class="produk-card-info">
                     <div class="nama">{{ $produk->name }}</div>

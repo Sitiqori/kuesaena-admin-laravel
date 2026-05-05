@@ -45,7 +45,7 @@ class BarangController extends Controller
     public function index()
     {
         $products = Product::with('category')->orderBy('code')->get();
-        $categories = Category::all();
+        $categories = Category::orderBy('name')->get()->unique('name')->values();
 
         return view('barang.index', compact('products', 'categories'));
     }
