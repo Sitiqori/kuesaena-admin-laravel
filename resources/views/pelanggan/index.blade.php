@@ -555,6 +555,20 @@
     </div>
 </div>
 
+<div id="deleteModalPelanggan" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+    <div style="background:white; border-radius:16px; padding:32px 28px; max-width:360px; width:90%; text-align:center;">
+        <div style="width:56px; height:56px; background:#ffebee; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
+            <i class="fas fa-trash-alt" style="font-size:22px; color:#e53e3e;"></i>
+        </div>
+        <h3 style="font-size:18px; font-weight:700; margin-bottom:8px;">Hapus Pelanggan?</h3>
+        <p style="color:#666; margin-bottom:24px; font-size:14px;">Riwayat pesanan akan tetap tersimpan.</p>
+        <div style="display:flex; gap:12px;">
+            <button onclick="document.getElementById('deleteModalPelanggan').style.display='none'" style="flex:1; padding:11px; border-radius:8px; border:1px solid #ddd; background:white; cursor:pointer; font-size:14px;">Batal</button>
+            <button id="confirmDeletePelanggan" style="flex:1; padding:11px; border-radius:8px; border:none; background:#e53e3e; color:white; cursor:pointer; font-size:14px; font-weight:700;">Ya, Hapus</button>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')
@@ -670,17 +684,15 @@ function closeEditModal() {
 
 // Delete Customer
 function deleteCustomer(customerId) {
-    if (confirm('Yakin ingin menghapus pelanggan ini? Riwayat pesanan akan tetap tersimpan.')) {
+    document.getElementById('deleteModalPelanggan').style.display = 'flex';
+    document.getElementById('confirmDeletePelanggan').onclick = function() {
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = `/pelanggan/${customerId}`;
-        form.innerHTML = `
-            @csrf
-            @method('DELETE')
-        `;
+        form.innerHTML = `<input type="hidden" name="_token" value="{{ csrf_token() }}"><input type="hidden" name="_method" value="DELETE">`;
         document.body.appendChild(form);
         form.submit();
-    }
+    };
 }
 
 function formatNumber(num) {
