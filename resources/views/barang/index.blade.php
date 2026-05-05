@@ -481,7 +481,7 @@ function openEditModal(id) {
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Gagal mengambil data produk');
+            showAdminToast('Gagal', 'Gagal mengambil data produk', 'error');
         });
 }
 
@@ -524,8 +524,8 @@ document.getElementById('productForm').addEventListener('submit', function(e) {
     .then(data => {
         if (data.success) {
             closeProductModal();
-            alert(data.message);
-            window.location.reload();
+            showAdminToast('Berhasil', data.message, 'success');
+            setTimeout(() => window.location.reload(), 2000);
         } else {
             let errorMsg = 'Terjadi kesalahan:\n';
             if (data.errors) {
@@ -533,10 +533,10 @@ document.getElementById('productForm').addEventListener('submit', function(e) {
             } else {
                 errorMsg += data.message || 'Unknown error';
             }
-            alert(errorMsg);
+            showAdminToast('Gagal', errorMsg, 'error');
         }
     })
-    .catch(error => { console.error('Error:', error); alert('Gagal menyimpan data. Coba lagi.'); })
+    .catch(error => { console.error('Error:', error); showAdminToast('Gagal', 'Gagal menyimpan data. Coba lagi.', 'error'); })
     .finally(() => { saveBtn.disabled = false; saveBtn.textContent = 'Simpan'; });
 });
 
