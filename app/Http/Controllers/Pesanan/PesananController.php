@@ -29,6 +29,35 @@ class PesananController extends Controller
     public function show($id)
     {
         $order = Order::with(['orderItems.product', 'user'])->findOrFail($id);
+
+        if (request()->expectsJson() || request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'order' => [
+                    'id'             => $order->id,
+                    'order_number'   => $order->order_number,
+                    'status'         => $order->status,
+                    'total'          => $order->total,
+                    'subtotal'       => $order->subtotal ?? $order->total,
+                    'tax'            => $order->tax ?? 0,
+                    'payment_method' => $order->payment_method ?? '-',
+                    'created_at'     => $order->created_at->format('d/m/Y H:i'),
+                    'notes'          => $order->notes,
+                    'customer' => [
+                        'name'    => $order->customer->name ?? $order->user->name ?? '-',
+                        'phone'   => $order->customer->phone ?? $order->user->phone ?? '-',
+                        'address' => $order->customer->address ?? '-',
+                    ],
+                    'order_items' => $order->orderItems->map(fn($item) => [
+                        'name'     => $item->product->name ?? 'Produk dihapus',
+                        'quantity' => $item->quantity,
+                        'price'    => $item->price,
+                        'subtotal' => $item->subtotal,
+                    ]),
+                ]
+            ]);
+        }
+
         return view('pesanan.show', compact('order'));
     }
 

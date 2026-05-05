@@ -579,180 +579,251 @@
     </div>
 </div>
 
-<!-- Detail Modal -->
-<div id="detailModal" class="modal">
-    <div class="modal-dialog">
-        <div class="modal-header">
-            <h3>Detail Pesanan</h3>
-            <span class="close-modal" onclick="closeDetailModal()">&times;</span>
-        </div>
-        <div class="modal-body" id="modalDetailContent">
-            <!-- Content will be loaded dynamically -->
+@endsection
+
+@push('scripts')
+<style>
+/* ── Toast ── */
+#ps-toast-wrap { position:fixed; bottom:24px; right:24px; z-index:99999; display:flex; flex-direction:column; gap:10px; pointer-events:none; }
+.ps-toast { display:flex; align-items:flex-start; gap:12px; background:#fff; border-radius:12px; padding:14px 18px; min-width:260px; max-width:340px; box-shadow:0 8px 30px rgba(0,0,0,0.13); pointer-events:all; transform:translateX(120%); opacity:0; transition:transform .35s cubic-bezier(.34,1.56,.64,1), opacity .3s ease; border-left:4px solid #5C2D0E; }
+.ps-toast.show { transform:translateX(0); opacity:1; }
+.ps-toast.hide { transform:translateX(120%); opacity:0; }
+.ps-toast-icon { width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:14px; }
+.ps-toast-icon.s { background:#f0fdf4; color:#16a34a; }
+.ps-toast-icon.e { background:#fff5f5; color:#e74c3c; }
+.ps-toast-icon.w { background:#fffbeb; color:#d97706; }
+.ps-toast-body { flex:1; }
+.ps-toast-title { font-size:13px; font-weight:700; color:#1A0A00; margin-bottom:2px; }
+.ps-toast-msg   { font-size:12px; color:#6b7280; }
+.ps-toast-close { background:none; border:none; cursor:pointer; color:#aaa; font-size:16px; flex-shrink:0; }
+
+/* ── Confirm Overlay ── */
+#ps-confirm-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:999998; align-items:center; justify-content:center; backdrop-filter:blur(2px); }
+#ps-confirm-overlay.open { display:flex; }
+#ps-confirm-box { background:#fff; border-radius:18px; padding:32px 28px 24px; width:360px; max-width:92vw; box-shadow:0 24px 60px rgba(0,0,0,0.18); text-align:center; transform:scale(0.92); opacity:0; transition:transform .22s cubic-bezier(.34,1.56,.64,1), opacity .18s ease; }
+#ps-confirm-overlay.open #ps-confirm-box { transform:scale(1); opacity:1; }
+#ps-confirm-icon-wrap { width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 14px; font-size:22px; }
+#ps-confirm-title { font-size:16px; font-weight:700; color:#1A0A00; margin-bottom:8px; }
+#ps-confirm-msg   { font-size:13px; color:#6b7280; line-height:1.6; margin-bottom:22px; }
+.ps-confirm-btns  { display:flex; gap:10px; justify-content:center; }
+.ps-btn-cancel { padding:10px 26px; border-radius:20px; border:1.5px solid #ddd; background:#fff; font-size:14px; font-weight:500; cursor:pointer; color:#555; transition:all .2s; min-width:95px; }
+.ps-btn-cancel:hover { border-color:#888; color:#222; }
+.ps-btn-ok     { padding:10px 26px; border-radius:20px; border:none; background:#c0392b; color:#fff; font-size:14px; font-weight:600; cursor:pointer; transition:all .2s; min-width:95px; }
+.ps-btn-ok:hover { background:#a93226; }
+.ps-btn-ok.brown { background:#3B1A08; }
+.ps-btn-ok.brown:hover { background:#5C2D0E; }
+
+/* ── Detail Modal ── */
+#ps-detail-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:999997; align-items:center; justify-content:center; backdrop-filter:blur(2px); padding:20px; }
+#ps-detail-overlay.open { display:flex; }
+#ps-detail-box { background:#fff; border-radius:18px; width:100%; max-width:620px; max-height:90vh; display:flex; flex-direction:column; box-shadow:0 24px 60px rgba(0,0,0,0.18); transform:scale(0.92); opacity:0; transition:transform .22s cubic-bezier(.34,1.56,.64,1), opacity .18s ease; }
+#ps-detail-overlay.open #ps-detail-box { transform:scale(1); opacity:1; }
+.ps-detail-head { padding:20px 24px; border-bottom:1px solid #f0f0f0; display:flex; justify-content:space-between; align-items:center; }
+.ps-detail-head h3 { font-size:17px; font-weight:700; color:#1A0A00; }
+.ps-detail-close { width:32px; height:32px; border-radius:50%; border:none; background:#f5f5f5; cursor:pointer; font-size:18px; color:#666; display:flex; align-items:center; justify-content:center; }
+.ps-detail-close:hover { background:#e0e0e0; }
+.ps-detail-body { padding:20px 24px; overflow-y:auto; flex:1; }
+.ps-section { margin-bottom:18px; }
+.ps-section-title { font-size:12px; font-weight:700; color:#5C4033; text-transform:uppercase; letter-spacing:.5px; margin-bottom:10px; }
+.ps-row { display:flex; justify-content:space-between; padding:7px 0; border-bottom:1px solid #f5f5f5; font-size:14px; }
+.ps-row:last-child { border-bottom:none; }
+.ps-row-label { color:#666; }
+.ps-row-value { font-weight:500; color:#333; text-align:right; }
+.ps-item-row { display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #f5f5f5; }
+.ps-item-row:last-child { border-bottom:none; }
+.ps-item-name { font-size:14px; font-weight:600; color:#333; }
+.ps-item-qty  { font-size:12px; color:#999; }
+.ps-item-price { font-size:14px; font-weight:600; color:#5C4033; }
+.ps-total-row { display:flex; justify-content:space-between; padding:12px 0; font-size:15px; font-weight:700; color:#5C4033; border-top:2px solid #5C4033; margin-top:6px; }
+</style>
+
+<!-- Toast container -->
+<div id="ps-toast-wrap"></div>
+
+<!-- Confirm overlay -->
+<div id="ps-confirm-overlay">
+    <div id="ps-confirm-box">
+        <div id="ps-confirm-icon-wrap"><i id="ps-confirm-icon" class="fas fa-question"></i></div>
+        <div id="ps-confirm-title">Konfirmasi</div>
+        <div id="ps-confirm-msg"></div>
+        <div class="ps-confirm-btns">
+            <button class="ps-btn-cancel" id="ps-btn-cancel">Batal</button>
+            <button class="ps-btn-ok" id="ps-btn-ok">Ya, Lanjutkan</button>
         </div>
     </div>
 </div>
 
-@endsection
+<!-- Detail overlay -->
+<div id="ps-detail-overlay">
+    <div id="ps-detail-box">
+        <div class="ps-detail-head">
+            <h3>Detail Pesanan</h3>
+            <button class="ps-detail-close" onclick="closeDetail()">&times;</button>
+        </div>
+        <div class="ps-detail-body" id="ps-detail-body"></div>
+    </div>
+</div>
 
-@push('scripts')
 <script>
-// Switch Tab
-function switchTab(tab) {
-    // Update buttons
-    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-    event.target.classList.add('active');
+// ── Toast ──
+function psToast(title, msg, type) {
+    var icons = { s:'<i class="fas fa-check"></i>', e:'<i class="fas fa-times"></i>', w:'<i class="fas fa-exclamation"></i>' };
+    var borders = { s:'#16a34a', e:'#e74c3c', w:'#d97706' };
+    var t = document.createElement('div');
+    t.className = 'ps-toast';
+    t.style.borderLeftColor = borders[type] || borders.s;
+    t.innerHTML = '<div class="ps-toast-icon '+(type||'s')+'">'+(icons[type]||icons.s)+'</div>'
+        + '<div class="ps-toast-body"><div class="ps-toast-title">'+title+'</div>'+(msg?'<div class="ps-toast-msg">'+msg+'</div>':'')+'</div>'
+        + '<button class="ps-toast-close" onclick="this.closest(\'.ps-toast\').remove()">&times;</button>';
+    document.getElementById('ps-toast-wrap').appendChild(t);
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ t.classList.add('show'); }); });
+    setTimeout(function(){ t.classList.remove('show'); t.classList.add('hide'); setTimeout(function(){ t.remove(); }, 400); }, 4000);
+}
 
-    // Update content
-    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+// ── Confirm ──
+var _psResolve = null;
+(function(){
+    var ov  = document.getElementById('ps-confirm-overlay');
+    var ok  = document.getElementById('ps-btn-ok');
+    var can = document.getElementById('ps-btn-cancel');
+    function close(r){ ov.classList.remove('open'); if(_psResolve){ _psResolve(r); _psResolve=null; } }
+    ok.addEventListener('click',  function(){ close(true);  });
+    can.addEventListener('click', function(){ close(false); });
+    ov.addEventListener('click',  function(e){ if(e.target===ov) close(false); });
+    document.addEventListener('keydown', function(e){ if(e.key==='Escape' && ov.classList.contains('open')) close(false); });
+})();
+
+function psConfirm(msg, opts) {
+    opts = opts || {};
+    var type = opts.type || 'danger';
+    var iconMap   = { danger:'fa-trash-alt', warning:'fa-exclamation-triangle', info:'fa-question-circle' };
+    var colorMap  = { danger:'#fff5f5', warning:'#fffbeb', info:'#fdf5ee' };
+    var icColMap  = { danger:'#e74c3c', warning:'#d97706', info:'#5C2D0E' };
+    var wrap = document.getElementById('ps-confirm-icon-wrap');
+    var icon = document.getElementById('ps-confirm-icon');
+    wrap.style.background = colorMap[type] || colorMap.danger;
+    icon.className = 'fas ' + (iconMap[type] || iconMap.danger);
+    icon.style.color = icColMap[type] || icColMap.danger;
+    document.getElementById('ps-confirm-title').textContent = opts.title || 'Konfirmasi';
+    document.getElementById('ps-confirm-msg').textContent   = msg;
+    var btnOk = document.getElementById('ps-btn-ok');
+    btnOk.textContent = opts.okText || 'Ya, Lanjutkan';
+    btnOk.className = 'ps-btn-ok' + (type === 'info' ? ' brown' : '');
+    document.getElementById('ps-btn-cancel').textContent = opts.cancelText || 'Batal';
+    document.getElementById('ps-confirm-overlay').classList.add('open');
+    return new Promise(function(resolve){ _psResolve = resolve; });
+}
+
+// ── Tab Switch ──
+function switchTab(tab) {
+    document.querySelectorAll('.tab-button').forEach(function(b){ b.classList.remove('active'); });
+    event.target.classList.add('active');
+    document.querySelectorAll('.tab-content').forEach(function(c){ c.classList.remove('active'); });
     document.getElementById('tab-' + tab).classList.add('active');
 }
 
-// Update Order Status
+// ── Update Status ──
 function updateStatus(orderId, status) {
-    const messages = {
-        'processing': 'Apakah yakin memproses pesanan ini?',
-        'completed': 'Apakah pesanan sudah selesai dan siap diambil?',
-        'cancelled': 'Apakah yakin membatalkan pesanan ini?'
-    };
+    var msgs   = { processing:'Pesanan ini akan mulai diproses.', completed:'Tandai pesanan ini sebagai selesai?', cancelled:'Pesanan ini akan dibatalkan.' };
+    var titles = { processing:'Proses Pesanan?', completed:'Selesaikan Pesanan?', cancelled:'Batalkan Pesanan?' };
+    var types  = { processing:'info', completed:'info', cancelled:'danger' };
+    var okTxts = { processing:'Ya, Proses', completed:'Ya, Selesai', cancelled:'Ya, Batalkan' };
 
-    if (confirm(messages[status])) {
+    psConfirm(msgs[status] || 'Yakin melanjutkan?', {
+        title:  titles[status]  || 'Konfirmasi',
+        type:   types[status]   || 'info',
+        okText: okTxts[status]  || 'Ya',
+    }).then(function(ok) {
+        if (!ok) return;
         fetch('{{ url('/pesanan') }}/' + orderId + '/update-status', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
+            headers: { 'Content-Type':'application/json', 'X-CSRF-TOKEN':'{{ csrf_token() }}' },
             body: JSON.stringify({ status: status })
         })
-        .then(response => response.json())
-        .then(data => {
+        .then(function(r){ return r.json(); })
+        .then(function(data) {
             if (data.success) {
-                location.reload();
+                psToast('Berhasil', 'Status pesanan berhasil diperbarui.', 's');
+                setTimeout(function(){ location.reload(); }, 1200);
             } else {
-                alert('Gagal mengupdate status: ' + data.message);
+                psToast('Gagal', data.message || 'Gagal mengupdate status.', 'e');
             }
         })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Terjadi kesalahan saat mengupdate status');
-        });
-    }
+        .catch(function() { psToast('Error', 'Terjadi kesalahan koneksi.', 'e'); });
+    });
 }
 
-// Show Order Detail
+// ── Detail Pesanan ──
 function showOrderDetail(orderId) {
-    fetch('{{ url('/pesanan') }}/' + orderId)
-        .then(response => response.json())
-        .then(data => {
-            const order = data.order;
+    document.getElementById('ps-detail-body').innerHTML = '<div style="text-align:center;padding:40px;color:#999;"><i class="fas fa-spinner fa-spin" style="font-size:24px;"></i></div>';
+    document.getElementById('ps-detail-overlay').classList.add('open');
 
-            let itemsHtml = '';
-            order.order_items.forEach(item => {
-                itemsHtml += `
-                    <div class="detail-row">
-                        <span class="detail-label">${item.product.name} (x${item.quantity})</span>
-                        <span class="detail-value">Rp ${formatNumber(item.subtotal)}</span>
-                    </div>
-                `;
-            });
+    fetch('{{ url('/pesanan') }}/' + orderId, {
+        headers: { 'X-Requested-With':'XMLHttpRequest', 'Accept':'application/json' }
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+        if (!data.success) { psToast('Gagal', 'Tidak bisa mengambil detail pesanan.', 'e'); closeDetail(); return; }
+        var o = data.order;
+        var statusLabel = { pending:'Pesanan Baru', processing:'Sedang Diproses', completed:'Selesai', cancelled:'Dibatalkan' };
+        var statusColor = { pending:'#e65100', processing:'#1565c0', completed:'#2e7d32', cancelled:'#c62828' };
+        var statusBg    = { pending:'#fff3e0', processing:'#e3f2fd', completed:'#e8f5e9', cancelled:'#ffebee' };
 
-            const statusClass = {
-                'pending': 'status-pending',
-                'processing': 'status-processing',
-                'completed': 'status-completed',
-                'cancelled': 'status-cancelled'
-            };
+        var itemsHtml = o.order_items.map(function(item) {
+            return '<div class="ps-item-row">'
+                + '<div><div class="ps-item-name">'+item.name+'</div><div class="ps-item-qty">×'+item.quantity+' × Rp '+fmt(item.price)+'</div></div>'
+                + '<div class="ps-item-price">Rp '+fmt(item.subtotal)+'</div></div>';
+        }).join('');
 
-            const statusText = {
-                'pending': 'Pesanan Baru',
-                'processing': 'Sedang Diproses',
-                'completed': 'Selesai',
-                'cancelled': 'Dibatalkan'
-            };
+        document.getElementById('ps-detail-body').innerHTML =
+            '<div class="ps-section">'
+            + '<div class="ps-section-title">Informasi Pesanan</div>'
+            + '<div class="ps-row"><span class="ps-row-label">No. Pesanan</span><span class="ps-row-value">'+o.order_number+'</span></div>'
+            + '<div class="ps-row"><span class="ps-row-label">Tanggal</span><span class="ps-row-value">'+o.created_at+'</span></div>'
+            + '<div class="ps-row"><span class="ps-row-label">Status</span><span class="ps-row-value"><span style="background:'+statusBg[o.status]+';color:'+statusColor[o.status]+';padding:3px 10px;border-radius:10px;font-size:12px;font-weight:600;">'+( statusLabel[o.status]||o.status)+'</span></span></div>'
+            + (o.notes ? '<div class="ps-row"><span class="ps-row-label">Catatan</span><span class="ps-row-value" style="color:#5C4033;font-style:italic;">'+o.notes+'</span></div>' : '')
+            + '</div>'
 
-            const content = `
-                <div class="detail-section">
-                    <h4>Informasi Pesanan</h4>
-                    <div class="detail-row">
-                        <span class="detail-label">No. Pesanan</span>
-                        <span class="detail-value">${order.order_number}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Tanggal</span>
-                        <span class="detail-value">${new Date(order.created_at).toLocaleString('id-ID')}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Status</span>
-                        <span class="status-badge ${statusClass[order.status]}">${statusText[order.status]}</span>
-                    </div>
-                </div>
+            + '<div class="ps-section">'
+            + '<div class="ps-section-title">Informasi Pelanggan</div>'
+            + '<div class="ps-row"><span class="ps-row-label">Nama</span><span class="ps-row-value">'+o.customer.name+'</span></div>'
+            + '<div class="ps-row"><span class="ps-row-label">No. Telepon</span><span class="ps-row-value">'+o.customer.phone+'</span></div>'
+            + '<div class="ps-row"><span class="ps-row-label">Alamat</span><span class="ps-row-value" style="max-width:260px;text-align:right;">'+o.customer.address+'</span></div>'
+            + '</div>'
 
-                <div class="detail-section">
-                    <h4>Informasi Pelanggan</h4>
-                    <div class="detail-row">
-                        <span class="detail-label">Nama</span>
-                        <span class="detail-value">${order.customer.name}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">No. Telepon</span>
-                        <span class="detail-value">${order.customer.phone}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Alamat</span>
-                        <span class="detail-value">${order.customer.address}</span>
-                    </div>
-                </div>
+            + '<div class="ps-section">'
+            + '<div class="ps-section-title">Detail Produk</div>'
+            + itemsHtml
+            + '</div>'
 
-                <div class="detail-section">
-                    <h4>Detail Produk</h4>
-                    ${itemsHtml}
-                </div>
-
-                <div class="detail-section">
-                    <h4>Ringkasan Pembayaran</h4>
-                    <div class="detail-row">
-                        <span class="detail-label">Subtotal</span>
-                        <span class="detail-value">Rp ${formatNumber(order.subtotal)}</span>
-                    </div>
-                    ${order.tax > 0 ? `
-                    <div class="detail-row">
-                        <span class="detail-label">PPN (11%)</span>
-                        <span class="detail-value">Rp ${formatNumber(order.tax)}</span>
-                    </div>` : ''}
-                    <div class="detail-row" style="border-top: 2px solid #5C4033; font-weight: 700; color: #5C4033;">
-                        <span class="detail-label">Total</span>
-                        <span class="detail-value">Rp ${formatNumber(order.total)}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Metode Pembayaran</span>
-                        <span class="detail-value">${order.payment_method.toUpperCase()}</span>
-                    </div>
-                </div>
-            `;
-
-            document.getElementById('modalDetailContent').innerHTML = content;
-            document.getElementById('detailModal').classList.add('show');
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Gagal mengambil detail pesanan');
-        });
+            + '<div class="ps-section">'
+            + '<div class="ps-section-title">Ringkasan Pembayaran</div>'
+            + '<div class="ps-row"><span class="ps-row-label">Subtotal</span><span class="ps-row-value">Rp '+fmt(o.subtotal)+'</span></div>'
+            + (o.tax > 0 ? '<div class="ps-row"><span class="ps-row-label">PPN (11%)</span><span class="ps-row-value">Rp '+fmt(o.tax)+'</span></div>' : '')
+            + '<div class="ps-total-row"><span>Total</span><span>Rp '+fmt(o.total)+'</span></div>'
+            + '<div class="ps-row" style="margin-top:8px;"><span class="ps-row-label">Metode Pembayaran</span><span class="ps-row-value">'+o.payment_method.toUpperCase()+'</span></div>'
+            + '</div>';
+    })
+    .catch(function() {
+        psToast('Error', 'Gagal mengambil detail pesanan.', 'e');
+        closeDetail();
+    });
 }
 
-function closeDetailModal() {
-    document.getElementById('detailModal').classList.remove('show');
+function closeDetail() {
+    document.getElementById('ps-detail-overlay').classList.remove('open');
 }
 
-function formatNumber(num) {
-    return new Intl.NumberFormat('id-ID').format(num);
+function fmt(n) {
+    return new Intl.NumberFormat('id-ID').format(n);
 }
 
-// Close modal when clicking outside
-window.onclick = function(event) {
-    const modal = document.getElementById('detailModal');
-    if (event.target === modal) {
-        closeDetailModal();
-    }
-}
+document.getElementById('ps-detail-overlay').addEventListener('click', function(e) {
+    if (e.target === this) closeDetail();
+});
+
+// Flash session toast
+@if(session('success')) psToast('Berhasil', @json(session('success')), 's'); @endif
+@if(session('error'))   psToast('Gagal',    @json(session('error')),   'e'); @endif
 </script>
 @endpush
