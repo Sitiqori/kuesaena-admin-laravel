@@ -9,6 +9,7 @@ use App\Http\Controllers\Auth\RegisterController;
 
 // DASHBOARD & ADMIN
 use App\Http\Controllers\Dashboard\DashboardController;
+use App\Http\Controllers\Dashboard\AdminNotificationController;
 use App\Http\Controllers\Kategori\KategoriController;
 use App\Http\Controllers\Barang\BarangController;
 use App\Http\Controllers\Pelanggan\PelangganController;
@@ -131,6 +132,9 @@ Route::middleware(['auth'])->group(function () {
     // ADMIN ONLY
     Route::middleware(['is.admin'])->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/admin/notif/list', [AdminNotificationController::class, 'list'])->name('admin.notif.list');
+        Route::get('/admin/notif/check-orders', [AdminNotificationController::class, 'checkOrders'])->name('admin.notif.check');
+        Route::post('/admin/notif/mark-all-read', [AdminNotificationController::class, 'markAllRead'])->name('admin.notif.markAllRead');
         Route::get('/dashboard/export-pdf', [DashboardController::class, 'exportPdf'])->name('dashboard.export-pdf');
         Route::resource('kategori', KategoriController::class);
         Route::get('/pengeluaran/export-pdf', [PengeluaranController::class, 'exportPdf'])->name('pengeluaran.export-pdf');

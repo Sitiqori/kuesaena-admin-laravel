@@ -770,19 +770,48 @@ function showOrderDetail(orderId) {
         var statusBg    = { pending:'#fff3e0', processing:'#e3f2fd', completed:'#e8f5e9', cancelled:'#ffebee' };
 
         var itemsHtml = o.order_items.map(function(item) {
-            return '<div class="ps-item-row">'
-                + '<div><div class="ps-item-name">'+item.name+'</div><div class="ps-item-qty">×'+item.quantity+' × Rp '+fmt(item.price)+'</div></div>'
-                + '<div class="ps-item-price">Rp '+fmt(item.subtotal)+'</div></div>';
+            var img = item.product && item.product.image ? 
+                (item.product.image.indexOf('images/') === 0 ? '{{ asset('') }}' + item.product.image : '{{ asset('storage/') }}' + item.product.image)
+                : 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=100&q=80';
+            
+            return '<div class="ps-item-row" style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f5f5f5;">'
+                + '<img src="'+img+'" style="width:48px;height:48px;border-radius:6px;object-fit:cover;background:#f5f5f5;flex-shrink:0;">'
+                + '<div style="flex:1;">'
+                +   '<div class="ps-item-name" style="font-size:13px;font-weight:600;color:#333;margin-bottom:2px;">'+item.name+'</div>'
+                +   '<div class="ps-item-qty" style="font-size:12px;color:#999;">'+item.quantity+' × Rp '+fmt(item.price)+'</div>'
+                + '</div>'
+                + '<div class="ps-item-price" style="font-size:13px;font-weight:700;color:#5C4033;">Rp '+fmt(item.subtotal)+'</div>'
+                + '</div>';
         }).join('');
+
+        var deliveryMethod = o.delivery_method || 'pickup';
+        var cakeDetails = '';
+        if (o.size || o.cake_flavor || o.notes) {
+            cakeDetails = '<div class="ps-section" style="margin-bottom:18px;">'
+                + '<div class="ps-section-title" style="font-size:12px;font-weight:700;color:#5C4033;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">Detail Kue</div>'
+                + (o.size ? '<div class="ps-row" style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f5f5f5;font-size:14px;"><span class="ps-row-label" style="color:#666;">Size</span><span class="ps-row-value" style="font-weight:500;color:#333;text-align:right;">'+o.size+'</span></div>' : '')
+                + (o.cake_flavor ? '<div class="ps-row" style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f5f5f5;font-size:14px;"><span class="ps-row-label" style="color:#666;">Rasa Cake</span><span class="ps-row-value" style="font-weight:500;color:#333;text-align:right;">'+o.cake_flavor+'</span></div>' : '')
+                + (o.notes ? '<div class="ps-row" style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:none;font-size:14px;"><span class="ps-row-label" style="color:#666;max-width:80px;">Catatan</span><span class="ps-row-value" style="font-weight:500;color:#5C4033;text-align:right;font-style:italic;max-width:200px;">'+o.notes+'</span></div>' : '')
+                + '</div>';
+        }
+
+        // Buat list produk untuk Info Pesanan
+        var productListHtml = '<div class="ps-row" style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:none;font-size:14px;align-items:flex-start;"><span class="ps-row-label" style="color:#666;">Produk Dipesan</span><span class="ps-row-value" style="font-weight:500;color:#333;text-align:right;max-width:220px;line-height:1.6;">'
+            + o.order_items.map(function(item) { return '<span style="display:block;">• ' + item.name + ' (' + item.quantity + ')</span>'; }).join('')
+            + '</span></div>';
 
         document.getElementById('ps-detail-body').innerHTML =
             '<div class="ps-section">'
-            + '<div class="ps-section-title">Informasi Pesanan</div>'
+            + '<div class="ps-section-title">Info Pesanan</div>'
             + '<div class="ps-row"><span class="ps-row-label">No. Pesanan</span><span class="ps-row-value">'+o.order_number+'</span></div>'
             + '<div class="ps-row"><span class="ps-row-label">Tanggal</span><span class="ps-row-value">'+o.created_at+'</span></div>'
             + '<div class="ps-row"><span class="ps-row-label">Status</span><span class="ps-row-value"><span style="background:'+statusBg[o.status]+';color:'+statusColor[o.status]+';padding:3px 10px;border-radius:10px;font-size:12px;font-weight:600;">'+( statusLabel[o.status]||o.status)+'</span></span></div>'
-            + (o.notes ? '<div class="ps-row"><span class="ps-row-label">Catatan</span><span class="ps-row-value" style="color:#5C4033;font-style:italic;">'+o.notes+'</span></div>' : '')
+            + '<div class="ps-row"><span class="ps-row-label">Pengambilan</span><span class="ps-row-value">'+(deliveryMethod === 'pickup' ? 'Pick Up' : 'Delivery')+'</span></div>'
+            + '<div class="ps-row"><span class="ps-row-label">Pembayaran</span><span class="ps-row-value">'+o.payment_method.toUpperCase()+'</span></div>'
+            + productListHtml
             + '</div>'
+
+            + cakeDetails
 
             + '<div class="ps-section">'
             + '<div class="ps-section-title">Informasi Pelanggan</div>'
@@ -792,7 +821,7 @@ function showOrderDetail(orderId) {
             + '</div>'
 
             + '<div class="ps-section">'
-            + '<div class="ps-section-title">Detail Produk</div>'
+            + '<div class="ps-section-title">Produk Dipesan</div>'
             + itemsHtml
             + '</div>'
 
@@ -801,7 +830,6 @@ function showOrderDetail(orderId) {
             + '<div class="ps-row"><span class="ps-row-label">Subtotal</span><span class="ps-row-value">Rp '+fmt(o.subtotal)+'</span></div>'
             + (o.tax > 0 ? '<div class="ps-row"><span class="ps-row-label">PPN (11%)</span><span class="ps-row-value">Rp '+fmt(o.tax)+'</span></div>' : '')
             + '<div class="ps-total-row"><span>Total</span><span>Rp '+fmt(o.total)+'</span></div>'
-            + '<div class="ps-row" style="margin-top:8px;"><span class="ps-row-label">Metode Pembayaran</span><span class="ps-row-value">'+o.payment_method.toUpperCase()+'</span></div>'
             + '</div>';
     })
     .catch(function() {

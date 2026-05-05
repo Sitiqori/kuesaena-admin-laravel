@@ -34,15 +34,18 @@ class PesananController extends Controller
             return response()->json([
                 'success' => true,
                 'order' => [
-                    'id'             => $order->id,
-                    'order_number'   => $order->order_number,
-                    'status'         => $order->status,
-                    'total'          => $order->total,
-                    'subtotal'       => $order->subtotal ?? $order->total,
-                    'tax'            => $order->tax ?? 0,
-                    'payment_method' => $order->payment_method ?? '-',
-                    'created_at'     => $order->created_at->format('d/m/Y H:i'),
-                    'notes'          => $order->notes,
+                    'id'               => $order->id,
+                    'order_number'     => $order->order_number,
+                    'status'           => $order->status,
+                    'total'            => $order->total,
+                    'subtotal'         => $order->subtotal ?? $order->total,
+                    'tax'              => $order->tax ?? 0,
+                    'payment_method'   => $order->payment_method ?? '-',
+                    'delivery_method'  => $order->delivery_method ?? 'pickup',
+                    'size'             => $order->size,
+                    'cake_flavor'      => $order->cake_flavor,
+                    'created_at'       => $order->created_at->format('d/m/Y H:i'),
+                    'notes'            => $order->notes,
                     'customer' => [
                         'name'    => $order->customer->name ?? $order->user->name ?? '-',
                         'phone'   => $order->customer->phone ?? $order->user->phone ?? '-',
@@ -53,6 +56,9 @@ class PesananController extends Controller
                         'quantity' => $item->quantity,
                         'price'    => $item->price,
                         'subtotal' => $item->subtotal,
+                        'product'  => [
+                            'image' => $item->product?->image,
+                        ],
                     ]),
                 ]
             ]);
