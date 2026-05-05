@@ -11,12 +11,12 @@
 ===================== */
 .keranjang-wrapper {
     padding: 40px 0 60px;
-    background: #f9f5f0
+    background: #fff;
     min-height: calc(100vh - 76px);
 }
 
 .keranjang-table {
-    background: #f9f5f0
+    background: #f5ead8;
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 2px 8px rgba(0,0,0,0.06);
@@ -37,6 +37,7 @@
 }
 
 /* Row item */
+
 .keranjang-item {
     display: grid;
     grid-template-columns: 40px 1fr 220px 130px 160px 100px;
@@ -44,10 +45,10 @@
     padding: 16px 20px;
     border-bottom: 1px solid #f0e8df;
     gap: 12px;
-    background: #f9f5f0
+    background: #f5ead8;
     transition: background 0.2s;
 }
-.keranjang-item:hover { background: #fdf8f3; }
+
 .keranjang-item:last-child { border-bottom: none; }
 
 /* Produk info */
@@ -302,7 +303,7 @@
 
                 {{-- Produk info --}}
                 <div class="item-produk">
-                    <img src="{{ $item->product->image ? asset('storage/' . $item->product->image) : asset('images/no-image.png') }}"
+                    <img src="{{ $item->product->image ? (str_starts_with($item->product->image, 'images/') ? asset($item->product->image) : asset('storage/' . $item->product->image)) : asset('images/no-image.png') }}"
                          alt="{{ $item->product->name }}">
                     <div class="item-produk-info">
                         <div class="nama">{{ $item->product->name }}</div>
